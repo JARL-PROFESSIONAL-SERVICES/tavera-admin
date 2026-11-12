@@ -14,3 +14,12 @@
   6. **Usuarios y Roles (RBAC):** Alta de usuarios y activación/suspensión inmediata.
   7. **Auditoría:** Visor filtrable por módulo de `audit_logs`.
 - Pruebas unitarias con Vitest (`admin-api.service.spec.ts` y `app.spec.ts`) y compilación de producción (`pnpm run build`).
+
+
+## Sprint 02 — Contenerización de Producción (2026-11-12)
+
+### Completado
+- Creación de rama `feat/containerization` desde `origin/develop`.
+- Implementación de `Dockerfile` multi-stage (Node.js 22 Alpine, pnpm, `ng build --configuration production` y servidor estático `nginx:1.27-alpine`).
+- Configuración de `docker/nginx.conf` con fallback SPA (`try_files $uri $uri/ /index.html`) y encabezados de caché para activos estáticos.
+- Configuración de `.dockerignore`.
