@@ -1,6 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import {
+  lucideAlertTriangle,
+  lucideBoxes,
+  lucideCheckCircle2,
+  lucideEdit,
+  lucideLaptop,
+  lucideLayoutDashboard,
+  lucideLogOut,
+  lucideMoon,
+  lucidePackage,
+  lucidePlus,
+  lucideReceipt,
+  lucideSearch,
+  lucideShieldCheck,
+  lucideSun,
+  lucideTrash2,
+  lucideTruck,
+  lucideUser,
+  lucideUsers,
+} from '@ng-icons/lucide';
 import {
   AuditLogRecord,
   CategoryRecord,
@@ -16,6 +37,7 @@ import {
   UserAccountRecord,
 } from './core/models/admin.models';
 import { AdminApiService } from './core/services/admin-api.service';
+import { ThemeService } from './core/services/theme.service';
 
 export type AdminSection =
   | 'DASHBOARD'
@@ -29,12 +51,35 @@ export type AdminSection =
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIconComponent],
+  viewProviders: [
+    provideIcons({
+      lucideAlertTriangle,
+      lucideBoxes,
+      lucideCheckCircle2,
+      lucideEdit,
+      lucideLaptop,
+      lucideLayoutDashboard,
+      lucideLogOut,
+      lucideMoon,
+      lucidePackage,
+      lucidePlus,
+      lucideReceipt,
+      lucideSearch,
+      lucideShieldCheck,
+      lucideSun,
+      lucideTrash2,
+      lucideTruck,
+      lucideUser,
+      lucideUsers,
+    }),
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
   readonly api = inject(AdminApiService);
+  readonly theme = inject(ThemeService);
 
   readonly title = signal('Abarrotes Tavera — Panel Administrativo');
   readonly activeSection = signal<AdminSection>('DASHBOARD');

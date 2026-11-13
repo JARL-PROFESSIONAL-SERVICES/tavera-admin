@@ -31,3 +31,16 @@
    - Tipografía Inter aplicada globalmente con soporte de la clase `.tabular-nums` (`font-feature-settings: 'tnum' 1`) para evitar saltos visuales en tablas financieras, cortes y kardex.
 3. **Gestor de temas Light, Dark y System:**
    - Implementado mediante `ThemeService` usando Angular Signals. Agrega/remueve el atributo `data-theme="dark"` en el elemento raíz `<html>` y escucha eventos `change` en `window.matchMedia('(prefers-color-scheme: dark)')` cuando el modo seleccionado es `'system'`. Persistido en `localStorage`.
+
+## ADR-003: Estilización Ejecutiva del Panel de Administración y Dashboard
+
+- **Fecha:** 2026-11-12
+- **Estado:** Aprobado
+
+### Decisiones
+1. **Jerarquía visual ejecutiva en tarjetas KPI:**
+   - Ventas netas y utilidad bruta se diferencian inmediatamente de los ingresos brutos, con la utilidad destacada en Verde Comercial y las alertas de inventario en Naranja Comercial.
+2. **Navegación unificada con iconografía Lucide:**
+   - Cada uno de los 7 módulos cuenta con iconografía consistente que facilita la navegación tanto en pantallas de escritorio como en smartphones del propietario en red local o Tailscale.
+3. **Consistencia numérica financiera:**
+   - Toda cifra de dinero, cantidad base, porcentaje de margen e identificador de ticket o sesión de caja implementa la clase `.tabular-nums` para alineación vertical estricta.
