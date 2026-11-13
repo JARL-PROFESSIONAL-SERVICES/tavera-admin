@@ -1,1 +1,42 @@
-/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tavera-bg: #F8FAFC;
+  --tavera-surface: #FFFFFF;
+  --tavera-text: #27272A;
+  --tavera-text-muted: #71717A;
+  --tavera-border: #E2E8F0;
+  --tavera-green: #166534;
+  --tavera-green-hover: #14532D;
+  --tavera-graphite: #27272A;
+  --tavera-orange: #EA580C;
+}
+
+[data-theme='dark'] {
+  --tavera-bg: #18181B;
+  --tavera-surface: #27272A;
+  --tavera-text: #F4F4F5;
+  --tavera-text-muted: #A1A1AA;
+  --tavera-border: #3F3F46;
+  --tavera-green: #22C55E;
+  --tavera-green-hover: #16A34A;
+  --tavera-graphite: #3F3F46;
+  --tavera-orange: #F97316;
+}
+
+html, body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--tavera-bg);
+  color: var(--tavera-text);
+  margin: 0;
+  padding: 0;
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+}

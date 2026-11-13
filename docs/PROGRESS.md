@@ -23,3 +23,16 @@
 - Implementación de `Dockerfile` multi-stage (Node.js 22 Alpine, pnpm, `ng build --configuration production` y servidor estático `nginx:1.27-alpine`).
 - Configuración de `docker/nginx.conf` con fallback SPA (`try_files $uri $uri/ /index.html`) y encabezados de caché para activos estáticos.
 - Configuración de `.dockerignore`.
+
+## Sprint 03 — Design System: Tailwind CSS, Lucide Icons y ThemeService (2026-11-12)
+
+### Completado
+- Creación de rama `feat/design-system-tailwind-lucide-theme` desde `origin/develop`.
+- Instalación y configuración de Tailwind CSS (`v3.4.19`), PostCSS y Autoprefixer con paleta corporativa Tavera:
+  - Verde Comercial (`#166534`, 50-950)
+  - Grafito Elegante (`#27272A`, 50-950)
+  - Naranja Comercial (`#EA580C`, 50-950)
+- Integración de tipografía `Inter` (Google Fonts) con soporte `tabular-nums` para importes y cantidades.
+- Instalación de `@ng-icons/core` y `@ng-icons/lucide` (`v36.1.0`) para iconografía unificada.
+- Implementación de `ThemeService` reactivo con señales Angular (`signal<ThemeMode>`), persistencia en `localStorage` y detección de `prefers-color-scheme` (soporta 'light', 'dark' y 'system').
+- Pruebas unitarias completas de `ThemeService` (`theme.service.spec.ts`) y validación de compilación limpia de producción.
