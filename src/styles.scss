@@ -210,3 +210,46 @@ html, body {
     }
   }
 }
+
+/* ==========================================================================
+   PRIME-NG TOAST STYLING (TAVERA DESIGN SYSTEM)
+   ========================================================================== */
+.p-toast {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: 26rem;
+  max-width: calc(100vw - 2rem);
+
+  &.p-toast-top-right {
+    top: 1.25rem;
+    right: 1.25rem;
+  }
+
+  &.p-toast-top-left {
+    top: 1.25rem;
+    left: 1.25rem;
+  }
+
+  &.p-toast-top-center {
+    top: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  &.p-toast-bottom-right {
+    bottom: 1.25rem;
+    right: 1.25rem;
+  }
+
+  .p-toast-message {
+    pointer-events: auto;
+    margin: 0;
+    border-radius: 0.875rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}

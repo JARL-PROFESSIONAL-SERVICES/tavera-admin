@@ -20,7 +20,12 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
-  private readonly http = inject(HttpClient);
+  private readonly http: HttpClient;
+
+  constructor(customHttp?: HttpClient) {
+    this.http = (customHttp ??
+      inject(HttpClient, { optional: true })) as HttpClient;
+  }
 
   readonly apiBaseUrl = signal<string>('http://localhost:3000/api/v1');
   readonly accessToken = signal<string | null>(null);

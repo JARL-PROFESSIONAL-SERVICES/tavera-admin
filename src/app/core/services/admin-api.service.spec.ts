@@ -1,15 +1,11 @@
-import { provideHttpClient } from '@angular/common/http';
-import { TestBed } from '@angular/core/testing';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { AdminApiService } from './admin-api.service';
 
 describe('AdminApiService', () => {
   let service: AdminApiService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [provideHttpClient()],
-    });
-    service = TestBed.inject(AdminApiService);
+    service = new AdminApiService({} as any);
   });
 
   it('evaluates RBAC permissions accurately for OWNER and specific roles', () => {

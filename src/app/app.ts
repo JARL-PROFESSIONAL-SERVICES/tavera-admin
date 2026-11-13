@@ -3,12 +3,14 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
+  lucideAlertCircle,
   lucideAlertTriangle,
   lucideBoxes,
   lucideCheckCircle2,
   lucideDollarSign,
   lucideEdit,
   lucideFolderTree,
+  lucideInfo,
   lucideLaptop,
   lucideLayoutDashboard,
   lucideLogOut,
@@ -25,6 +27,8 @@ import {
   lucideUsers,
   lucideX,
 } from '@ng-icons/lucide';
+import { ToastModule } from 'primeng/toast';
+import { ToastService } from './core/services/toast.service';
 import {
   AuditLogRecord,
   CategoryRecord,
@@ -62,6 +66,7 @@ import { PricingViewComponent } from './views/pricing/pricing-view.component';
     CommonModule,
     FormsModule,
     NgIconComponent,
+    ToastModule,
     LoginComponent,
     AdminShellComponent,
     DashboardComponent,
@@ -74,12 +79,14 @@ import { PricingViewComponent } from './views/pricing/pricing-view.component';
   ],
   viewProviders: [
     provideIcons({
+      lucideAlertCircle,
       lucideAlertTriangle,
       lucideBoxes,
       lucideCheckCircle2,
       lucideDollarSign,
       lucideEdit,
       lucideFolderTree,
+      lucideInfo,
       lucideLaptop,
       lucideLayoutDashboard,
       lucideLogOut,
@@ -103,6 +110,7 @@ import { PricingViewComponent } from './views/pricing/pricing-view.component';
 export class App implements OnInit {
   readonly api = inject(AdminApiService);
   readonly theme = inject(ThemeService);
+  readonly toast = inject(ToastService);
   readonly location = inject(Location);
 
   readonly title = signal('Abarrotes Tavera — Panel Administrativo');
@@ -188,10 +196,11 @@ export class App implements OnInit {
   }
 
   onLoginSuccess(): void {
-    this.feedback.set({
-      type: 'success',
-      text: `Sesión iniciada correctamente como ${this.api.currentUser()?.fullName}`,
-    });
+    const user = this.api.currentUser();
+    this.toast.success(
+      'Sesión iniciada',
+      `Bienvenido(a) ${user?.fullName ?? 'al sistema'} (${user?.roleCode ?? 'Administrador'}).`,
+    );
     this.loadDashboard();
     this.loadCatalogData();
   }
@@ -248,10 +257,10 @@ export class App implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.feedback.set({
-          type: 'error',
-          text: err?.error?.message ?? 'No se pudo cargar el dashboard ejecutivo.',
-        });
+        this.toast.error(
+          'Error de carga',
+          err?.error?.message ?? 'No se pudo cargar el dashboard ejecutivo.',
+        );
       },
     });
   }
@@ -326,16 +335,16 @@ export class App implements OnInit {
     this.api.createCategory(payload).subscribe({
       next: (cat) => {
         this.loadCatalogData();
-        this.feedback.set({
-          type: 'success',
-          text: `Categoría "${cat.name}" creada exitosamente.`,
-        });
+        this.toast.success(
+          'Categoría creada',
+          `Categoría "${cat.name}" creada exitosamente.`,
+        );
       },
       error: (err) => {
-        this.feedback.set({
-          type: 'error',
-          text: err?.error?.message ?? 'Error al registrar categoría.',
-        });
+        this.toast.error(
+          'Error al crear categoría',
+          err?.error?.message ?? 'Error al registrar categoría.',
+        );
       },
     });
   }
@@ -355,16 +364,16 @@ export class App implements OnInit {
       .subscribe({
         next: (updated) => {
           this.loadCatalogData();
-          this.feedback.set({
-            type: 'success',
-            text: `Precios y escala de mayoreo para ${updated.name} actualizados correctamente.`,
-          });
+          this.toast.success(
+            'Precios actualizados',
+            `Precios y escala de mayoreo para ${updated.name} actualizados correctamente.`,
+          );
         },
         error: (err) => {
-          this.feedback.set({
-            type: 'error',
-            text: err?.error?.message ?? 'Error al actualizar precios.',
-          });
+          this.toast.error(
+            'Error al actualizar precios',
+            err?.error?.message ?? 'Error al actualizar precios.',
+          );
         },
       });
   }
@@ -389,17 +398,17 @@ export class App implements OnInit {
             this.isSavingProduct.set(false);
             this.closeProductFormPage();
             this.loadCatalogData();
-            this.feedback.set({
-              type: 'success',
-              text: `Producto "${formData.name}" actualizado exitosamente.`,
-            });
+            this.toast.success(
+              'Producto actualizado',
+              `Producto "${formData.name}" actualizado exitosamente.`,
+            );
           },
           error: (err) => {
             this.isSavingProduct.set(false);
-            this.feedback.set({
-              type: 'error',
-              text: err?.error?.message ?? 'Error al actualizar producto.',
-            });
+            this.toast.error(
+              'Error al actualizar',
+              err?.error?.message ?? 'Error al actualizar producto.',
+            );
           },
         });
     } else {
@@ -427,17 +436,17 @@ export class App implements OnInit {
             this.isSavingProduct.set(false);
             this.closeProductFormPage();
             this.loadCatalogData();
-            this.feedback.set({
-              type: 'success',
-              text: `Producto "${created.name}" (${created.sku}) creado en catálogo.`,
-            });
+            this.toast.success(
+              'Producto creado',
+              `Producto "${created.name}" (${created.sku}) creado en catálogo.`,
+            );
           },
           error: (err) => {
             this.isSavingProduct.set(false);
-            this.feedback.set({
-              type: 'error',
-              text: err?.error?.message ?? 'Error al crear producto.',
-            });
+            this.toast.error(
+              'Error al crear producto',
+              err?.error?.message ?? 'Error al crear producto.',
+            );
           },
         });
     }
@@ -449,16 +458,16 @@ export class App implements OnInit {
       .subscribe({
         next: () => {
           this.loadCatalogData();
-          this.feedback.set({
-            type: 'success',
-            text: `Precio de ${product.name} actualizado a $${newPrice} (tickets históricos permanecen inmutables).`,
-          });
+          this.toast.success(
+            'Precio actualizado',
+            `Precio de ${product.name} actualizado a $${newPrice}.`,
+          );
         },
         error: (err) => {
-          this.feedback.set({
-            type: 'error',
-            text: err?.error?.message ?? 'Error al actualizar precio rápido.',
-          });
+          this.toast.error(
+            'Error de precio',
+            err?.error?.message ?? 'Error al actualizar precio rápido.',
+          );
         },
       });
   }
@@ -489,17 +498,17 @@ export class App implements OnInit {
           this.isAdjustmentModalOpen.set(false);
           this.loadProductKardex(data.productId);
           this.loadCatalogData();
-          this.feedback.set({
-            type: 'success',
-            text: `Movimiento ${data.movementType} registrado exitosamente en el Kardex físico.`,
-          });
+          this.toast.success(
+            'Inventario actualizado',
+            `Movimiento ${data.movementType} registrado exitosamente en el Kardex físico.`,
+          );
         },
         error: (err) => {
           this.isSavingAdjustment.set(false);
-          this.feedback.set({
-            type: 'error',
-            text: err?.error?.message ?? 'Error al aplicar movimiento a Kardex.',
-          });
+          this.toast.error(
+            'Error en ajuste',
+            err?.error?.message ?? 'Error al aplicar movimiento a Kardex.',
+          );
         },
       });
   }
@@ -538,10 +547,7 @@ export class App implements OnInit {
           this.newSupplierName.set('');
           this.newSupplierPhone.set('');
           this.loadSuppliersAndPurchases();
-          this.feedback.set({
-            type: 'success',
-            text: `Proveedor ${sup.name} registrado.`,
-          });
+          this.toast.success('Proveedor registrado', `Proveedor ${sup.name} registrado exitosamente.`);
         },
       });
   }
@@ -561,10 +567,10 @@ export class App implements OnInit {
       .subscribe({
         next: () => {
           this.loadSupplierComparison(prodId);
-          this.feedback.set({
-            type: 'success',
-            text: 'Cotización por unidad base actualizada en historial de proveedor.',
-          });
+          this.toast.success(
+            'Cotización actualizada',
+            'Cotización por unidad base actualizada en historial de proveedor.',
+          );
         },
       });
   }
@@ -602,16 +608,16 @@ export class App implements OnInit {
         next: (receipt) => {
           this.loadSuppliersAndPurchases();
           this.loadSupplierComparison(productId);
-          this.feedback.set({
-            type: 'success',
-            text: `Compra ${receipt.folio} recibida ($${receipt.totalCost}). Stock y Last Cost actualizados.`,
-          });
+          this.toast.success(
+            'Recepción registrada',
+            `Compra ${receipt.folio} recibida ($${receipt.totalCost}). Stock y Last Cost actualizados.`,
+          );
         },
         error: (err) => {
-          this.feedback.set({
-            type: 'error',
-            text: err?.error?.message ?? 'Error al registrar recepción de compra.',
-          });
+          this.toast.error(
+            'Error en recepción',
+            err?.error?.message ?? 'Error al registrar recepción de compra.',
+          );
         },
       });
   }
@@ -647,10 +653,10 @@ export class App implements OnInit {
           this.newUserFullName.set('');
           this.newUserPassword.set('');
           this.loadUsersAndRoles();
-          this.feedback.set({
-            type: 'success',
-            text: `Usuario ${created.username} (${created.roleCode}) creado.`,
-          });
+          this.toast.success(
+            'Usuario creado',
+            `Usuario ${created.username} (${created.roleCode}) creado exitosamente.`,
+          );
         },
       });
   }
@@ -659,10 +665,10 @@ export class App implements OnInit {
     this.api.updateUserStatus(user.id, !user.isActive).subscribe({
       next: () => {
         this.loadUsersAndRoles();
-        this.feedback.set({
-          type: 'success',
-          text: `Estado de ${user.username} actualizado.`,
-        });
+        this.toast.success(
+          'Estado actualizado',
+          `Estado de ${user.username} actualizado a ${!user.isActive ? 'Activo' : 'Inactivo'}.`,
+        );
       },
     });
   }

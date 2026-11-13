@@ -18,6 +18,7 @@ import {
 } from '@ng-icons/lucide';
 import { AdminApiService } from '../../core/services/admin-api.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -44,6 +45,7 @@ import { ThemeService } from '../../core/services/theme.service';
 export class LoginComponent {
   readonly api = inject(AdminApiService);
   readonly theme = inject(ThemeService);
+  readonly toast = inject(ToastService);
 
   @Output() loginSuccess = new EventEmitter<void>();
 
@@ -63,7 +65,9 @@ export class LoginComponent {
     const u = this.username.trim();
     const p = this.password;
     if (!u || !p) {
-      this.errorMessage.set('Por favor ingrese usuario y contraseña.');
+      const msg = 'Por favor ingrese usuario y contraseña.';
+      this.errorMessage.set(msg);
+      this.toast.warn('Campos requeridos', msg);
       return;
     }
 
@@ -77,10 +81,11 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(
+        const msg =
           err?.error?.message ??
-            'Credenciales no válidas o el servidor de Tavera API no responde.',
-        );
+          'Credenciales no válidas o el servidor de Tavera API no responde.';
+        this.errorMessage.set(msg);
+        this.toast.error('Error de autenticación', msg);
       },
     });
   }

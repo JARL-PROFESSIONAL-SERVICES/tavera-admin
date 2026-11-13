@@ -1,3 +1,76 @@
+<!-- GLOBAL TOAST NOTIFICATIONS (TAVERA DESIGN SYSTEM) -->
+<p-toast position="top-right" [baseZIndex]="99999">
+  <ng-template #headless let-message let-closeFn="closeFn">
+    <div
+      class="group relative flex items-start gap-3.5 p-4 rounded-xl border shadow-xl backdrop-blur-md overflow-hidden transition-all duration-300 w-full"
+      [ngClass]="{
+        'bg-white/95 dark:bg-zinc-900/95 border-emerald-500/30 text-emerald-950 dark:text-emerald-100': message.severity === 'success',
+        'bg-white/95 dark:bg-zinc-900/95 border-red-500/30 text-red-950 dark:text-red-100': message.severity === 'error',
+        'bg-white/95 dark:bg-zinc-900/95 border-amber-500/30 text-amber-950 dark:text-amber-100': message.severity === 'warn',
+        'bg-white/95 dark:bg-zinc-900/95 border-blue-500/30 text-blue-950 dark:text-blue-100': message.severity === 'info'
+      }"
+      role="status"
+    >
+      <!-- Accent side indicator bar -->
+      <div
+        class="absolute left-0 top-0 bottom-0 w-1.5"
+        [ngClass]="{
+          'bg-emerald-600 dark:bg-emerald-400': message.severity === 'success',
+          'bg-red-600 dark:bg-red-400': message.severity === 'error',
+          'bg-amber-600 dark:bg-amber-400': message.severity === 'warn',
+          'bg-blue-600 dark:bg-blue-400': message.severity === 'info'
+        }"
+      ></div>
+
+      <!-- Semantic Status Icon -->
+      <div
+        class="shrink-0 mt-0.5 p-1.5 rounded-lg flex items-center justify-center"
+        [ngClass]="{
+          'text-emerald-700 dark:text-emerald-400 bg-emerald-500/15': message.severity === 'success',
+          'text-red-700 dark:text-red-400 bg-red-500/15': message.severity === 'error',
+          'text-amber-700 dark:text-amber-400 bg-amber-500/15': message.severity === 'warn',
+          'text-blue-700 dark:text-blue-400 bg-blue-500/15': message.severity === 'info'
+        }"
+      >
+        @if (message.severity === 'success') {
+          <ng-icon name="lucideCheckCircle2" size="20"></ng-icon>
+        } @else if (message.severity === 'error') {
+          <ng-icon name="lucideAlertTriangle" size="20"></ng-icon>
+        } @else if (message.severity === 'warn') {
+          <ng-icon name="lucideAlertCircle" size="20"></ng-icon>
+        } @else {
+          <ng-icon name="lucideInfo" size="20"></ng-icon>
+        }
+      </div>
+
+      <!-- Content text -->
+      <div class="flex-1 min-w-0 pr-1">
+        @if (message.summary) {
+          <h4 class="text-sm font-bold tracking-tight text-[var(--foreground)] leading-snug">
+            {{ message.summary }}
+          </h4>
+        }
+        @if (message.detail) {
+          <p class="text-xs mt-1 text-[var(--muted-foreground)] leading-relaxed font-normal">
+            {{ message.detail }}
+          </p>
+        }
+      </div>
+
+      <!-- Close Button -->
+      <button
+        type="button"
+        (click)="closeFn($event)"
+        class="shrink-0 p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-muted)] transition-colors"
+        title="Cerrar notificación"
+        aria-label="Cerrar"
+      >
+        <ng-icon name="lucideX" size="14"></ng-icon>
+      </button>
+    </div>
+  </ng-template>
+</p-toast>
+
 <!-- UNAUTHENTICATED STATE: ADM-01 LOGIN INDEPENDIENTE -->
 @if (!api.isAuthenticated()) {
   <app-login (loginSuccess)="onLoginSuccess()"></app-login>
@@ -7,37 +80,6 @@
     [activeSection]="activeSection()"
     (sectionChange)="selectSection($event)"
   >
-    <!-- GLOBAL FEEDBACK BANNER -->
-    @if (feedback(); as fb) {
-      <div
-        class="mb-6 p-4 rounded-xl border flex items-center justify-between gap-3 shadow-xs animate-fadeIn"
-        [ngClass]="{
-          'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300': fb.type === 'success',
-          'bg-red-500/10 border-red-500/30 text-red-800 dark:text-red-300': fb.type === 'error',
-          'bg-blue-500/10 border-blue-500/30 text-blue-800 dark:text-blue-300': fb.type === 'info'
-        }"
-        role="status"
-      >
-        <div class="flex items-center gap-2.5 text-xs font-medium">
-          @if (fb.type === 'success') {
-            <ng-icon name="lucideCheckCircle2" size="18"></ng-icon>
-          } @else if (fb.type === 'error') {
-            <ng-icon name="lucideAlertTriangle" size="18"></ng-icon>
-          } @else {
-            <ng-icon name="lucidePackage" size="18"></ng-icon>
-          }
-          <span>{{ fb.text }}</span>
-        </div>
-        <button
-          type="button"
-          (click)="feedback.set(null)"
-          class="text-current opacity-70 hover:opacity-100 p-1"
-          title="Cerrar notificación"
-        >
-          <ng-icon name="lucideX" size="14"></ng-icon>
-        </button>
-      </div>
-    }
 
     <!-- 1. DASHBOARD EJECUTIVO (ADM-02) -->
     @if (activeSection() === 'DASHBOARD') {

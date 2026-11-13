@@ -7,6 +7,7 @@ import {
   Output,
   SimpleChanges,
   computed,
+  inject,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -37,6 +38,7 @@ import {
   ProductRecord,
   UnitOfMeasure,
 } from '../../core/models/admin.models';
+import { ToastService } from '../../core/services/toast.service';
 import { ProductFormData } from './product-form-modal.component';
 
 @Component({
@@ -69,6 +71,8 @@ import { ProductFormData } from './product-form-modal.component';
   templateUrl: './product-form-page.component.html',
 })
 export class ProductFormPageComponent implements OnChanges {
+  readonly toast = inject(ToastService);
+
   @Input() product: ProductRecord | null = null;
   @Input() categories: CategoryRecord[] = [];
   @Input() units: UnitOfMeasure[] = [];
@@ -309,7 +313,13 @@ export class ProductFormPageComponent implements OnChanges {
   }
 
   submitForm(): void {
-    if (!this.isValid()) return;
+    if (!this.isValid()) {
+      this.toast.warn(
+        'Campos requeridos incompletos',
+        'Por favor verifique que el nombre, SKU, unidad base y precio de venta sean válidos.',
+      );
+      return;
+    }
 
     const payload: ProductFormData = {
       sku: this.formSku().trim(),

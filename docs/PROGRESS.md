@@ -160,3 +160,37 @@
   - 3 suites, 10/10 pruebas unitarias aprobadas con Vitest (`pnpm run test`).
   - Compilación de producción limpia (`ng build`) generando bundle de 1.23 MB raw / 238 kB transferido.
   - Generación de capturas de pantalla reales automatizadas en Light y Dark para todos los estados de catálogo, páginas de creación/edición y diálogo de cambios sin guardar en `docs/screenshots/`.
+
+## Sprint 08 — Sistema de Notificaciones Temporales mediante Toasts PrimeNG (2026-11-13)
+
+### Completado
+- Creación de rama `feature/ui-admin-toast-notifications` desde `feature/ui-admin-catalog-ux-redesign`.
+- **Eliminación de Banners Estáticos Intrusivos:**
+  - Se removió el antiguo banner estático en línea `<div class="mb-6 p-4 rounded-xl border flex ...">` que empujaba hacia abajo el contenido de las vistas y provocaba desplazamientos de diseño (*layout shift*).
+- **Implementación de ToastService Reactivo:**
+  - Servicio singleton autónomo `ToastService` (`src/app/core/services/toast.service.ts`) que encapsula `MessageService` de PrimeNG con métodos semánticos tipados:
+    - `success(summary, detail, life = 4000)`: verde corporativo Tavera (`#166534` / `#4ADE80`) e icono `lucideCheckCircle2`.
+    - `error(summary, detail, life = 5500)`: rojo advertencia (`#B91C1C` / `#F87171`) e icono `lucideAlertTriangle`.
+    - `warn(summary, detail, life = 4500)`: naranja comercial (`#EA580C` / `#FB923C`) e icono `lucideAlertCircle`.
+    - `info(summary, detail, life = 4000)`: azul informativo (`#0284C7` / `#38BDF8`) e icono `lucideInfo`.
+    - `show(options)` y `clear()`.
+- **Integración Global de PrimeNG Toast con Plantilla Headless:**
+  - Integración de `<p-toast position="top-right">` a nivel raíz en `app.html` con plantilla `#headless`, asegurando visibilidad tanto en la pantalla de login como en todas las vistas operativas autenticadas.
+  - Estilización personalizada con Tailwind y tokens semánticos del Blueprint:
+    - Contenedor flotante `fixed` con z-index 99999 y `pointer-events: none` global para no bloquear clics.
+    - Tarjeta de notificación con barra lateral de acento de color, backdrop-blur, sombras suaves (`shadow-xl`), tipografía Inter y botón de cierre táctil accesible con icono `lucideX`.
+- **Sustitución Integral de Notificaciones en toda la Aplicación:**
+  - **Login:** Notificación de bienvenida tras autenticación exitosa ("Sesión iniciada: Bienvenido(a) Rosario Tavera...") y error flotante ante credenciales no válidas.
+  - **Catálogo y Formulario de Productos:** Toasts para producto creado exitosamente, producto actualizado, advertencia de campos requeridos y errores de persistencia.
+  - **Inventario y Kardex:** Notificación de confirmación al aplicar ajustes de existencias (`INITIAL_LOAD`, `ADJUSTMENT_IN`, `ADJUSTMENT_OUT`, `WASTE_OUT`).
+  - **Precios y Categorías:** Notificación de actualización de tarifas y creación de categorías.
+  - **Proveedores y Compras:** Notificación de cotizaciones y recepción de compras con folio.
+  - **Usuarios y Roles:** Notificación de creación de cuentas y alternancia de estado activo/inactivo.
+- **Pruebas y Verificación:**
+  - 6 pruebas unitarias específicas para `ToastService` (`toast.service.spec.ts`) aprobadas al 100%.
+  - Compilación de producción limpia (`ng build`) sin advertencias ni errores.
+  - Capturas de pantalla reales automatizadas en Light y Dark generadas en `docs/screenshots/`:
+    - `adm-toast-error-login-light.png`: Toast de error de autenticación con credenciales erróneas.
+    - `adm-toast-success-login-light.png` / `adm-toast-success-login-dark.png`: Toast de bienvenida al iniciar sesión.
+    - `adm-toast-warn-validation-light.png`: Toast de advertencia por campos requeridos en el formulario de producto.
+    - `adm-toast-success-product-light.png` / `adm-toast-success-product-dark.png`: Toast de producto registrado en catálogo.

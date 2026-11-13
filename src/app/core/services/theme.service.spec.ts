@@ -1,4 +1,6 @@
-import { TestBed } from '@angular/core/testing';
+// @vitest-environment jsdom
+import '@angular/compiler';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ThemeService } from './theme.service.js';
 
 describe('ThemeService', () => {
@@ -8,11 +10,7 @@ describe('ThemeService', () => {
     localStorage.clear();
     document.documentElement.removeAttribute('data-theme');
     document.documentElement.classList.remove('dark');
-
-    TestBed.configureTestingModule({
-      providers: [ThemeService],
-    });
-    service = TestBed.inject(ThemeService);
+    service = new ThemeService();
   });
 
   afterEach(() => {

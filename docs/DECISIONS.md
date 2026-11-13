@@ -111,3 +111,36 @@
    - Procesos de alta/edición extensos o de varios pasos: **Páginas completas**.
    - Confirmaciones, advertencias breves y acciones rápidas: **Modales**.
    - Consultas rápidas: **Paneles flotantes o drawers**.
+
+## ADR-007: Notificaciones Temporales Flotantes con PrimeNG Toast y Lucide Icons
+
+- **Fecha:** 2026-11-13
+- **Estado:** Aprobado
+
+### Contexto y Problema
+Anteriormente, los avisos de sesión iniciada, errores de autenticación, éxito en la creación/edición de productos y actualizaciones de inventario se mostraban mediante un bloque estático de retroalimentación dentro de la cabecera del shell (`feedback = signal(...)`).
+Este enfoque presentaba inconvenientes de UX:
+1. Al aparecer o desaparecer, empujaba verticalmente el contenido de las páginas, provocando molestos desplazamientos de diseño (*layout shifts*).
+2. Permanecía estático indefinidamente en pantalla hasta que el usuario localizaba y presionaba el botón de cerrar.
+3. No era visible en la pantalla de inicio de sesión previa a la autenticación.
+
+### Decisiones
+1. **Adopción Universal de Toasts para Información Temporal:**
+   - Todo mensaje temporal informativo, de éxito comercial, advertencia o error se canaliza exclusivamente a través de notificaciones flotantes tipo **Toast**.
+2. **Ubicación Global y Plantilla Headless en `app.html`:**
+   - Se integró `<p-toast position="top-right">` a nivel raíz de la aplicación, por fuera de la condición de autenticación. Esto garantiza que las alertas de error de credenciales en el login y la bienvenida inmediata tras autenticarse se muestren de forma uniforme.
+   - Se utilizó la plantilla `#headless` de PrimeNG v22 para mantener control absoluto sobre el HTML y las clases de Tailwind, evitando dependencias en fuentes de iconos externas (como PrimeIcons) y asegurando concordancia estética con los iconos Lucide (`@ng-icons/lucide`).
+3. **Servicio Reactivo Centralizado (`ToastService`):**
+   - Se creó `ToastService` (`src/app/core/services/toast.service.ts`) como wrapper tipado sobre `MessageService` de PrimeNG, exponiendo métodos semánticos con duraciones optimizadas:
+     - `success`: 4000 ms con color verde comercial (`#166534` / `#4ADE80`).
+     - `error`: 5500 ms con color rojo advertencia (`#B91C1C` / `#F87171`).
+     - `warn`: 4500 ms con color naranja comercial (`#EA580C` / `#FB923C`).
+     - `info`: 4000 ms con color azul operativo (`#0284C7` / `#38BDF8`).
+4. **Diseño Visual y Accesibilidad:**
+   - Cada tarjeta toast cuenta con:
+     - Borde translúcido y fondo desenfocado (`backdrop-blur-md`).
+     - Barra lateral distintiva del color de la severidad.
+     - Icono semántico distintivo en caja con tinte temático.
+     - Título en negrita y descripción detallada en texto legible.
+     - Botón de cierre manual accesible por teclado (`role="status"`, `aria-label="Cerrar"`).
+     - Contenedor con `pointer-events: none` y tarjetas con `pointer-events: auto` para no obstruir clics en la interfaz cuando no haya notificaciones activas.
