@@ -30,7 +30,7 @@ describe('App (Admin Panel)', () => {
     expect(compiled.textContent).toContain('Abarrotes Tavera');
   });
 
-  it('should render authenticated shell with 7 module navigation tabs when authenticated', async () => {
+  it('should render authenticated shell with module navigation tabs when authenticated', async () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
     app.api.currentUser.set({
@@ -49,12 +49,35 @@ describe('App (Admin Panel)', () => {
 
     const shellText = compiled.querySelector('app-admin-shell')?.textContent ?? '';
     expect(shellText).toContain('Dashboard Ejecutivo');
-    expect(shellText).toContain('Catálogo y Precios');
+    expect(shellText).toContain('Catálogo de Productos');
+    expect(shellText).toContain('Categorías y Presentaciones');
+    expect(shellText).toContain('Precios y Mayoreo');
     expect(shellText).toContain('Inventario y Kardex');
     expect(shellText).toContain('Proveedores y Compras');
     expect(shellText).toContain('Ventas y Cortes');
     expect(shellText).toContain('Usuarios y Roles');
     expect(shellText).toContain('Auditoría');
+  });
+
+  it('should switch active section across new blueprint views (ADM-05, ADM-06, ADM-07)', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    expect(app.activeSection()).toBe('DASHBOARD');
+
+    app.selectSection('CATEGORIES');
+    expect(app.activeSection()).toBe('CATEGORIES');
+
+    app.selectSection('PRICING');
+    expect(app.activeSection()).toBe('PRICING');
+
+    app.selectSection('INVENTORY');
+    expect(app.activeSection()).toBe('INVENTORY');
+
+    app.isAdjustmentModalOpen.set(true);
+    expect(app.isAdjustmentModalOpen()).toBe(true);
+
+    app.isAdjustmentModalOpen.set(false);
+    expect(app.isAdjustmentModalOpen()).toBe(false);
   });
 
   it('should switch active section across modules', () => {

@@ -90,3 +90,43 @@
   - 3 suites, 8/8 pruebas unitarias pasadas con Vitest (`pnpm run test`).
   - Compilación de producción limpia (`pnpm run build`) generando bundle de 1.20 MB raw / 234 kB transferido.
   - Capturas reales automatizadas en Light y Dark de las 4 vistas generadas en `docs/screenshots/`.
+
+## Sprint 06 — Implementación UI/UX Blueprint: Bloque 2 (ADM-05 a ADM-08) (2026-11-13)
+
+### Completado
+- Creación de rama `feature/ui-admin-catalog-inventory` desde `feature/ui-admin-blueprint-foundation`.
+- **ADM-05: Categorías y Presentaciones (`CategoriesViewComponent`):**
+  - Panel maestro-detalle con árbol/lista de categorías y conteo de artículos activos.
+  - Buscador interno de categorías y modal para creación de nueva familia de productos.
+  - Tabla de unidades de medida (Base/Granel) con clave SAT y tipo de magnitud.
+  - Tabla de factores de empaque y presentaciones comerciales con códigos de barras y precios específicos.
+- **ADM-06: Precios y Mayoreo (`PricingViewComponent`):**
+  - Matriz integral de precios y márgenes con supervisor de rentabilidad.
+  - Cálculo automático en tiempo real del margen comercial: `((Precio - Costo) / Precio) * 100%`.
+  - Badges semánticos de salud del margen:
+    - Saludable (≥ 25%): Verde esmeralda.
+    - Moderado (15% - 24%): Ámbar.
+    - Crítico (< 15%): Rojo de advertencia.
+  - Editor modal rápido de escala de mayoreo (Precio Mayoreo y Cantidad Mínima) con recálculo dinámico de margen y guardado auditado hacia la API.
+- **ADM-07: Inventario y Kardex Físico (`InventoryKardexComponent`):**
+  - 3 KPIs ejecutivos superiores: Total Artículos Activos, Existencias Físicas Totales en piezas base y Valor Comercial del Inventario.
+  - Selector de producto con buscador rápido de catálogo.
+  - Resumen del artículo seleccionado: stock actual, stock mínimo y alerta de reabastecimiento.
+  - Tabla del Kardex inmutable cronológico con tipo de movimiento, referencia/documento, delta numérico (`+N` en verde / `-N` en rojo) y existencias resultantes.
+- **ADM-08: Modal de Ajuste Operativo de Inventario (`InventoryAdjustmentModalComponent`):**
+  - Formulario modal operativo con selección de tipo de movimiento:
+    - Carga Inicial (`INITIAL_LOAD`)
+    - Ajuste Positivo / Conteo Físico (`ADJUSTMENT_IN`)
+    - Ajuste Negativo (`ADJUSTMENT_OUT`)
+    - Merma / Desperdicio / Caducidad (`WASTE_OUT`)
+  - Selector de producto y resumen de stock actual.
+  - Campo de cantidad y proyección matemática de stock resultante antes de confirmar.
+  - Justificación obligatoria del ajuste con validación estricta y costo unitario aplicado.
+  - Persistencia transaccional a través de `POST /inventory/adjustments` y actualización automática del Kardex.
+- **Navegación e Integración (`AdminShellComponent` & `App`):**
+  - Inclusión de los tabs de navegación "Categorías y Presentaciones" y "Precios y Mayoreo" con iconos Lucide (`lucideFolderTree` y `lucideDollarSign`).
+  - Actualización de `App` para orquestar la apertura del modal de ajuste desde el visor de Kardex y la actualización de precios y categorías.
+- Pruebas y verificación:
+  - 3 suites, 9/9 pruebas unitarias pasadas con Vitest (`pnpm run test`).
+  - Compilación de producción limpia (`pnpm run build`) generando bundle de 1.21 MB raw / 235 kB transferido sin advertencias.
+  - Capturas reales automatizadas en Light y Dark de las 4 vistas (ADM-05, ADM-06, ADM-07, ADM-08) generadas en `docs/screenshots/`.

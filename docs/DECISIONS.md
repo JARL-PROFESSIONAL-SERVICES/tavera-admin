@@ -59,3 +59,21 @@
    - El modal de creación y edición calcula el margen comercial en tiempo real usando señales Angular calculadas (`computed`): `((Precio - Costo) / Precio) * 100%`, mostrando retroalimentación de color para proteger la rentabilidad del negocio antes de persistir cambios.
 4. **Shell administrativo modular y persistencia de tema:**
    - La barra lateral admite colapso a 72px para maximizar el área de trabajo en pantallas medianas y cajón móvil en resoluciones inferiores a 1024px. El selector de tema soporta modo claro, oscuro y automático sincronizado con el sistema operativo sin parpadeos.
+
+## ADR-005: Catálogo Avanzado, Precios de Mayoreo y Kardex Físico Inmutable (ADM-05 a ADM-08)
+
+- **Fecha:** 2026-11-13
+- **Estado:** Aprobado
+
+### Decisiones
+1. **Desacoplamiento modular de Categorías y Precios (ADM-05 y ADM-06):**
+   - Aunque el catálogo central (ADM-03) permite búsqueda y alta general, la gestión jerárquica de familias, unidades SAT y presentaciones comerciales se desacopla en `CategoriesViewComponent` (ADM-05).
+   - La supervisión global de rentabilidad y precios escalonados se ubica en `PricingViewComponent` (ADM-06), ofreciendo una matriz financiera con alertas visuales inmediatas según umbrales de margen comercial: Verde (≥25%), Ámbar (15-24%) y Rojo (<15%).
+2. **Kardex Físico Inmutable y Auditoría Estricta (ADM-07):**
+   - Cada renglón del Kardex refleja el movimiento operativo con marca de tiempo, tipo de evento, referencia documental, delta numérico estricto y balance resultante.
+   - El historial es de sólo lectura y preserva auditoría para inventarios cíclicos y arqueos contables.
+3. **Flujo de Ajuste Operativo con Proyección Previa (ADM-08):**
+   - El modal de ajuste de inventario no permite modificaciones arbitrarias de saldo final; requiere seleccionar el tipo de transacción comercial (`INITIAL_LOAD`, `ADJUSTMENT_IN`, `ADJUSTMENT_OUT`, `WASTE_OUT`), capturar la cantidad en unidades base, ingresar obligatoriamente una justificación comercial válida y validar la proyección matemática resultante antes de invocar la mutación en `POST /inventory/adjustments`.
+4. **Plantillas HTML separadas en Angular 22:**
+   - Para evitar colisiones sintácticas entre los template literals de ES6 (`${...}`) e interpolaciones en Angular, todos los componentes de vistas mantienen archivos `.html` independientes (`templateUrl`).
+   - El binding de señales de formulario usa enlaces explícitos `[ngModel]="sig()"` y `(ngModelChange)="sig.set($event)"`.

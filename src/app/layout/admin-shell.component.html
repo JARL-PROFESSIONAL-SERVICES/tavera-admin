@@ -37,6 +37,7 @@
 
       <!-- Navigation Links -->
       <nav class="p-2 space-y-1 mt-2" aria-label="Navegación principal">
+        <!-- 1. DASHBOARD -->
         <button
           type="button"
           (click)="onSelectSection('DASHBOARD')"
@@ -54,6 +55,7 @@
           }
         </button>
 
+        <!-- 2. CATÁLOGO -->
         <button
           type="button"
           (click)="onSelectSection('CATALOG')"
@@ -63,14 +65,51 @@
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'CATALOG',
             'justify-center px-0': !isExpanded()
           }"
-          [title]="!isExpanded() ? 'Catálogo y Precios' : ''"
+          [title]="!isExpanded() ? 'Catálogo de Productos' : ''"
         >
           <ng-icon name="lucidePackage" size="18" class="shrink-0"></ng-icon>
           @if (isExpanded()) {
-            <span class="truncate">Catálogo y Precios</span>
+            <span class="truncate">Catálogo de Productos</span>
           }
         </button>
 
+        <!-- 3. CATEGORÍAS (ADM-05) -->
+        <button
+          type="button"
+          (click)="onSelectSection('CATEGORIES')"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all group"
+          [ngClass]="{
+            'bg-emerald-600 text-white shadow-sm': activeSection === 'CATEGORIES',
+            'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'CATEGORIES',
+            'justify-center px-0': !isExpanded()
+          }"
+          [title]="!isExpanded() ? 'Categorías y Presentaciones' : ''"
+        >
+          <ng-icon name="lucideFolderTree" size="18" class="shrink-0"></ng-icon>
+          @if (isExpanded()) {
+            <span class="truncate">Categorías y Presentaciones</span>
+          }
+        </button>
+
+        <!-- 4. PRECIOS Y MAYOREO (ADM-06) -->
+        <button
+          type="button"
+          (click)="onSelectSection('PRICING')"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all group"
+          [ngClass]="{
+            'bg-emerald-600 text-white shadow-sm': activeSection === 'PRICING',
+            'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'PRICING',
+            'justify-center px-0': !isExpanded()
+          }"
+          [title]="!isExpanded() ? 'Precios y Mayoreo' : ''"
+        >
+          <ng-icon name="lucideDollarSign" size="18" class="shrink-0"></ng-icon>
+          @if (isExpanded()) {
+            <span class="truncate">Precios y Mayoreo</span>
+          }
+        </button>
+
+        <!-- 5. INVENTARIO Y KARDEX (ADM-07/08) -->
         <button
           type="button"
           (click)="onSelectSection('INVENTORY')"
@@ -88,6 +127,7 @@
           }
         </button>
 
+        <!-- 6. PROVEEDORES Y COMPRAS -->
         <button
           type="button"
           (click)="onSelectSection('SUPPLIERS_PURCHASES')"
@@ -105,6 +145,7 @@
           }
         </button>
 
+        <!-- 7. VENTAS Y CORTES -->
         <button
           type="button"
           (click)="onSelectSection('SALES_CASH')"
@@ -122,6 +163,7 @@
           }
         </button>
 
+        <!-- 8. USUARIOS Y ROLES -->
         <button
           type="button"
           (click)="onSelectSection('USERS_RBAC')"
@@ -139,6 +181,7 @@
           }
         </button>
 
+        <!-- 9. AUDITORÍA -->
         <button
           type="button"
           (click)="onSelectSection('AUDIT')"

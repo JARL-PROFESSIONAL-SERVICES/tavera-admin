@@ -6,7 +6,9 @@ import {
   lucideAlertTriangle,
   lucideBoxes,
   lucideCheckCircle2,
+  lucideDollarSign,
   lucideEdit,
+  lucideFolderTree,
   lucideLaptop,
   lucideLayoutDashboard,
   lucideLogOut,
@@ -21,6 +23,7 @@ import {
   lucideTruck,
   lucideUser,
   lucideUsers,
+  lucideX,
 } from '@ng-icons/lucide';
 import {
   AuditLogRecord,
@@ -39,13 +42,20 @@ import {
 import { AdminApiService } from './core/services/admin-api.service';
 import { ThemeService } from './core/services/theme.service';
 import { AdminSection, AdminShellComponent } from './layout/admin-shell.component';
+import { CategoriesViewComponent } from './views/categories/categories-view.component';
 import { CatalogListComponent } from './views/catalog/catalog-list.component';
 import {
   ProductFormData,
   ProductFormModalComponent,
 } from './views/catalog/product-form-modal.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
+import {
+  InventoryAdjustmentData,
+  InventoryAdjustmentModalComponent,
+} from './views/inventory/inventory-adjustment-modal.component';
+import { InventoryKardexComponent } from './views/inventory/inventory-kardex.component';
 import { LoginComponent } from './views/login/login.component';
+import { PricingViewComponent } from './views/pricing/pricing-view.component';
 
 @Component({
   selector: 'app-root',
@@ -59,13 +69,19 @@ import { LoginComponent } from './views/login/login.component';
     DashboardComponent,
     CatalogListComponent,
     ProductFormModalComponent,
+    CategoriesViewComponent,
+    PricingViewComponent,
+    InventoryKardexComponent,
+    InventoryAdjustmentModalComponent,
   ],
   viewProviders: [
     provideIcons({
       lucideAlertTriangle,
       lucideBoxes,
       lucideCheckCircle2,
+      lucideDollarSign,
       lucideEdit,
+      lucideFolderTree,
       lucideLaptop,
       lucideLayoutDashboard,
       lucideLogOut,
@@ -80,6 +96,7 @@ import { LoginComponent } from './views/login/login.component';
       lucideTruck,
       lucideUser,
       lucideUsers,
+      lucideX,
     }),
   ],
   templateUrl: './app.html',
@@ -111,15 +128,11 @@ export class App {
   readonly editingProduct = signal<ProductRecord | null>(null);
   readonly isSavingProduct = signal(false);
 
-  // Inventory & Kardex state
+  // Inventory & Kardex state (ADM-07 & ADM-08)
   readonly selectedKardexProductId = signal<string>('');
   readonly currentKardex = signal<KardexResponse | null>(null);
-  readonly adjMovementType = signal<
-    'INITIAL_LOAD' | 'ADJUSTMENT_IN' | 'ADJUSTMENT_OUT' | 'WASTE_OUT'
-  >('INITIAL_LOAD');
-  readonly adjQuantity = signal<string>('24');
-  readonly adjUnitCost = signal<string>('18.00');
-  readonly adjReason = signal<string>('Carga o ajuste operativo de inventario');
+  readonly isAdjustmentModalOpen = signal(false);
+  readonly isSavingAdjustment = signal(false);
 
   // Suppliers, Comparison & Purchases state
   readonly suppliers = signal<SupplierRecord[]>([]);
@@ -174,10 +187,16 @@ export class App {
         this.loadDashboard();
         break;
       case 'CATALOG':
+      case 'CATEGORIES':
+      case 'PRICING':
         this.loadCatalogData();
         break;
       case 'INVENTORY':
         this.loadCatalogData();
+        if (this.products().length > 0) {
+          const targetId = this.selectedKardexProductId() || this.products()[0].id;
+          this.loadProductKardex(targetId);
+        }
         break;
       case 'SUPPLIERS_PURCHASES':
         this.loadSuppliersAndPurchases();
@@ -242,12 +261,58 @@ export class App {
     this.loadProductKardex(productId);
   }
 
+  handleCreateCategory(payload: { name: string; description?: string }): void {
+    this.api.createCategory(payload).subscribe({
+      next: (cat) => {
+        this.loadCatalogData();
+        this.feedback.set({
+          type: 'success',
+          text: `Categoría "${cat.name}" creada exitosamente.`,
+        });
+      },
+      error: (err) => {
+        this.feedback.set({
+          type: 'error',
+          text: err?.error?.message ?? 'Error al registrar categoría.',
+        });
+      },
+    });
+  }
+
+  handleUpdatePricing(event: {
+    productId: string;
+    retailUnitPrice: string;
+    wholesaleUnitPrice?: string | null;
+    wholesaleMinBaseQty?: string | null;
+  }): void {
+    this.api
+      .updateProductPricing(event.productId, {
+        retailUnitPrice: event.retailUnitPrice,
+        wholesaleUnitPrice: event.wholesaleUnitPrice,
+        wholesaleMinBaseQty: event.wholesaleMinBaseQty,
+      })
+      .subscribe({
+        next: (updated) => {
+          this.loadCatalogData();
+          this.feedback.set({
+            type: 'success',
+            text: `Precios y escala de mayoreo para ${updated.name} actualizados correctamente.`,
+          });
+        },
+        error: (err) => {
+          this.feedback.set({
+            type: 'error',
+            text: err?.error?.message ?? 'Error al actualizar precios.',
+          });
+        },
+      });
+  }
+
   handleSaveProduct(formData: ProductFormData): void {
     const edit = this.editingProduct();
     this.isSavingProduct.set(true);
 
     if (edit) {
-      // Update
       this.api
         .updateProductPricing(edit.id, {
           name: formData.name,
@@ -277,7 +342,6 @@ export class App {
           },
         });
     } else {
-      // Create
       this.api
         .createProduct({
           sku: formData.sku,
@@ -348,32 +412,32 @@ export class App {
     });
   }
 
-  submitInventoryAdjustment(): void {
-    const productId = this.selectedKardexProductId();
-    if (!productId) {
-      return;
-    }
+  handleApplyAdjustment(data: InventoryAdjustmentData): void {
+    this.isSavingAdjustment.set(true);
     this.api
       .recordInventoryAdjustment({
-        productId,
-        movementType: this.adjMovementType(),
-        quantity: this.adjQuantity(),
-        unitCostApplied: this.adjUnitCost(),
-        reason: this.adjReason(),
+        productId: data.productId,
+        movementType: data.movementType,
+        quantity: data.quantity,
+        unitCostApplied: data.unitCostApplied,
+        reason: data.reason,
       })
       .subscribe({
         next: () => {
-          this.loadProductKardex(productId);
+          this.isSavingAdjustment.set(false);
+          this.isAdjustmentModalOpen.set(false);
+          this.loadProductKardex(data.productId);
           this.loadCatalogData();
           this.feedback.set({
             type: 'success',
-            text: `Movimiento ${this.adjMovementType()} registrado en Kardex.`,
+            text: `Movimiento ${data.movementType} registrado exitosamente en el Kardex físico.`,
           });
         },
         error: (err) => {
+          this.isSavingAdjustment.set(false);
           this.feedback.set({
             type: 'error',
-            text: err?.error?.message ?? 'Error al registrar movimiento.',
+            text: err?.error?.message ?? 'Error al aplicar movimiento a Kardex.',
           });
         },
       });

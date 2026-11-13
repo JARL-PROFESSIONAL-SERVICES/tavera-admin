@@ -5,6 +5,8 @@ import {
   lucideBoxes,
   lucideChevronLeft,
   lucideChevronRight,
+  lucideDollarSign,
+  lucideFolderTree,
   lucideLaptop,
   lucideLayoutDashboard,
   lucideLogOut,
@@ -25,6 +27,8 @@ import { ThemeService } from '../core/services/theme.service';
 export type AdminSection =
   | 'DASHBOARD'
   | 'CATALOG'
+  | 'CATEGORIES'
+  | 'PRICING'
   | 'INVENTORY'
   | 'SUPPLIERS_PURCHASES'
   | 'SALES_CASH'
@@ -40,6 +44,8 @@ export type AdminSection =
       lucideBoxes,
       lucideChevronLeft,
       lucideChevronRight,
+      lucideDollarSign,
+      lucideFolderTree,
       lucideLaptop,
       lucideLayoutDashboard,
       lucideLogOut,
@@ -77,7 +83,11 @@ export class AdminShellComponent {
       case 'DASHBOARD':
         return 'Dashboard Ejecutivo';
       case 'CATALOG':
-        return 'Catálogo y Precios';
+        return 'Catálogo de Productos';
+      case 'CATEGORIES':
+        return 'Categorías y Presentaciones';
+      case 'PRICING':
+        return 'Precios y Mayoreo';
       case 'INVENTORY':
         return 'Inventario y Kardex';
       case 'SUPPLIERS_PURCHASES':

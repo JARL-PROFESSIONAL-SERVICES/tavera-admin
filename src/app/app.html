@@ -62,138 +62,36 @@
       ></app-catalog-list>
     }
 
-    <!-- 3. INVENTARIO Y KARDEX (ADM-07) -->
-    @if (activeSection() === 'INVENTORY') {
-      <div class="space-y-6">
-        <div class="pb-2 border-b border-[var(--border)]">
-          <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-            Inventario y Kardex Físico
-          </h1>
-          <p class="text-xs sm:text-sm text-[var(--muted-foreground)]">
-            Trazabilidad inmutable de entradas, salidas, mermas y ajustes operativos por producto.
-          </p>
-        </div>
-
-        <!-- Product Selector & Adjustment Form -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
-            <h3 class="text-sm font-bold text-[var(--foreground)]">Consultar Kardex de Producto</h3>
-            <select
-              [ngModel]="selectedKardexProductId()"
-              (ngModelChange)="loadProductKardex($event)"
-              class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]"
-            >
-              @for (p of products(); track p.id) {
-                <option [value]="p.id">{{ p.name }} ({{ p.sku }}) — Stock: {{ p.stockQuantity }}</option>
-              }
-            </select>
-
-            <div class="pt-4 border-t border-[var(--border)] space-y-3 text-xs">
-              <h4 class="font-bold text-[var(--foreground)]">Registrar Movimiento Operativo</h4>
-              <div>
-                <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Tipo de Movimiento</label>
-                <select
-                  [(ngModel)]="adjMovementType"
-                  class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]"
-                >
-                  <option value="INITIAL_LOAD">Carga Inicial de Stock</option>
-                  <option value="ADJUSTMENT_IN">Ajuste Positivo (Entrada)</option>
-                  <option value="ADJUSTMENT_OUT">Ajuste Negativo (Salida)</option>
-                  <option value="WASTE_OUT">Merma / Producto Dañado</option>
-                </select>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Cantidad Base</label>
-                  <input
-                    type="number"
-                    [(ngModel)]="adjQuantity"
-                    class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs font-mono text-[var(--foreground)]"
-                  />
-                </div>
-                <div>
-                  <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Costo Unitario ($)</label>
-                  <input
-                    type="number"
-                    [(ngModel)]="adjUnitCost"
-                    class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs font-mono text-[var(--foreground)]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Motivo Justificatorio</label>
-                <input
-                  type="text"
-                  [(ngModel)]="adjReason"
-                  class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]"
-                />
-              </div>
-
-              <button
-                type="button"
-                (click)="submitInventoryAdjustment()"
-                class="w-full py-2 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg hover:opacity-95 transition-all"
-              >
-                Aplicar Movimiento a Kardex
-              </button>
-            </div>
-          </div>
-
-          <!-- Kardex Traceability Table -->
-          <div class="lg:col-span-2 p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
-            @if (currentKardex(); as k) {
-              <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
-                <div>
-                  <h3 class="text-base font-bold text-[var(--foreground)]">{{ k.product.name }}</h3>
-                  <span class="text-xs font-mono text-[var(--muted-foreground)]">SKU: {{ k.product.sku }} | Unidad: {{ k.product.baseUnitCode }}</span>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-[var(--muted-foreground)]">Stock Actual</div>
-                  <div class="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">{{ k.product.currentStock }}</div>
-                </div>
-              </div>
-
-              <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
-                    <tr>
-                      <th class="py-2.5 px-3">Fecha</th>
-                      <th class="py-2.5 px-3">Tipo</th>
-                      <th class="py-2.5 px-3 text-right">Cantidad</th>
-                      <th class="py-2.5 px-3 text-right">Antes</th>
-                      <th class="py-2.5 px-3 text-right">Después</th>
-                      <th class="py-2.5 px-3">Motivo</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
-                    @for (m of k.movements; track m.id) {
-                      <tr class="hover:bg-[var(--surface-muted)]">
-                        <td class="py-2.5 px-3 font-mono text-[11px]">{{ m.createdAt | date:'short' }}</td>
-                        <td class="py-2.5 px-3 font-semibold">{{ m.movementType }}</td>
-                        <td class="py-2.5 px-3 text-right font-mono font-bold" [ngClass]="m.baseQuantityDelta.startsWith('-') ? 'text-red-500' : 'text-emerald-600'">
-                          {{ m.baseQuantityDelta }}
-                        </td>
-                        <td class="py-2.5 px-3 text-right font-mono text-[var(--muted-foreground)]">{{ m.stockBefore }}</td>
-                        <td class="py-2.5 px-3 text-right font-mono font-bold">{{ m.stockAfter }}</td>
-                        <td class="py-2.5 px-3 text-[11px] text-[var(--muted-foreground)]">{{ m.reason }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            } @else {
-              <div class="py-16 text-center text-xs text-[var(--muted-foreground)]">
-                Seleccione un producto para inspeccionar sus movimientos inmutables de Kardex.
-              </div>
-            }
-          </div>
-        </div>
-      </div>
+    <!-- 3. CATEGORÍAS Y PRESENTACIONES (ADM-05) -->
+    @if (activeSection() === 'CATEGORIES') {
+      <app-categories-view
+        [categories]="categories()"
+        [units]="units()"
+        [products]="products()"
+        (createCategory)="handleCreateCategory($event)"
+      ></app-categories-view>
     }
 
-    <!-- 4. PROVEEDORES Y COMPRAS (ADM-09) -->
+    <!-- 4. PRECIOS Y MAYOREO (ADM-06) -->
+    @if (activeSection() === 'PRICING') {
+      <app-pricing-view
+        [products]="products()"
+        (updatePricing)="handleUpdatePricing($event)"
+      ></app-pricing-view>
+    }
+
+    <!-- 5. INVENTARIO Y KARDEX (ADM-07) -->
+    @if (activeSection() === 'INVENTORY') {
+      <app-inventory-kardex
+        [products]="products()"
+        [kardex]="currentKardex()"
+        [selectedProductId]="selectedKardexProductId()"
+        (selectProduct)="loadProductKardex($event)"
+        (openAdjustmentWizard)="isAdjustmentModalOpen.set(true)"
+      ></app-inventory-kardex>
+    }
+
+    <!-- 6. PROVEEDORES Y COMPRAS (ADM-09) -->
     @if (activeSection() === 'SUPPLIERS_PURCHASES') {
       <div class="space-y-6">
         <div class="pb-2 border-b border-[var(--border)]">
@@ -206,7 +104,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Suppliers List -->
           <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
             <h3 class="text-sm font-bold text-[var(--foreground)]">Proveedores Registrados</h3>
             <div class="divide-y divide-[var(--border)] text-xs max-h-80 overflow-y-auto">
@@ -221,19 +118,17 @@
               }
             </div>
 
-            <!-- New Supplier Form -->
             <div class="pt-4 border-t border-[var(--border)] space-y-2 text-xs">
               <span class="font-bold text-[var(--foreground)]">+ Registrar Proveedor</span>
               <div class="grid grid-cols-2 gap-2">
-                <input type="text" [(ngModel)]="newSupplierCode" placeholder="Clave (ej. PROV-01)" class="px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
-                <input type="text" [(ngModel)]="newSupplierName" placeholder="Razón Social" class="px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+                <input type="text" [ngModel]="newSupplierCode()" (ngModelChange)="newSupplierCode.set($event)" placeholder="Clave (ej. PROV-01)" class="px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+                <input type="text" [ngModel]="newSupplierName()" (ngModelChange)="newSupplierName.set($event)" placeholder="Razón Social" class="px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
               </div>
-              <input type="text" [(ngModel)]="newSupplierPhone" placeholder="Teléfono de contacto" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+              <input type="text" [ngModel]="newSupplierPhone()" (ngModelChange)="newSupplierPhone.set($event)" placeholder="Teléfono de contacto" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
               <button type="button" (click)="submitCreateSupplier()" class="w-full py-2 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg hover:opacity-95">Guardar Proveedor</button>
             </div>
           </div>
 
-          <!-- Purchase Receipts Table -->
           <div class="lg:col-span-2 p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
             <h3 class="text-sm font-bold text-[var(--foreground)]">Historial de Recepciones de Compra</h3>
             <div class="overflow-x-auto text-xs">
@@ -265,7 +160,7 @@
       </div>
     }
 
-    <!-- 5. VENTAS Y CORTES DE CAJA (ADM-13) -->
+    <!-- 7. VENTAS Y CORTES DE CAJA (ADM-13) -->
     @if (activeSection() === 'SALES_CASH') {
       <div class="space-y-6">
         <div class="pb-2 border-b border-[var(--border)]">
@@ -319,7 +214,7 @@
       </div>
     }
 
-    <!-- 6. USUARIOS Y ROLES (ADM-17) -->
+    <!-- 8. USUARIOS Y ROLES (ADM-17) -->
     @if (activeSection() === 'USERS_RBAC') {
       <div class="space-y-6">
         <div class="pb-2 border-b border-[var(--border)]">
@@ -372,24 +267,23 @@
             </div>
           </div>
 
-          <!-- Create User -->
           <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-3 text-xs">
             <h3 class="text-sm font-bold text-[var(--foreground)]">Crear Nuevo Usuario</h3>
             <div>
               <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Nombre de Usuario</label>
-              <input type="text" [(ngModel)]="newUserUsername" placeholder="cajero1" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+              <input type="text" [ngModel]="newUserUsername()" (ngModelChange)="newUserUsername.set($event)" placeholder="cajero1" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
             </div>
             <div>
               <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Nombre Completo</label>
-              <input type="text" [(ngModel)]="newUserFullName" placeholder="Juan Pérez" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+              <input type="text" [ngModel]="newUserFullName()" (ngModelChange)="newUserFullName.set($event)" placeholder="Juan Pérez" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
             </div>
             <div>
               <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Contraseña Inicial</label>
-              <input type="password" [(ngModel)]="newUserPassword" placeholder="••••••••" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+              <input type="password" [ngModel]="newUserPassword()" (ngModelChange)="newUserPassword.set($event)" placeholder="••••••••" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
             </div>
             <div>
               <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Rol Operativo</label>
-              <select [(ngModel)]="newUserRoleCode" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs">
+              <select [ngModel]="newUserRoleCode()" (ngModelChange)="newUserRoleCode.set($event)" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs">
                 <option value="CASHIER">Cajero (POS)</option>
                 <option value="INVENTORY">Encargado de Inventario</option>
                 <option value="ADMIN">Administrador</option>
@@ -403,7 +297,7 @@
       </div>
     }
 
-    <!-- 7. AUDITORÍA (ADM-18) -->
+    <!-- 9. AUDITORÍA (ADM-18) -->
     @if (activeSection() === 'AUDIT') {
       <div class="space-y-6">
         <div class="pb-2 border-b border-[var(--border)]">
@@ -448,7 +342,7 @@
       </div>
     }
 
-    <!-- 4. MODAL FORMULARIO DE PRODUCTO (ADM-04) -->
+    <!-- MODAL ADM-04: FORMULARIO DE PRODUCTO -->
     @if (isProductModalOpen()) {
       <app-product-form-modal
         [product]="editingProduct()"
@@ -458,6 +352,17 @@
         (save)="handleSaveProduct($event)"
         (cancel)="isProductModalOpen.set(false)"
       ></app-product-form-modal>
+    }
+
+    <!-- MODAL ADM-08: AJUSTE OPERATIVO DE INVENTARIO -->
+    @if (isAdjustmentModalOpen()) {
+      <app-inventory-adjustment-modal
+        [products]="products()"
+        [defaultProductId]="selectedKardexProductId()"
+        [isSaving]="isSavingAdjustment()"
+        (applyAdjustment)="handleApplyAdjustment($event)"
+        (cancel)="isAdjustmentModalOpen.set(false)"
+      ></app-inventory-adjustment-modal>
     }
   </app-admin-shell>
 }
