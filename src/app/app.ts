@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TableModule } from 'primeng/table';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   lucideAlertTriangle,
@@ -51,7 +52,7 @@ export type AdminSection =
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIconComponent],
+  imports: [CommonModule, FormsModule, NgIconComponent, TableModule],
   viewProviders: [
     provideIcons({
       lucideAlertTriangle,

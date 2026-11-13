@@ -53,6 +53,26 @@
   - Ventas y Cortes (`lucideReceipt`)
   - Usuarios y Roles (`lucideUsers`)
   - Auditoría (`lucideShieldCheck`)
+
+## Sprint 05 — Modernización UI/UX con PrimeNG, Spartan-NG y Tokens Semánticos CSS (2026-11-13)
+
+### Completado
+- Creación de rama `feat/ui-ux-modernization-admin` desde `origin/develop`.
+- Verificación técnica de compatibilidad e instalación de dependencias en Angular 22:
+  - PrimeNG `22.1.5` y `@angular/cdk: 22.2.7`.
+  - Spartan-NG Brain `1.9.0` (`@spartan-ng/brain`), `clsx: 2.1.1`, `tailwind-merge: 3.7.0` y `class-variance-authority: 0.7.1`.
+- Sustitución de colores hexadecimales hardcodeados por tokens semánticos CSS (`--tavera-bg`, `--tavera-surface`, `--tavera-border`, `--tavera-primary`, `--tavera-accent`, `--tavera-graphite`, `--tavera-text`, `--tavera-text-muted`) garantizando soporte nativo para temas Light, Dark y System.
+- Modernización del Catálogo y Precios:
+  - Integración de PrimeNG `p-table` con ordenamiento por columnas (`pSortableColumn`), paginación integrada con selector de filas por página (`[rowsPerPageOptions]="[5, 10, 25, 50]"`), estado vacío controlado y edición ágil de precio menudeo.
+- Modernización de Inventario y Kardex:
+  - Visualización del historial inmutable de movimientos en PrimeNG `p-table` con deltas numéricos destacados en verde comercial (`+`) o advertencia (`-`) con fuentes tabulares (`.tabular-nums`).
+- Armonización visual de tarjetas ejecutivas KPI y formularios con estilo Spartan-NG.
+- 3/3 suites de pruebas unitarias superadas (7 tests pasados) y compilación de producción exitosa.
+  - Inventario y Kardex (`lucideBoxes`)
+  - Proveedores y Compras (`lucideTruck`)
+  - Ventas y Cortes (`lucideReceipt`)
+  - Usuarios y Roles (`lucideUsers`)
+  - Auditoría (`lucideShieldCheck`)
 - Estilización de tarjetas KPI del Dashboard Ejecutivo con números tabulares (`.tabular-nums`), destacado de utilidad bruta en Verde Comercial y stock bajo en Naranja Comercial.
 - Refactorización de tablas de datos (catálogo, kardex, recepciones, tickets, usuarios y logs) con encabezados sticky, alineación numérica tabular y badges de estado.
 - Verificación completa: 3 suites, 7/7 pruebas unitarias pasadas y compilación de producción limpia sin advertencias (`363.11 kB`).

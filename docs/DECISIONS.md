@@ -44,3 +44,16 @@
    - Cada uno de los 7 módulos cuenta con iconografía consistente que facilita la navegación tanto en pantallas de escritorio como en smartphones del propietario en red local o Tailscale.
 3. **Consistencia numérica financiera:**
    - Toda cifra de dinero, cantidad base, porcentaje de margen e identificador de ticket o sesión de caja implementa la clase `.tabular-nums` para alineación vertical estricta.
+
+## ADR-004: Integración de PrimeNG y Spartan-NG con Tokens Semánticos CSS
+
+- **Fecha:** 2026-11-13
+- **Estado:** Aprobado (Sprint de Modernización UI/UX)
+
+### Decisiones
+1. **Adopción de PrimeNG 22 para tablas de datos avanzadas:**
+   - Para resolver la necesidad de ordenamiento de columnas, paginación local y responsividad en el Catálogo de Productos y en el Kardex Histórico, se incorpora `primeng/table` (`TableModule`). Los estilos de PrimeNG se reasignan mediante variables CSS (`--p-primary-color`, `--p-surface-0`, `--p-surface-border`, etc.) para heredar los tokens semánticos corporativos sin dependencias de fuentes externas ni temas pesados.
+2. **Tokens semánticos CSS obligatorios y eliminación de colores hexadecimales duros:**
+   - Los componentes, botones y superficies se basan en variables semánticas (`--tavera-bg`, `--tavera-surface`, `--tavera-border`, `--tavera-primary`, `--tavera-accent`, `--tavera-graphite`, `--tavera-text`), asegurando que tanto el modo claro como el modo oscuro se adapten armónicamente sin alterar plantillas.
+3. **Presupuesto de compilación ajustado:**
+   - Con la inclusión de `primeng` y componentes avanzados de datos, el bundle inicial comprimido es de ~217 kB (1.09 MB sin comprimir). Se actualiza el presupuesto en `angular.json` a `maximumWarning: 1.5MB` y `maximumError: 2MB` para mantener el control estricto de peso.

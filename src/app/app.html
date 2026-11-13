@@ -390,54 +390,64 @@
                 (ngModelChange)="productSearchQuery.set($event); loadCatalogData()"
               />
             </div>
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>SKU / Producto</th>
-                    <th>Stock Base</th>
-                    <th>Costo Base</th>
-                    <th>Menudeo</th>
-                    <th>Mayoreo</th>
-                    <th>Presentaciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (p of products(); track p.id) {
-                    <tr>
-                      <td>
-                        <strong>{{ p.name }}</strong>
-                        <br />
-                        <small>{{ p.sku }} ({{ p.baseUnit?.code ?? 'PZA' }})</small>
-                      </td>
-                      <td>{{ p.stockQuantity }}</td>
-                      <td>${{ p.currentCostPerBaseUnit }}</td>
-                      <td>
-                        <input
-                          type="text"
-                          class="inline-price-input"
-                          [value]="p.retailUnitPrice"
-                          (change)="quickUpdateRetailPrice(p, $any($event.target).value)"
-                          aria-label="Actualizar precio menudeo"
-                        />
-                      </td>
-                      <td>
-                        @if (p.wholesaleUnitPrice) {
-                          ${{ p.wholesaleUnitPrice }} ({{ p.wholesaleMinBaseQty }}+)
-                        } @else {
-                          —
-                        }
-                      </td>
-                      <td>
-                        @for (pres of p.presentations; track pres.id) {
-                          <span class="pill">{{ pres.name }} (x{{ pres.conversionFactor }}): ${{ pres.price }}</span>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+            <p-table
+              [value]="products()"
+              [paginator]="true"
+              [rows]="10"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} productos"
+              [rowsPerPageOptions]="[5, 10, 25, 50]"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="name">SKU / Producto</th>
+                  <th pSortableColumn="stockQuantity">Stock Base</th>
+                  <th>Costo Base</th>
+                  <th>Menudeo ($)</th>
+                  <th>Mayoreo ($)</th>
+                  <th>Presentaciones</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-p>
+                <tr>
+                  <td>
+                    <strong>{{ p.name }}</strong>
+                    <br />
+                    <span class="pill">{{ p.sku }} ({{ p.baseUnit?.code ?? 'PZA' }})</span>
+                  </td>
+                  <td class="tabular-nums font-semibold">{{ p.stockQuantity }}</td>
+                  <td class="tabular-nums">${{ p.currentCostPerBaseUnit }}</td>
+                  <td>
+                    <input
+                      type="text"
+                      class="inline-price-input"
+                      [value]="p.retailUnitPrice"
+                      (change)="quickUpdateRetailPrice(p, $any($event.target).value)"
+                      aria-label="Actualizar precio menudeo"
+                    />
+                  </td>
+                  <td class="tabular-nums">
+                    @if (p.wholesaleUnitPrice) {
+                      ${{ p.wholesaleUnitPrice }} ({{ p.wholesaleMinBaseQty }}+)
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>
+                    @for (pres of p.presentations; track pres.id) {
+                      <span class="pill">{{ pres.name }} (x{{ pres.conversionFactor }}): ${{ pres.price }}</span>
+                    }
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="empty-hint text-center py-4">
+                    No se encontraron productos registrados con el criterio especificado.
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
           </div>
         </div>
       </section>
@@ -517,30 +527,39 @@
                 Producto: <strong>{{ k.product.name }}</strong> | Existencia actual:
                 <strong>{{ k.product.currentStock }} {{ k.product.baseUnitCode }}</strong>
               </p>
-              <div class="table-scroll">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Tipo</th>
-                      <th>Delta Base</th>
-                      <th>Antes → Después</th>
-                      <th>Motivo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (m of k.movements; track m.id) {
-                      <tr>
-                        <td>{{ m.createdAt | date: 'short' }}</td>
-                        <td><span class="pill">{{ m.movementType }}</span></td>
-                        <td>{{ m.baseQuantityDelta }}</td>
-                        <td>{{ m.stockBefore }} → <strong>{{ m.stockAfter }}</strong></td>
-                        <td>{{ m.reason }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
+              <p-table
+                [value]="k.movements"
+                [paginator]="true"
+                [rows]="10"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Fecha / Hora</th>
+                    <th>Tipo</th>
+                    <th>Delta Base</th>
+                    <th>Antes → Después</th>
+                    <th>Motivo Auditable</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-m>
+                  <tr>
+                    <td class="tabular-nums">{{ m.createdAt | date: 'short' }}</td>
+                    <td><span class="pill">{{ m.movementType }}</span></td>
+                    <td class="tabular-nums font-semibold">
+                      {{ m.baseQuantityDelta > 0 ? '+' : '' }}{{ m.baseQuantityDelta }}
+                    </td>
+                    <td class="tabular-nums">{{ m.stockBefore }} → <strong>{{ m.stockAfter }}</strong></td>
+                    <td>{{ m.reason }}</td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="5" class="empty-hint text-center py-4">
+                      No hay movimientos de Kardex registrados para este producto.
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
             } @else {
               <p class="empty-hint">Seleccione un producto para inspeccionar su Kardex.</p>
             }

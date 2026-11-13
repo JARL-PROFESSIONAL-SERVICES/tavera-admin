@@ -3,27 +3,107 @@
 @tailwind utilities;
 
 :root {
+  /* Surface & Background */
   --tavera-bg: #F8FAFC;
   --tavera-surface: #FFFFFF;
+  --tavera-surface-hover: #F1F5F9;
+  --tavera-surface-active: #E2E8F0;
+  --tavera-surface-subtle: #F8FAFC;
+
+  /* Borders & Dividers */
+  --tavera-border: #E2E8F0;
+  --tavera-border-hover: #CBD5E1;
+  --tavera-border-focus: #166534;
+
+  /* Typography */
   --tavera-text: #27272A;
   --tavera-text-muted: #71717A;
-  --tavera-border: #E2E8F0;
-  --tavera-green: #166534;
-  --tavera-green-hover: #14532D;
-  --tavera-graphite: #27272A;
-  --tavera-orange: #EA580C;
+  --tavera-text-inverse: #FFFFFF;
+
+  /* Brand Colors */
+  --tavera-primary: #166534;         /* Verde comercial */
+  --tavera-primary-hover: #14532D;
+  --tavera-primary-fg: #FFFFFF;
+
+  --tavera-graphite: #27272A;        /* Grafito elegante */
+  --tavera-graphite-hover: #18181B;
+  --tavera-graphite-fg: #FFFFFF;
+
+  --tavera-accent: #EA580C;          /* Naranja comercial */
+  --tavera-accent-hover: #C2410C;
+  --tavera-accent-fg: #FFFFFF;
+
+  /* Feedback States */
+  --tavera-success: #166534;
+  --tavera-success-bg: #DCFCE7;
+  --tavera-warning: #EA580C;
+  --tavera-warning-bg: #FFEDD5;
+  --tavera-danger: #DC2626;
+  --tavera-danger-bg: #FEE2E2;
+  --tavera-info: #0284C7;
+  --tavera-info-bg: #E0F2FE;
+
+  /* PrimeNG / Component Semantic Bridges */
+  --p-primary-color: var(--tavera-primary);
+  --p-primary-hover-color: var(--tavera-primary-hover);
+  --p-surface-0: var(--tavera-surface);
+  --p-surface-50: var(--tavera-surface-hover);
+  --p-surface-100: var(--tavera-surface-active);
+  --p-surface-border: var(--tavera-border);
+  --p-text-color: var(--tavera-text);
+  --p-text-muted-color: var(--tavera-text-muted);
 }
 
 [data-theme='dark'] {
+  /* Surface & Background */
   --tavera-bg: #18181B;
   --tavera-surface: #27272A;
+  --tavera-surface-hover: #3F3F46;
+  --tavera-surface-active: #52525B;
+  --tavera-surface-subtle: #202023;
+
+  /* Borders & Dividers */
+  --tavera-border: #3F3F46;
+  --tavera-border-hover: #52525B;
+  --tavera-border-focus: #22C55E;
+
+  /* Typography */
   --tavera-text: #F4F4F5;
   --tavera-text-muted: #A1A1AA;
-  --tavera-border: #3F3F46;
-  --tavera-green: #22C55E;
-  --tavera-green-hover: #16A34A;
+  --tavera-text-inverse: #18181B;
+
+  /* Brand Colors */
+  --tavera-primary: #22C55E;
+  --tavera-primary-hover: #16A34A;
+  --tavera-primary-fg: #052E16;
+
   --tavera-graphite: #3F3F46;
-  --tavera-orange: #F97316;
+  --tavera-graphite-hover: #52525B;
+  --tavera-graphite-fg: #F4F4F5;
+
+  --tavera-accent: #F97316;
+  --tavera-accent-hover: #EA580C;
+  --tavera-accent-fg: #431407;
+
+  /* Feedback States */
+  --tavera-success: #22C55E;
+  --tavera-success-bg: rgba(34, 197, 94, 0.15);
+  --tavera-warning: #F97316;
+  --tavera-warning-bg: rgba(249, 115, 22, 0.15);
+  --tavera-danger: #EF4444;
+  --tavera-danger-bg: rgba(239, 68, 68, 0.15);
+  --tavera-info: #38BDF8;
+  --tavera-info-bg: rgba(56, 189, 248, 0.15);
+
+  /* PrimeNG / Component Semantic Bridges */
+  --p-primary-color: var(--tavera-primary);
+  --p-primary-hover-color: var(--tavera-primary-hover);
+  --p-surface-0: var(--tavera-surface);
+  --p-surface-50: var(--tavera-surface-hover);
+  --p-surface-100: var(--tavera-surface-active);
+  --p-surface-border: var(--tavera-border);
+  --p-text-color: var(--tavera-text);
+  --p-text-muted-color: var(--tavera-text-muted);
 }
 
 html, body {
@@ -32,11 +112,95 @@ html, body {
   color: var(--tavera-text);
   margin: 0;
   padding: 0;
+  min-height: 100vh;
 }
 
 @layer utilities {
   .tabular-nums {
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum';
+  }
+}
+
+/* ==========================================================================
+   PRIME-NG TABLE STYLING HARMONIZED WITH TAVERA DESIGN SYSTEM
+   ========================================================================== */
+.p-datatable {
+  border: 1px solid var(--tavera-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: var(--tavera-surface);
+  color: var(--tavera-text);
+  font-size: 0.875rem;
+
+  .p-datatable-header {
+    background: var(--tavera-surface-subtle);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--tavera-border);
+    color: var(--tavera-text);
+  }
+
+  .p-datatable-thead > tr > th {
+    background: var(--tavera-surface-subtle);
+    color: var(--tavera-text-muted);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--tavera-border);
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    transition: background 0.15s ease;
+  }
+
+  .p-datatable-tbody > tr {
+    background: var(--tavera-surface);
+    color: var(--tavera-text);
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background: var(--tavera-surface-hover);
+    }
+
+    > td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--tavera-border);
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+  }
+
+  .p-paginator {
+    background: var(--tavera-surface-subtle);
+    border-top: 1px solid var(--tavera-border);
+    color: var(--tavera-text-muted);
+    padding: 0.5rem 1rem;
+    gap: 0.25rem;
+
+    .p-paginator-page,
+    .p-paginator-next,
+    .p-paginator-prev,
+    .p-paginator-first,
+    .p-paginator-last {
+      min-width: 2rem;
+      height: 2rem;
+      border-radius: 0.375rem;
+      color: var(--tavera-text-muted);
+      border: 1px solid transparent;
+
+      &:hover {
+        background: var(--tavera-surface-hover);
+        color: var(--tavera-text);
+      }
+
+      &.p-highlight {
+        background: var(--tavera-primary);
+        color: var(--tavera-primary-fg);
+        font-weight: 600;
+      }
+    }
   }
 }
