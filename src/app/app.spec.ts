@@ -16,21 +16,45 @@ describe('App (Admin Panel)', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render header and all 7 module navigation tabs', async () => {
+  it('should render dedicated login view (ADM-01) when unauthenticated', async () => {
     const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.api.currentUser.set(null);
+    fixture.detectChanges();
     await fixture.whenStable();
+
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain(
-      'Abarrotes Tavera — Panel Administrativo',
-    );
-    const navText = compiled.querySelector('.admin-nav')?.textContent ?? '';
-    expect(navText).toContain('Dashboard Ejecutivo');
-    expect(navText).toContain('Catálogo y Precios');
-    expect(navText).toContain('Inventario y Kardex');
-    expect(navText).toContain('Proveedores y Compras');
-    expect(navText).toContain('Ventas y Cortes');
-    expect(navText).toContain('Usuarios y Roles');
-    expect(navText).toContain('Auditoría');
+    expect(compiled.querySelector('app-login')).toBeTruthy();
+    expect(compiled.querySelector('app-admin-shell')).toBeFalsy();
+    expect(compiled.textContent).toContain('Iniciar Sesión');
+    expect(compiled.textContent).toContain('Abarrotes Tavera');
+  });
+
+  it('should render authenticated shell with 7 module navigation tabs when authenticated', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.api.currentUser.set({
+      id: 'usr-1',
+      username: 'owner',
+      fullName: 'Rosario Tavera',
+      roleCode: 'OWNER',
+      permissions: ['*'],
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-login')).toBeFalsy();
+    expect(compiled.querySelector('app-admin-shell')).toBeTruthy();
+
+    const shellText = compiled.querySelector('app-admin-shell')?.textContent ?? '';
+    expect(shellText).toContain('Dashboard Ejecutivo');
+    expect(shellText).toContain('Catálogo y Precios');
+    expect(shellText).toContain('Inventario y Kardex');
+    expect(shellText).toContain('Proveedores y Compras');
+    expect(shellText).toContain('Ventas y Cortes');
+    expect(shellText).toContain('Usuarios y Roles');
+    expect(shellText).toContain('Auditoría');
   });
 
   it('should switch active section across modules', () => {

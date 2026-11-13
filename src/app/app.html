@@ -1,741 +1,260 @@
-<div class="admin-layout">
-  <!-- TOP NAVIGATION & AUTH HEADER -->
-  <header class="admin-header">
-    <div class="brand">
-      <span class="badge-owner">TAVERA ADMIN</span>
-      <h1>{{ title() }}</h1>
-    </div>
-
-    <div class="header-right">
-      <!-- THEME SELECTOR (LIGHT / DARK / SYSTEM) -->
-      <div class="theme-toggle-group" role="group" aria-label="Selector de tema">
+<!-- UNAUTHENTICATED STATE: ADM-01 LOGIN INDEPENDIENTE -->
+@if (!api.isAuthenticated()) {
+  <app-login (loginSuccess)="onLoginSuccess()"></app-login>
+} @else {
+  <!-- AUTHENTICATED STATE: ADMIN SHELL WITH COLLAPSIBLE SIDEBAR & TOPBAR -->
+  <app-admin-shell
+    [activeSection]="activeSection()"
+    (sectionChange)="selectSection($event)"
+  >
+    <!-- GLOBAL FEEDBACK BANNER -->
+    @if (feedback(); as fb) {
+      <div
+        class="mb-6 p-4 rounded-xl border flex items-center justify-between gap-3 shadow-xs animate-fadeIn"
+        [ngClass]="{
+          'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300': fb.type === 'success',
+          'bg-red-500/10 border-red-500/30 text-red-800 dark:text-red-300': fb.type === 'error',
+          'bg-blue-500/10 border-blue-500/30 text-blue-800 dark:text-blue-300': fb.type === 'info'
+        }"
+        role="status"
+      >
+        <div class="flex items-center gap-2.5 text-xs font-medium">
+          @if (fb.type === 'success') {
+            <ng-icon name="lucideCheckCircle2" size="18"></ng-icon>
+          } @else if (fb.type === 'error') {
+            <ng-icon name="lucideAlertTriangle" size="18"></ng-icon>
+          } @else {
+            <ng-icon name="lucidePackage" size="18"></ng-icon>
+          }
+          <span>{{ fb.text }}</span>
+        </div>
         <button
           type="button"
-          class="theme-btn"
-          [class.active]="theme.currentTheme() === 'light'"
-          (click)="theme.setTheme('light')"
-          title="Modo Claro"
+          (click)="feedback.set(null)"
+          class="text-current opacity-70 hover:opacity-100 p-1"
+          title="Cerrar notificación"
         >
-          <ng-icon name="lucideSun" size="14"></ng-icon>
-        </button>
-        <button
-          type="button"
-          class="theme-btn"
-          [class.active]="theme.currentTheme() === 'dark'"
-          (click)="theme.setTheme('dark')"
-          title="Modo Oscuro"
-        >
-          <ng-icon name="lucideMoon" size="14"></ng-icon>
-        </button>
-        <button
-          type="button"
-          class="theme-btn"
-          [class.active]="theme.currentTheme() === 'system'"
-          (click)="theme.setTheme('system')"
-          title="Modo Automático del Sistema"
-        >
-          <ng-icon name="lucideLaptop" size="14"></ng-icon>
+          <ng-icon name="lucideX" size="14"></ng-icon>
         </button>
       </div>
-
-      <div class="auth-bar">
-        @if (api.currentUser(); as user) {
-          <div class="user-chip">
-            <ng-icon name="lucideUser" size="15"></ng-icon>
-            <strong>{{ user.fullName }}</strong>
-            <small class="role-pill">{{ user.roleCode }}</small>
-          </div>
-          <button type="button" class="btn btn-outline-light" (click)="api.logout()">
-            <ng-icon name="lucideLogOut" size="14"></ng-icon>
-            Cerrar Sesión
-          </button>
-        } @else {
-          <form class="login-form" (ngSubmit)="submitLogin()">
-            <input
-              type="text"
-              name="username"
-              placeholder="Usuario (owner)"
-              [ngModel]="loginUsername()"
-              (ngModelChange)="loginUsername.set($event)"
-              aria-label="Usuario administrador"
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Contraseña"
-              [ngModel]="loginPassword()"
-              (ngModelChange)="loginPassword.set($event)"
-              aria-label="Contraseña administrador"
-            />
-            <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
-              Ingresar
-            </button>
-          </form>
-        }
-      </div>
-    </div>
-  </header>
-
-  <!-- RESPONSIVE MODULE TABS (DESKTOP & OWNER MOBILE) -->
-  <nav class="admin-nav" aria-label="Módulos de administración">
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'DASHBOARD'"
-      (click)="selectSection('DASHBOARD')"
-    >
-      <ng-icon name="lucideLayoutDashboard" size="15"></ng-icon>
-      Dashboard Ejecutivo
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'CATALOG'"
-      (click)="selectSection('CATALOG')"
-    >
-      <ng-icon name="lucidePackage" size="15"></ng-icon>
-      Catálogo y Precios
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'INVENTORY'"
-      (click)="selectSection('INVENTORY')"
-    >
-      <ng-icon name="lucideBoxes" size="15"></ng-icon>
-      Inventario y Kardex
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'SUPPLIERS_PURCHASES'"
-      (click)="selectSection('SUPPLIERS_PURCHASES')"
-    >
-      <ng-icon name="lucideTruck" size="15"></ng-icon>
-      Proveedores y Compras
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'SALES_CASH'"
-      (click)="selectSection('SALES_CASH')"
-    >
-      <ng-icon name="lucideReceipt" size="15"></ng-icon>
-      Ventas y Cortes
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'USERS_RBAC'"
-      (click)="selectSection('USERS_RBAC')"
-    >
-      <ng-icon name="lucideUsers" size="15"></ng-icon>
-      Usuarios y Roles
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'AUDIT'"
-      (click)="selectSection('AUDIT')"
-    >
-      <ng-icon name="lucideShieldCheck" size="15"></ng-icon>
-      Auditoría
-    </button>
-  </nav>
-
-  <!-- FEEDBACK BANNER -->
-  <div class="feedback-bar" [attr.data-type]="feedback().type" role="status">
-    <div class="feedback-msg">
-      @if (feedback().type === 'error') {
-        <ng-icon name="lucideAlertTriangle" size="16"></ng-icon>
-      } @else {
-        <ng-icon name="lucideCheckCircle2" size="16"></ng-icon>
-      }
-      <span>{{ feedback().text }}</span>
-    </div>
-    @if (isLoading()) {
-      <span class="loading-pill">Sincronizando con API...</span>
     }
-  </div>
 
-  <!-- MAIN CONTENT AREA -->
-  <main class="admin-content">
-    <!-- 1. EXECUTIVE DASHBOARD -->
+    <!-- 1. DASHBOARD EJECUTIVO (ADM-02) -->
     @if (activeSection() === 'DASHBOARD') {
-      <section class="module-section">
-        <div class="section-header">
-          <h2>Resumen Ejecutivo y Supervisión en Vivo</h2>
-          <button type="button" class="btn btn-primary" (click)="loadDashboard()">
-            Actualizar Indicadores
-          </button>
+      <app-dashboard
+        [data]="dashboard()"
+        [isLoading]="isLoading()"
+        (refresh)="loadDashboard()"
+        (viewCatalog)="selectSection('CATALOG')"
+      ></app-dashboard>
+    }
+
+    <!-- 2. CATÁLOGO DE PRODUCTOS (ADM-03) -->
+    @if (activeSection() === 'CATALOG') {
+      <app-catalog-list
+        [products]="products()"
+        [categories]="categories()"
+        [units]="units()"
+        (createProduct)="openCreateProductModal()"
+        (editProduct)="openEditProductModal($event)"
+        (viewKardex)="openKardexForProduct($event)"
+        (updatePrice)="quickUpdateRetailPrice($event.product, $event.newPrice)"
+      ></app-catalog-list>
+    }
+
+    <!-- 3. INVENTARIO Y KARDEX (ADM-07) -->
+    @if (activeSection() === 'INVENTORY') {
+      <div class="space-y-6">
+        <div class="pb-2 border-b border-[var(--border)]">
+          <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+            Inventario y Kardex Físico
+          </h1>
+          <p class="text-xs sm:text-sm text-[var(--muted-foreground)]">
+            Trazabilidad inmutable de entradas, salidas, mermas y ajustes operativos por producto.
+          </p>
         </div>
 
-        @if (dashboard(); as d) {
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <span class="kpi-label">Ventas Netas (tras devoluciones)</span>
-              <strong class="kpi-value">${{ d.salesSummary.netRevenueAfterReturns }}</strong>
-              <small>Bruto: ${{ d.salesSummary.totalRevenueGross }} | Reembolsos: ${{ d.salesSummary.totalRefunded }}</small>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">Utilidad Bruta Estimada</span>
-              <strong class="kpi-value profit">${{ d.salesSummary.estimatedGrossProfit }}</strong>
-              <small>Costo de lo Vendido (COGS): ${{ d.salesSummary.estimatedCostOfGoodsSold }}</small>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">Desglose por Método de Pago</span>
-              <div class="kpi-sublist">
-                <div>Efectivo: <strong>${{ d.paymentBreakdown.CASH }}</strong></div>
-                <div>Tarjeta: <strong>${{ d.paymentBreakdown.CARD }}</strong></div>
-                <div>Transferencia: <strong>${{ d.paymentBreakdown.TRANSFER }}</strong></div>
+        <!-- Product Selector & Adjustment Form -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
+            <h3 class="text-sm font-bold text-[var(--foreground)]">Consultar Kardex de Producto</h3>
+            <select
+              [ngModel]="selectedKardexProductId()"
+              (ngModelChange)="loadProductKardex($event)"
+              class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]"
+            >
+              @for (p of products(); track p.id) {
+                <option [value]="p.id">{{ p.name }} ({{ p.sku }}) — Stock: {{ p.stockQuantity }}</option>
+              }
+            </select>
+
+            <div class="pt-4 border-t border-[var(--border)] space-y-3 text-xs">
+              <h4 class="font-bold text-[var(--foreground)]">Registrar Movimiento Operativo</h4>
+              <div>
+                <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Tipo de Movimiento</label>
+                <select
+                  [(ngModel)]="adjMovementType"
+                  class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]"
+                >
+                  <option value="INITIAL_LOAD">Carga Inicial de Stock</option>
+                  <option value="ADJUSTMENT_IN">Ajuste Positivo (Entrada)</option>
+                  <option value="ADJUSTMENT_OUT">Ajuste Negativo (Salida)</option>
+                  <option value="WASTE_OUT">Merma / Producto Dañado</option>
+                </select>
               </div>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">Operación y Alertas</span>
-              <div class="kpi-sublist">
-                <div>Tickets Completados: <strong>{{ d.salesSummary.completedTicketsCount }}</strong></div>
-                <div>Cajas Abiertas: <strong>{{ d.cashSummary.openSessionsCount }}</strong></div>
-                <div>Bajo Stock: <strong>{{ d.inventoryAlerts.lowStockCount }} prod.</strong></div>
-              </div>
-            </div>
-          </div>
 
-          <div class="two-col-grid">
-            <div class="panel-card">
-              <h3>Cajas Abiertas en Tienda ({{ d.cashSummary.openSessionsCount }})</h3>
-              @if (d.cashSummary.openSessions.length === 0) {
-                <p class="empty-hint">No hay turnos de caja abiertos actualmente.</p>
-              }
-              @for (cs of d.cashSummary.openSessions; track cs.id) {
-                <div class="list-row">
-                  <span>
-                    <strong>{{ cs.registerCode }}</strong> — Cajero:
-                    {{ cs.openedByUser?.fullName ?? 'Operador' }}
-                  </span>
-                  <span>Fondo inicial: ${{ cs.openingBalance }}</span>
-                </div>
-              }
-            </div>
-
-            <div class="panel-card">
-              <h3>Alertas de Bajo Stock ({{ d.inventoryAlerts.lowStockCount }})</h3>
-              @if (d.inventoryAlerts.lowStockItems.length === 0) {
-                <p class="empty-hint">Todo el catálogo está por encima del stock mínimo.</p>
-              }
-              @for (item of d.inventoryAlerts.lowStockItems; track item.id) {
-                <div class="list-row alert-row">
-                  <span><strong>{{ item.name }}</strong> ({{ item.sku }})</span>
-                  <span>Existencia: {{ item.stockQuantity }} (Mín: {{ item.minStockAlert }})</span>
-                </div>
-              }
-            </div>
-          </div>
-        } @else {
-          <div class="panel-card">
-            <p class="empty-hint">
-              Inicie sesión y presione "Actualizar Indicadores" para consultar el dashboard en tiempo real.
-            </p>
-          </div>
-        }
-      </section>
-    }
-
-    <!-- 2. CATALOG, PRESENTATIONS & PRICING -->
-    @if (activeSection() === 'CATALOG') {
-      <section class="module-section">
-        <div class="two-col-grid">
-          <div class="panel-card">
-            <h3>Alta de Producto con Unidad Base y Presentaciones</h3>
-            <form class="stack-form" (ngSubmit)="submitCreateProduct()">
-              <div class="form-row">
-                <label>
-                  SKU:
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Cantidad Base</label>
                   <input
-                    type="text"
-                    name="sku"
-                    placeholder="LECHE-1L"
-                    [ngModel]="newProductSku()"
-                    (ngModelChange)="newProductSku.set($event)"
+                    type="number"
+                    [(ngModel)]="adjQuantity"
+                    class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs font-mono text-[var(--foreground)]"
                   />
-                </label>
-                <label>
-                  Unidad Base:
-                  <select
-                    name="baseUnit"
-                    [ngModel]="newProductBaseUnit()"
-                    (ngModelChange)="newProductBaseUnit.set($event)"
-                  >
-                    <option value="PZA">PZA (Pieza)</option>
-                    <option value="KG">KG (Kilogramo - Granel)</option>
-                    <option value="LT">LT (Litro)</option>
-                    <option value="M">M (Metro)</option>
-                  </select>
-                </label>
+                </div>
+                <div>
+                  <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Costo Unitario ($)</label>
+                  <input
+                    type="number"
+                    [(ngModel)]="adjUnitCost"
+                    class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs font-mono text-[var(--foreground)]"
+                  />
+                </div>
               </div>
 
-              <label>
-                Nombre del Producto:
+              <div>
+                <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Motivo Justificatorio</label>
                 <input
                   type="text"
-                  name="prodName"
-                  placeholder="Leche Entera 1 Litro"
-                  [ngModel]="newProductName()"
-                  (ngModelChange)="newProductName.set($event)"
+                  [(ngModel)]="adjReason"
+                  class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]"
                 />
-              </label>
-
-              <div class="form-row">
-                <label>
-                  P. Menudeo ($):
-                  <input
-                    type="text"
-                    name="retail"
-                    [ngModel]="newProductRetailPrice()"
-                    (ngModelChange)="newProductRetailPrice.set($event)"
-                  />
-                </label>
-                <label>
-                  P. Mayoreo ($):
-                  <input
-                    type="text"
-                    name="wholesale"
-                    [ngModel]="newProductWholesalePrice()"
-                    (ngModelChange)="newProductWholesalePrice.set($event)"
-                  />
-                </label>
-                <label>
-                  Mín. Mayoreo:
-                  <input
-                    type="text"
-                    name="minWh"
-                    [ngModel]="newProductWholesaleMinQty()"
-                    (ngModelChange)="newProductWholesaleMinQty.set($event)"
-                  />
-                </label>
               </div>
-
-              <div class="form-row">
-                <label>
-                  Costo Unit. Base ($):
-                  <input
-                    type="text"
-                    name="cost"
-                    [ngModel]="newProductCost()"
-                    (ngModelChange)="newProductCost.set($event)"
-                  />
-                </label>
-                <label>
-                  Código de Barras Base:
-                  <input
-                    type="text"
-                    name="barcode"
-                    placeholder="7501055300012"
-                    [ngModel]="newProductBarcode()"
-                    (ngModelChange)="newProductBarcode.set($event)"
-                  />
-                </label>
-              </div>
-
-              <fieldset class="sub-fieldset">
-                <legend>Presentación Adicional Opcional (ej. Caja / Paquete)</legend>
-                <div class="form-row">
-                  <label>
-                    Nombre Presentación:
-                    <input
-                      type="text"
-                      name="presName"
-                      placeholder="Caja 12 pzas"
-                      [ngModel]="newPresentationName()"
-                      (ngModelChange)="newPresentationName.set($event)"
-                    />
-                  </label>
-                  <label>
-                    Factor Conversión:
-                    <input
-                      type="text"
-                      name="presFactor"
-                      [ngModel]="newPresentationFactor()"
-                      (ngModelChange)="newPresentationFactor.set($event)"
-                    />
-                  </label>
-                  <label>
-                    Precio Presentación ($):
-                    <input
-                      type="text"
-                      name="presPrice"
-                      [ngModel]="newPresentationPrice()"
-                      (ngModelChange)="newPresentationPrice.set($event)"
-                    />
-                  </label>
-                </div>
-              </fieldset>
 
               <button
-                type="submit"
-                class="btn btn-primary"
-                [disabled]="!api.hasPermission('catalog:write')"
+                type="button"
+                (click)="submitInventoryAdjustment()"
+                class="w-full py-2 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg hover:opacity-95 transition-all"
               >
-                Guardar Producto en Catálogo
+                Aplicar Movimiento a Kardex
               </button>
-            </form>
-          </div>
-
-          <div class="panel-card">
-            <h3>Productos Registrados ({{ products().length }})</h3>
-            <div class="form-row">
-              <input
-                type="text"
-                placeholder="Filtrar por nombre, SKU o código..."
-                [ngModel]="productSearchQuery()"
-                (ngModelChange)="productSearchQuery.set($event); loadCatalogData()"
-              />
-            </div>
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>SKU / Producto</th>
-                    <th>Stock Base</th>
-                    <th>Costo Base</th>
-                    <th>Menudeo</th>
-                    <th>Mayoreo</th>
-                    <th>Presentaciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (p of products(); track p.id) {
-                    <tr>
-                      <td>
-                        <strong>{{ p.name }}</strong>
-                        <br />
-                        <small>{{ p.sku }} ({{ p.baseUnit?.code ?? 'PZA' }})</small>
-                      </td>
-                      <td>{{ p.stockQuantity }}</td>
-                      <td>${{ p.currentCostPerBaseUnit }}</td>
-                      <td>
-                        <input
-                          type="text"
-                          class="inline-price-input"
-                          [value]="p.retailUnitPrice"
-                          (change)="quickUpdateRetailPrice(p, $any($event.target).value)"
-                          aria-label="Actualizar precio menudeo"
-                        />
-                      </td>
-                      <td>
-                        @if (p.wholesaleUnitPrice) {
-                          ${{ p.wholesaleUnitPrice }} ({{ p.wholesaleMinBaseQty }}+)
-                        } @else {
-                          —
-                        }
-                      </td>
-                      <td>
-                        @for (pres of p.presentations; track pres.id) {
-                          <span class="pill">{{ pres.name }} (x{{ pres.conversionFactor }}): ${{ pres.price }}</span>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
             </div>
           </div>
-        </div>
-      </section>
-    }
 
-    <!-- 3. INVENTORY & KARDEX -->
-    @if (activeSection() === 'INVENTORY') {
-      <section class="module-section">
-        <div class="two-col-grid">
-          <div class="panel-card">
-            <h3>Registrar Ajuste o Carga de Inventario</h3>
-            <form class="stack-form" (ngSubmit)="submitInventoryAdjustment()">
-              <label>
-                Producto:
-                <select
-                  name="adjProd"
-                  [ngModel]="selectedKardexProductId()"
-                  (ngModelChange)="loadProductKardex($event)"
-                >
-                  @for (p of products(); track p.id) {
-                    <option [value]="p.id">{{ p.name }} ({{ p.sku }}) — Stock: {{ p.stockQuantity }}</option>
-                  }
-                </select>
-              </label>
-              <label>
-                Tipo de Movimiento:
-                <select
-                  name="adjType"
-                  [ngModel]="adjMovementType()"
-                  (ngModelChange)="adjMovementType.set($event)"
-                >
-                  <option value="INITIAL_LOAD">Carga Inicial (INITIAL_LOAD)</option>
-                  <option value="ADJUSTMENT_IN">Ajuste Positivo (ADJUSTMENT_IN)</option>
-                  <option value="ADJUSTMENT_OUT">Ajuste Negativo (ADJUSTMENT_OUT)</option>
-                  <option value="WASTE_OUT">Salida por Merma (WASTE_OUT)</option>
-                </select>
-              </label>
-              <div class="form-row">
-                <label>
-                  Cantidad:
-                  <input
-                    type="text"
-                    name="adjQty"
-                    [ngModel]="adjQuantity()"
-                    (ngModelChange)="adjQuantity.set($event)"
-                  />
-                </label>
-                <label>
-                  Costo Unitario Aplicado ($):
-                  <input
-                    type="text"
-                    name="adjCost"
-                    [ngModel]="adjUnitCost()"
-                    (ngModelChange)="adjUnitCost.set($event)"
-                  />
-                </label>
-              </div>
-              <label>
-                Motivo Auditable:
-                <input
-                  type="text"
-                  name="adjReason"
-                  [ngModel]="adjReason()"
-                  (ngModelChange)="adjReason.set($event)"
-                />
-              </label>
-              <button type="submit" class="btn btn-primary">
-                Aplicar Movimiento en Kardex
-              </button>
-            </form>
-          </div>
-
-          <div class="panel-card">
-            <h3>Kardex Histórico Inmutable</h3>
+          <!-- Kardex Traceability Table -->
+          <div class="lg:col-span-2 p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
             @if (currentKardex(); as k) {
-              <p>
-                Producto: <strong>{{ k.product.name }}</strong> | Existencia actual:
-                <strong>{{ k.product.currentStock }} {{ k.product.baseUnitCode }}</strong>
-              </p>
-              <div class="table-scroll">
-                <table class="data-table">
-                  <thead>
+              <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+                <div>
+                  <h3 class="text-base font-bold text-[var(--foreground)]">{{ k.product.name }}</h3>
+                  <span class="text-xs font-mono text-[var(--muted-foreground)]">SKU: {{ k.product.sku }} | Unidad: {{ k.product.baseUnitCode }}</span>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs text-[var(--muted-foreground)]">Stock Actual</div>
+                  <div class="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">{{ k.product.currentStock }}</div>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
                     <tr>
-                      <th>Fecha</th>
-                      <th>Tipo</th>
-                      <th>Delta Base</th>
-                      <th>Antes → Después</th>
-                      <th>Motivo</th>
+                      <th class="py-2.5 px-3">Fecha</th>
+                      <th class="py-2.5 px-3">Tipo</th>
+                      <th class="py-2.5 px-3 text-right">Cantidad</th>
+                      <th class="py-2.5 px-3 text-right">Antes</th>
+                      <th class="py-2.5 px-3 text-right">Después</th>
+                      <th class="py-2.5 px-3">Motivo</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
                     @for (m of k.movements; track m.id) {
-                      <tr>
-                        <td>{{ m.createdAt | date: 'short' }}</td>
-                        <td><span class="pill">{{ m.movementType }}</span></td>
-                        <td>{{ m.baseQuantityDelta }}</td>
-                        <td>{{ m.stockBefore }} → <strong>{{ m.stockAfter }}</strong></td>
-                        <td>{{ m.reason }}</td>
+                      <tr class="hover:bg-[var(--surface-muted)]">
+                        <td class="py-2.5 px-3 font-mono text-[11px]">{{ m.createdAt | date:'short' }}</td>
+                        <td class="py-2.5 px-3 font-semibold">{{ m.movementType }}</td>
+                        <td class="py-2.5 px-3 text-right font-mono font-bold" [ngClass]="m.baseQuantityDelta.startsWith('-') ? 'text-red-500' : 'text-emerald-600'">
+                          {{ m.baseQuantityDelta }}
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-mono text-[var(--muted-foreground)]">{{ m.stockBefore }}</td>
+                        <td class="py-2.5 px-3 text-right font-mono font-bold">{{ m.stockAfter }}</td>
+                        <td class="py-2.5 px-3 text-[11px] text-[var(--muted-foreground)]">{{ m.reason }}</td>
                       </tr>
                     }
                   </tbody>
                 </table>
               </div>
             } @else {
-              <p class="empty-hint">Seleccione un producto para inspeccionar su Kardex.</p>
+              <div class="py-16 text-center text-xs text-[var(--muted-foreground)]">
+                Seleccione un producto para inspeccionar sus movimientos inmutables de Kardex.
+              </div>
             }
           </div>
         </div>
-      </section>
+      </div>
     }
 
-    <!-- 4. SUPPLIERS, COST COMPARATOR & PURCHASES -->
+    <!-- 4. PROVEEDORES Y COMPRAS (ADM-09) -->
     @if (activeSection() === 'SUPPLIERS_PURCHASES') {
-      <section class="module-section">
-        <div class="two-col-grid">
-          <div class="panel-card">
-            <h3>Alta de Proveedor y Cotización por Producto</h3>
-            <form class="stack-form" (ngSubmit)="submitCreateSupplier()">
-              <div class="form-row">
-                <input
-                  type="text"
-                  name="supCode"
-                  placeholder="Código (ej. PROV-01)"
-                  [ngModel]="newSupplierCode()"
-                  (ngModelChange)="newSupplierCode.set($event)"
-                />
-                <input
-                  type="text"
-                  name="supName"
-                  placeholder="Razón Social o Nombre"
-                  [ngModel]="newSupplierName()"
-                  (ngModelChange)="newSupplierName.set($event)"
-                />
-                <button type="submit" class="btn btn-primary">+ Proveedor</button>
-              </div>
-            </form>
+      <div class="space-y-6">
+        <div class="pb-2 border-b border-[var(--border)]">
+          <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+            Proveedores y Recepción de Mercancía
+          </h1>
+          <p class="text-xs sm:text-sm text-[var(--muted-foreground)]">
+            Catálogo interno de distribuidores, historial de cotizaciones y registro de órdenes de compra.
+          </p>
+        </div>
 
-            <hr />
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Suppliers List -->
+          <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
+            <h3 class="text-sm font-bold text-[var(--foreground)]">Proveedores Registrados</h3>
+            <div class="divide-y divide-[var(--border)] text-xs max-h-80 overflow-y-auto">
+              @for (sup of suppliers(); track sup.id) {
+                <div class="py-2.5 flex items-center justify-between">
+                  <div>
+                    <div class="font-bold text-[var(--foreground)]">{{ sup.name }}</div>
+                    <div class="text-[11px] text-[var(--muted-foreground)] font-mono">Clave: {{ sup.code }} · Tel: {{ sup.phone || 'N/A' }}</div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Activo</span>
+                </div>
+              }
+            </div>
 
-            <h4>Vincular / Cotizar Costo por Unidad Base</h4>
-            <form class="stack-form" (ngSubmit)="submitSupplierProductQuote()">
-              <div class="form-row">
-                <label>
-                  Proveedor:
-                  <select
-                    name="qSup"
-                    [ngModel]="quoteSupplierId()"
-                    (ngModelChange)="quoteSupplierId.set($event)"
-                  >
-                    @for (s of suppliers(); track s.id) {
-                      <option [value]="s.id">{{ s.name }} ({{ s.code }})</option>
-                    }
-                  </select>
-                </label>
-                <label>
-                  Producto:
-                  <select
-                    name="qProd"
-                    [ngModel]="quoteProductId()"
-                    (ngModelChange)="loadSupplierComparison($event)"
-                  >
-                    @for (p of products(); track p.id) {
-                      <option [value]="p.id">{{ p.name }} ({{ p.sku }})</option>
-                    }
-                  </select>
-                </label>
-                <label>
-                  Costo por Unidad Base ($):
-                  <input
-                    type="text"
-                    name="qCost"
-                    [ngModel]="quoteUnitCost()"
-                    (ngModelChange)="quoteUnitCost.set($event)"
-                  />
-                </label>
+            <!-- New Supplier Form -->
+            <div class="pt-4 border-t border-[var(--border)] space-y-2 text-xs">
+              <span class="font-bold text-[var(--foreground)]">+ Registrar Proveedor</span>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" [(ngModel)]="newSupplierCode" placeholder="Clave (ej. PROV-01)" class="px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+                <input type="text" [(ngModel)]="newSupplierName" placeholder="Razón Social" class="px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
               </div>
-              <button type="submit" class="btn btn-secondary">
-                Guardar Cotización y Comparar Proveedores
-              </button>
-            </form>
-
-            @if (supplierComparison(); as comp) {
-              <div class="comparison-box">
-                <h4>
-                  Comparador de Costos — {{ comp.product.name }} (Mejor costo:
-                  ${{ comp.bestCostPerBaseUnit ?? 'N/A' }})
-                </h4>
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Proveedor</th>
-                      <th>Costo / {{ comp.product.baseUnitCode }}</th>
-                      <th>Preferido</th>
-                      <th>Historial Reciente</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (offer of comp.offers; track offer.supplierProductId) {
-                      <tr>
-                        <td><strong>{{ offer.supplierName }}</strong></td>
-                        <td><strong>${{ offer.unitCostPerBaseUnit }}</strong></td>
-                        <td>{{ offer.isPreferred ? 'Sí' : 'No' }}</td>
-                        <td>{{ offer.priceHistory.length }} registros</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            }
+              <input type="text" [(ngModel)]="newSupplierPhone" placeholder="Teléfono de contacto" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+              <button type="button" (click)="submitCreateSupplier()" class="w-full py-2 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg hover:opacity-95">Guardar Proveedor</button>
+            </div>
           </div>
 
-          <div class="panel-card">
-            <h3>Recepción de Compra de Mercancía (Actualiza Last Cost y Kardex)</h3>
-            <form class="stack-form" (ngSubmit)="submitPurchaseReceipt()">
-              <div class="form-row">
-                <label>
-                  Proveedor:
-                  <select
-                    name="recSup"
-                    [ngModel]="receiptSupplierId()"
-                    (ngModelChange)="receiptSupplierId.set($event)"
-                  >
-                    @for (s of suppliers(); track s.id) {
-                      <option [value]="s.id">{{ s.name }}</option>
-                    }
-                  </select>
-                </label>
-                <label>
-                  Factura / Remisión:
-                  <input
-                    type="text"
-                    name="recInv"
-                    placeholder="FAC-2026-001"
-                    [ngModel]="receiptInvoice()"
-                    (ngModelChange)="receiptInvoice.set($event)"
-                  />
-                </label>
-              </div>
-
-              <label>
-                Producto Recibido:
-                <select
-                  name="recProd"
-                  [ngModel]="receiptProductId()"
-                  (ngModelChange)="receiptProductId.set($event); receiptPresentationId.set('')"
-                >
-                  @for (p of products(); track p.id) {
-                    <option [value]="p.id">{{ p.name }} ({{ p.sku }})</option>
-                  }
-                </select>
-              </label>
-
-              <div class="form-row">
-                <label>
-                  Cantidad Recibida:
-                  <input
-                    type="text"
-                    name="recQty"
-                    [ngModel]="receiptQuantity()"
-                    (ngModelChange)="receiptQuantity.set($event)"
-                  />
-                </label>
-                <label>
-                  Costo Total del Renglón ($):
-                  <input
-                    type="text"
-                    name="recTotal"
-                    [ngModel]="receiptLineCost()"
-                    (ngModelChange)="receiptLineCost.set($event)"
-                  />
-                </label>
-              </div>
-
-              <button type="submit" class="btn btn-primary">
-                Registrar Recepción de Compra
-              </button>
-            </form>
-
-            <h4>Últimas Recepciones ({{ purchaseReceipts().length }})</h4>
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead>
+          <!-- Purchase Receipts Table -->
+          <div class="lg:col-span-2 p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
+            <h3 class="text-sm font-bold text-[var(--foreground)]">Historial de Recepciones de Compra</h3>
+            <div class="overflow-x-auto text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
                   <tr>
-                    <th>Folio</th>
-                    <th>Proveedor</th>
-                    <th>Factura</th>
-                    <th>Total Compra</th>
-                    <th>Fecha</th>
+                    <th class="py-2.5 px-3">Folio</th>
+                    <th class="py-2.5 px-3">Proveedor</th>
+                    <th class="py-2.5 px-3">Factura</th>
+                    <th class="py-2.5 px-3 text-right">Costo Total</th>
+                    <th class="py-2.5 px-3">Fecha</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
                   @for (r of purchaseReceipts(); track r.id) {
-                    <tr>
-                      <td><strong>{{ r.folio }}</strong></td>
-                      <td>{{ r.supplier?.name ?? r.supplierId }}</td>
-                      <td>{{ r.invoiceNumber ?? '—' }}</td>
-                      <td>${{ r.totalCost }}</td>
-                      <td>{{ r.receivedAt | date: 'short' }}</td>
+                    <tr class="hover:bg-[var(--surface-muted)]">
+                      <td class="py-2.5 px-3 font-mono font-bold">{{ r.folio }}</td>
+                      <td class="py-2.5 px-3 font-medium">{{ r.supplier?.name ?? 'Proveedor' }}</td>
+                      <td class="py-2.5 px-3 font-mono text-[var(--muted-foreground)]">{{ r.invoiceNumber || 'S/N' }}</td>
+                      <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-600">${{ r.totalCost }}</td>
+                      <td class="py-2.5 px-3 text-[11px] text-[var(--muted-foreground)]">{{ r.receivedAt | date:'short' }}</td>
                     </tr>
                   }
                 </tbody>
@@ -743,46 +262,53 @@
             </div>
           </div>
         </div>
-      </section>
+      </div>
     }
 
-    <!-- 5. SALES & HISTORICAL TICKETS -->
+    <!-- 5. VENTAS Y CORTES DE CAJA (ADM-13) -->
     @if (activeSection() === 'SALES_CASH') {
-      <section class="module-section">
-        <div class="panel-card">
-          <div class="section-header">
-            <h3>Tickets de Venta Históricos (Snapshots Inmutables)</h3>
-            <button type="button" class="btn btn-secondary" (click)="loadSalesList()">
-              Refrescar Ventas
-            </button>
-          </div>
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
+      <div class="space-y-6">
+        <div class="pb-2 border-b border-[var(--border)]">
+          <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+            Ventas y Registro de Tickets
+          </h1>
+          <p class="text-xs sm:text-sm text-[var(--muted-foreground)]">
+            Tickets inmutables emitidos en cajas POS, impuestos calculados y desglose de artículos.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
+          <div class="overflow-x-auto text-xs">
+            <table class="w-full text-left">
+              <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
                 <tr>
-                  <th>Folio</th>
-                  <th>Estado</th>
-                  <th>Subtotal</th>
-                  <th>IVA / IEPS</th>
-                  <th>Total</th>
-                  <th>Detalle Snapshot</th>
+                  <th class="py-2.5 px-3">Folio Ticket</th>
+                  <th class="py-2.5 px-3">Fecha y Hora</th>
+                  <th class="py-2.5 px-3">Artículos</th>
+                  <th class="py-2.5 px-3 text-right">Subtotal</th>
+                  <th class="py-2.5 px-3 text-right">IVA</th>
+                  <th class="py-2.5 px-3 text-right">Total Cobrado</th>
+                  <th class="py-2.5 px-3 text-center">Estado</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
                 @for (s of salesList(); track s.id) {
-                  <tr>
-                    <td><strong>{{ s.folio }}</strong></td>
-                    <td><span class="pill">{{ s.status }}</span></td>
-                    <td>${{ s.subtotalNet }}</td>
-                    <td>${{ s.ivaAmount }} / ${{ s.iepsAmount }}</td>
-                    <td><strong>${{ s.totalGross }}</strong></td>
-                    <td>
-                      @for (item of s.items; track item.id) {
-                        <div>
-                          {{ item.productNameSnapshot }}: {{ item.quantity }} x ${{ item.unitPriceApplied }}
-                          ({{ item.priceTierApplied }})
-                        </div>
-                      }
+                  <tr class="hover:bg-[var(--surface-muted)]">
+                    <td class="py-2.5 px-3 font-mono font-bold">{{ s.folio }}</td>
+                    <td class="py-2.5 px-3 text-[11px] text-[var(--muted-foreground)]">{{ s.createdAt | date:'medium' }}</td>
+                    <td class="py-2.5 px-3">
+                      <span class="font-medium">{{ s.items.length }} líneas</span>
+                      <span class="text-[11px] text-[var(--muted-foreground)] block truncate max-w-xs">
+                        {{ s.items[0]?.productNameSnapshot }}
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-3 text-right font-mono">${{ s.subtotalNet }}</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-[var(--muted-foreground)]">${{ s.ivaAmount }}</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-600">${{ s.totalGross }}</td>
+                    <td class="py-2.5 px-3 text-center">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                        {{ s.status }}
+                      </span>
                     </td>
                   </tr>
                 }
@@ -790,141 +316,148 @@
             </table>
           </div>
         </div>
-      </section>
+      </div>
     }
 
-    <!-- 6. USERS & RBAC ROLES -->
+    <!-- 6. USUARIOS Y ROLES (ADM-17) -->
     @if (activeSection() === 'USERS_RBAC') {
-      <section class="module-section">
-        <div class="two-col-grid">
-          <div class="panel-card">
-            <h3>Crear Usuario Operativo / Administrativo</h3>
-            <form class="stack-form" (ngSubmit)="submitCreateUser()">
-              <label>
-                Usuario (login):
-                <input
-                  type="text"
-                  name="uLogin"
-                  [ngModel]="newUserUsername()"
-                  (ngModelChange)="newUserUsername.set($event)"
-                />
-              </label>
-              <label>
-                Nombre Completo:
-                <input
-                  type="text"
-                  name="uName"
-                  [ngModel]="newUserFullName()"
-                  (ngModelChange)="newUserFullName.set($event)"
-                />
-              </label>
-              <label>
-                Contraseña Inicial:
-                <input
-                  type="password"
-                  name="uPass"
-                  [ngModel]="newUserPassword()"
-                  (ngModelChange)="newUserPassword.set($event)"
-                />
-              </label>
-              <label>
-                Rol Asignado:
-                <select
-                  name="uRole"
-                  [ngModel]="newUserRoleCode()"
-                  (ngModelChange)="newUserRoleCode.set($event)"
-                >
-                  <option value="CASHIER">CASHIER (Cajero POS)</option>
-                  <option value="INVENTORY">INVENTORY (Almacén / Inventario)</option>
-                  <option value="ADMIN">ADMIN (Administrador Operativo)</option>
-                  <option value="OWNER">OWNER (Propietario)</option>
-                </select>
-              </label>
-              <button type="submit" class="btn btn-primary">Crear Usuario</button>
-            </form>
-          </div>
-
-          <div class="panel-card">
-            <h3>Usuarios Registrados ({{ users().length }})</h3>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Usuario</th>
-                  <th>Nombre</th>
-                  <th>Rol</th>
-                  <th>Estado</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (u of users(); track u.id) {
-                  <tr>
-                    <td><strong>{{ u.username }}</strong></td>
-                    <td>{{ u.fullName }}</td>
-                    <td><span class="pill">{{ u.roleCode }}</span></td>
-                    <td>{{ u.isActive ? 'Activo' : 'Suspendido' }}</td>
-                    <td>
-                      <button
-                        type="button"
-                        class="btn btn-outline"
-                        (click)="toggleUserActive(u)"
-                      >
-                        {{ u.isActive ? 'Desactivar' : 'Reactivar' }}
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+      <div class="space-y-6">
+        <div class="pb-2 border-b border-[var(--border)]">
+          <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+            Usuarios, Roles y Control de Acceso (RBAC)
+          </h1>
+          <p class="text-xs sm:text-sm text-[var(--muted-foreground)]">
+            Gestión de credenciales para Propietarios, Administradores, Cajeros y Encargados de Inventario.
+          </p>
         </div>
-      </section>
-    }
 
-    <!-- 7. AUDIT LOGS -->
-    @if (activeSection() === 'AUDIT') {
-      <section class="module-section">
-        <div class="panel-card">
-          <div class="section-header">
-            <h3>Bitácora Transversal de Auditoría (`audit_logs`)</h3>
-            <div class="form-row">
-              <input
-                type="text"
-                placeholder="Filtrar por módulo (auth, catalog, sales, cash...)"
-                [ngModel]="auditModuleFilter()"
-                (ngModelChange)="auditModuleFilter.set($event)"
-              />
-              <button type="button" class="btn btn-primary" (click)="loadAuditLogs()">
-                Consultar Bitácora
-              </button>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
+            <h3 class="text-sm font-bold text-[var(--foreground)]">Cuentas Registradas</h3>
+            <div class="overflow-x-auto text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
+                  <tr>
+                    <th class="py-2.5 px-3">Usuario</th>
+                    <th class="py-2.5 px-3">Nombre Completo</th>
+                    <th class="py-2.5 px-3">Rol</th>
+                    <th class="py-2.5 px-3 text-center">Estado</th>
+                    <th class="py-2.5 px-3 text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
+                  @for (u of users(); track u.id) {
+                    <tr class="hover:bg-[var(--surface-muted)]">
+                      <td class="py-2.5 px-3 font-mono font-bold">{{ u.username }}</td>
+                      <td class="py-2.5 px-3">{{ u.fullName }}</td>
+                      <td class="py-2.5 px-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[var(--surface-muted)] border border-[var(--border)]">
+                          {{ u.roleCode }}
+                        </span>
+                      </td>
+                      <td class="py-2.5 px-3 text-center">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold" [ngClass]="u.isActive ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-red-500/10 text-red-500'">
+                          {{ u.isActive ? 'Activo' : 'Suspendido' }}
+                        </span>
+                      </td>
+                      <td class="py-2.5 px-3 text-right">
+                        <button type="button" (click)="toggleUserActive(u)" class="text-xs text-[var(--brand)] hover:underline">
+                          {{ u.isActive ? 'Desactivar' : 'Reactivar' }}
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
             </div>
           </div>
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
+
+          <!-- Create User -->
+          <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-3 text-xs">
+            <h3 class="text-sm font-bold text-[var(--foreground)]">Crear Nuevo Usuario</h3>
+            <div>
+              <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Nombre de Usuario</label>
+              <input type="text" [(ngModel)]="newUserUsername" placeholder="cajero1" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Nombre Completo</label>
+              <input type="text" [(ngModel)]="newUserFullName" placeholder="Juan Pérez" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Contraseña Inicial</label>
+              <input type="password" [(ngModel)]="newUserPassword" placeholder="••••••••" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-[var(--muted-foreground)] mb-1">Rol Operativo</label>
+              <select [(ngModel)]="newUserRoleCode" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs">
+                <option value="CASHIER">Cajero (POS)</option>
+                <option value="INVENTORY">Encargado de Inventario</option>
+                <option value="ADMIN">Administrador</option>
+              </select>
+            </div>
+            <button type="button" (click)="submitCreateUser()" class="w-full py-2 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg hover:opacity-95 mt-2">
+              Registrar Usuario
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- 7. AUDITORÍA (ADM-18) -->
+    @if (activeSection() === 'AUDIT') {
+      <div class="space-y-6">
+        <div class="pb-2 border-b border-[var(--border)]">
+          <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+            Registro y Bitácora de Auditoría
+          </h1>
+          <p class="text-xs sm:text-sm text-[var(--muted-foreground)]">
+            Historial inmutable de eventos del sistema, cambios de precio, ajustes y logins.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
+          <div class="overflow-x-auto text-xs">
+            <table class="w-full text-left">
+              <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
                 <tr>
-                  <th>Fecha/Hora</th>
-                  <th>Módulo</th>
-                  <th>Acción</th>
-                  <th>Actor</th>
-                  <th>Entidad / ID</th>
+                  <th class="py-2.5 px-3">Fecha y Hora</th>
+                  <th class="py-2.5 px-3">Módulo</th>
+                  <th class="py-2.5 px-3">Acción</th>
+                  <th class="py-2.5 px-3">Usuario Responsable</th>
+                  <th class="py-2.5 px-3">Entidad / ID</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
                 @for (log of auditLogs(); track log.id) {
-                  <tr>
-                    <td>{{ log.createdAt | date: 'short' }}</td>
-                    <td><span class="pill">{{ log.module }}</span></td>
-                    <td><strong>{{ log.action }}</strong></td>
-                    <td>{{ log.actorUser?.username ?? 'Sistema' }}</td>
-                    <td>{{ log.entityType }} {{ log.entityId }}</td>
+                  <tr class="hover:bg-[var(--surface-muted)]">
+                    <td class="py-2.5 px-3 font-mono text-[11px]">{{ log.createdAt | date:'medium' }}</td>
+                    <td class="py-2.5 px-3 font-semibold">{{ log.module }}</td>
+                    <td class="py-2.5 px-3">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[var(--surface-muted)] border border-[var(--border)]">
+                        {{ log.action }}
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-3 font-medium">{{ log.actorUser?.fullName ?? 'Sistema Automático' }}</td>
+                    <td class="py-2.5 px-3 font-mono text-[11px] text-[var(--muted-foreground)]">{{ log.entityType }}: {{ log.entityId }}</td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
         </div>
-      </section>
+      </div>
     }
-  </main>
-</div>
+
+    <!-- 4. MODAL FORMULARIO DE PRODUCTO (ADM-04) -->
+    @if (isProductModalOpen()) {
+      <app-product-form-modal
+        [product]="editingProduct()"
+        [categories]="categories()"
+        [units]="units()"
+        [isSaving]="isSavingProduct()"
+        (save)="handleSaveProduct($event)"
+        (cancel)="isProductModalOpen.set(false)"
+      ></app-product-form-modal>
+    }
+  </app-admin-shell>
+}

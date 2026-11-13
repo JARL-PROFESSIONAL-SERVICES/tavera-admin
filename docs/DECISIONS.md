@@ -44,3 +44,18 @@
    - Cada uno de los 7 módulos cuenta con iconografía consistente que facilita la navegación tanto en pantallas de escritorio como en smartphones del propietario en red local o Tailscale.
 3. **Consistencia numérica financiera:**
    - Toda cifra de dinero, cantidad base, porcentaje de margen e identificador de ticket o sesión de caja implementa la clase `.tabular-nums` para alineación vertical estricta.
+
+## ADR-004: Implementación del UI/UX Blueprint Oficial (ADM-01 a ADM-04)
+
+- **Fecha:** 2026-11-13
+- **Estado:** Aprobado
+
+### Decisiones
+1. **Aislamiento estricto de inicio de sesión (ADM-01):**
+   - Conforme a la ficha ADM-01 y el Blueprint oficial, la pantalla de inicio de sesión es una ruta pública completamente aislada con un split layout 45/55 en escritorio. No se renderiza la barra de navegación ni ningún componente del shell privado antes de autenticar credenciales.
+2. **Integración armónica de PrimeNG y Tailwind Tokens:**
+   - Para el catálogo de productos (ADM-03), se aprovecha el componente `p-table` de PrimeNG para ordenamiento multi-columna y paginación accesible, vinculando sus variables de estilo a los tokens semánticos CSS (`--background`, `--surface`, `--border`, `--brand-solid`). Se evita duplicar librerías UI para los mismos controles.
+3. **Cálculo de margen en vivo en formulario de producto (ADM-04):**
+   - El modal de creación y edición calcula el margen comercial en tiempo real usando señales Angular calculadas (`computed`): `((Precio - Costo) / Precio) * 100%`, mostrando retroalimentación de color para proteger la rentabilidad del negocio antes de persistir cambios.
+4. **Shell administrativo modular y persistencia de tema:**
+   - La barra lateral admite colapso a 72px para maximizar el área de trabajo en pantallas medianas y cajón móvil en resoluciones inferiores a 1024px. El selector de tema soporta modo claro, oscuro y automático sincronizado con el sistema operativo sin parpadeos.

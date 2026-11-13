@@ -7,6 +7,41 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        background: 'var(--background)',
+        surface: {
+          DEFAULT: 'var(--surface)',
+          muted: 'var(--surface-muted)',
+        },
+        foreground: 'var(--foreground)',
+        'muted-foreground': 'var(--muted-foreground)',
+        border: 'var(--border)',
+        brand: {
+          DEFAULT: 'var(--brand)',
+          solid: 'var(--brand-solid)',
+          fg: 'var(--brand-fg)',
+        },
+        accent: {
+          DEFAULT: 'var(--accent)',
+          fg: 'var(--accent-fg)',
+        },
+        sidebar: {
+          DEFAULT: 'var(--sidebar)',
+          fg: 'var(--sidebar-fg)',
+          muted: 'var(--sidebar-muted)',
+          active: 'var(--sidebar-active)',
+        },
+        danger: {
+          DEFAULT: 'var(--danger)',
+          bg: 'var(--danger-bg)',
+        },
+        success: {
+          DEFAULT: 'var(--success)',
+          bg: 'var(--success-bg)',
+        },
+        warning: {
+          DEFAULT: 'var(--warning)',
+          bg: 'var(--warning-bg)',
+        },
         tavera: {
           green: {
             DEFAULT: '#166534',
@@ -27,6 +62,11 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      borderRadius: {
+        control: '8px',
+        card: '12px',
+        dialog: '16px',
       },
     },
   },

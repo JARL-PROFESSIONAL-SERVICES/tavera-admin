@@ -56,3 +56,37 @@
 - Estilización de tarjetas KPI del Dashboard Ejecutivo con números tabulares (`.tabular-nums`), destacado de utilidad bruta en Verde Comercial y stock bajo en Naranja Comercial.
 - Refactorización de tablas de datos (catálogo, kardex, recepciones, tickets, usuarios y logs) con encabezados sticky, alineación numérica tabular y badges de estado.
 - Verificación completa: 3 suites, 7/7 pruebas unitarias pasadas y compilación de producción limpia sin advertencias (`363.11 kB`).
+
+## Sprint 05 — Implementación UI/UX Blueprint: Fundación y Primeras 4 Vistas (2026-11-13)
+
+### Completado
+- Creación de rama `feature/ui-admin-blueprint-foundation` desde `origin/develop`.
+- Configuración de tokens semánticos CSS oficiales (`--background`, `--surface`, `--surface-muted`, `--foreground`, `--muted-foreground`, `--border`, `--brand`, `--brand-solid`, `--accent`, `--sidebar`, `--danger`, `--success`, `--warning`) en `tailwind.config.js` y `src/styles.scss`.
+- Integración de PrimeNG (`v22.1.5`) y Spartan-NG Brain (`v1.9.0`) sin duplicación de responsabilidades.
+- **ADM-01 Inicio de sesión independiente (`LoginComponent`):**
+  - Layout dividido 45/55 en escritorio (columna izquierda de identidad y beneficios con iluminación ambiental / columna derecha con tarjeta centrada de acceso).
+  - Aislamiento estricto: ningún shell privado o menú se renderiza antes de autenticarse.
+  - Alternador de visibilidad de contraseña (`lucideEye` / `lucideEyeOff`), selector de credenciales de desarrollo rápido (owner/admin) y manejo accesible de errores.
+- **Shell Autenticado (`AdminShellComponent`):**
+  - Barra lateral colapsable (248px expandida / 72px compacta) con iconos Lucide y drawer responsive para pantallas móviles.
+  - Barra superior de 64px con breadcrumbs dinámicos, selector de tema (Light / Dark / System) y chip de usuario con rol y botón de logout.
+- **ADM-02 Dashboard Ejecutivo (`DashboardComponent`):**
+  - Selector de periodo (Hoy, Esta semana, Este mes) y botón de actualización en tiempo real.
+  - 4 tarjetas KPI (Ventas Netas, Utilidad Bruta Estimada, Cajas en Operación, Alertas de Stock Bajo).
+  - Desglose financiero con barras de proporción visual (Costo de adquisición vs Margen comercial).
+  - Desglose por método de pago (Efectivo, Tarjeta, Transferencia SPEI) con barras de porcentaje.
+  - Tablas operativas de cajas/turnos abiertos y existencias bajo el mínimo.
+- **ADM-03 Catálogo de Productos (`CatalogListComponent`):**
+  - Barra de herramientas con buscador con limpieza rápida, selector de categorías y filtro por nivel de existencias.
+  - PrimeNG `p-table` con ordenamiento por columnas, paginación configurable (10, 25, 50), edición rápida de precio de menudeo en línea y badges de estado de inventario (Óptimo, Stock Bajo, Agotado).
+- **ADM-04 Formulario de Crear y Editar Producto (`ProductFormModalComponent`):**
+  - Modal estructurado en 4 secciones por pestañas:
+    1. Identificación y códigos de barras (SKU, Nombre comercial, Categoría, códigos de barras EAN/UPC múltiples).
+    2. Unidades y presentaciones (Unidad base, venta a granel/pesaje, presentaciones adicionales con factor de conversión numérico y precio propio).
+    3. Costos, precios y cálculo de margen en tiempo real (Cálculo automático de margen porcentual con alerta visual, precio y mínimo de mayoreo).
+    4. Impuestos y existencias (Tasa IVA, Tasa IEPS, Alerta de stock mínimo, switch de permiso de venta en negativo).
+  - Barra inferior con resumen instantáneo de margen y botones Cancelar / Guardar Producto.
+- Pruebas y verificación:
+  - 3 suites, 8/8 pruebas unitarias pasadas con Vitest (`pnpm run test`).
+  - Compilación de producción limpia (`pnpm run build`) generando bundle de 1.20 MB raw / 234 kB transferido.
+  - Capturas reales automatizadas en Light y Dark de las 4 vistas generadas en `docs/screenshots/`.

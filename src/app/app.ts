@@ -38,20 +38,28 @@ import {
 } from './core/models/admin.models';
 import { AdminApiService } from './core/services/admin-api.service';
 import { ThemeService } from './core/services/theme.service';
-
-export type AdminSection =
-  | 'DASHBOARD'
-  | 'CATALOG'
-  | 'INVENTORY'
-  | 'SUPPLIERS_PURCHASES'
-  | 'SALES_CASH'
-  | 'USERS_RBAC'
-  | 'AUDIT';
+import { AdminSection, AdminShellComponent } from './layout/admin-shell.component';
+import { CatalogListComponent } from './views/catalog/catalog-list.component';
+import {
+  ProductFormData,
+  ProductFormModalComponent,
+} from './views/catalog/product-form-modal.component';
+import { DashboardComponent } from './views/dashboard/dashboard.component';
+import { LoginComponent } from './views/login/login.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIconComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgIconComponent,
+    LoginComponent,
+    AdminShellComponent,
+    DashboardComponent,
+    CatalogListComponent,
+    ProductFormModalComponent,
+  ],
   viewProviders: [
     provideIcons({
       lucideAlertTriangle,
@@ -87,14 +95,7 @@ export class App {
   readonly feedback = signal<{
     type: 'info' | 'success' | 'error';
     text: string;
-  }>({
-    type: 'info',
-    text: 'Inicie sesión con su cuenta de Propietario (OWNER) o Administrador (ADMIN).',
-  });
-
-  // Auth form
-  readonly loginUsername = signal<string>('owner');
-  readonly loginPassword = signal<string>('TaveraOwner2026!');
+  } | null>(null);
 
   // Dashboard state
   readonly dashboard = signal<DashboardSummaryResponse | null>(null);
@@ -104,20 +105,11 @@ export class App {
   readonly categories = signal<CategoryRecord[]>([]);
   readonly products = signal<ProductRecord[]>([]);
   readonly productSearchQuery = signal<string>('');
-  readonly newCategoryName = signal<string>('');
-  readonly newProductSku = signal<string>('');
-  readonly newProductName = signal<string>('');
-  readonly newProductBaseUnit = signal<string>('PZA');
-  readonly newProductRetailPrice = signal<string>('25.00');
-  readonly newProductWholesalePrice = signal<string>('22.50');
-  readonly newProductWholesaleMinQty = signal<string>('6');
-  readonly newProductCost = signal<string>('18.00');
-  readonly newProductIvaRate = signal<string>('0.1600');
-  readonly newProductBarcode = signal<string>('');
-  readonly newPresentationName = signal<string>('');
-  readonly newPresentationFactor = signal<string>('12');
-  readonly newPresentationPrice = signal<string>('252.00');
-  readonly newPresentationBarcode = signal<string>('');
+
+  // Modal / Drawer state for ADM-04
+  readonly isProductModalOpen = signal(false);
+  readonly editingProduct = signal<ProductRecord | null>(null);
+  readonly isSavingProduct = signal(false);
 
   // Inventory & Kardex state
   readonly selectedKardexProductId = signal<string>('');
@@ -163,6 +155,15 @@ export class App {
   readonly auditModuleFilter = signal<string>('');
   readonly auditLogs = signal<AuditLogRecord[]>([]);
 
+  onLoginSuccess(): void {
+    this.feedback.set({
+      type: 'success',
+      text: `Sesión iniciada correctamente como ${this.api.currentUser()?.fullName}`,
+    });
+    this.loadDashboard();
+    this.loadCatalogData();
+  }
+
   selectSection(section: AdminSection): void {
     this.activeSection.set(section);
     if (!this.api.isAuthenticated()) {
@@ -191,33 +192,6 @@ export class App {
         this.loadAuditLogs();
         break;
     }
-  }
-
-  submitLogin(): void {
-    const u = this.loginUsername().trim();
-    const p = this.loginPassword();
-    if (!u || !p) {
-      return;
-    }
-    this.isLoading.set(true);
-    this.api.login(u, p).subscribe({
-      next: (res) => {
-        this.isLoading.set(false);
-        this.feedback.set({
-          type: 'success',
-          text: `Bienvenido ${res.user.fullName} (${res.user.roleCode})`,
-        });
-        this.loadDashboard();
-        this.loadCatalogData();
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.feedback.set({
-          type: 'error',
-          text: err?.error?.message ?? 'Credenciales inválidas o API no disponible.',
-        });
-      },
-    });
   }
 
   loadDashboard(): void {
@@ -252,77 +226,96 @@ export class App {
     });
   }
 
-  submitCreateCategory(): void {
-    const name = this.newCategoryName().trim();
-    if (!name) {
-      return;
-    }
-    this.api.createCategory({ name }).subscribe({
-      next: () => {
-        this.newCategoryName.set('');
-        this.loadCatalogData();
-        this.feedback.set({
-          type: 'success',
-          text: `Categoría "${name}" creada.`,
-        });
-      },
-    });
+  openCreateProductModal(): void {
+    this.editingProduct.set(null);
+    this.isProductModalOpen.set(true);
   }
 
-  submitCreateProduct(): void {
-    const sku = this.newProductSku().trim();
-    const name = this.newProductName().trim();
-    if (!sku || !name) {
-      return;
-    }
+  openEditProductModal(p: ProductRecord): void {
+    this.editingProduct.set(p);
+    this.isProductModalOpen.set(true);
+  }
 
-    const barcodes = this.newProductBarcode().trim()
-      ? [this.newProductBarcode().trim()]
-      : [];
-    const presentations = this.newPresentationName().trim()
-      ? [
-          {
-            name: this.newPresentationName().trim(),
-            conversionFactor: this.newPresentationFactor(),
-            price: this.newPresentationPrice(),
-            barcode: this.newPresentationBarcode().trim() || undefined,
+  openKardexForProduct(productId: string): void {
+    this.selectedKardexProductId.set(productId);
+    this.selectSection('INVENTORY');
+    this.loadProductKardex(productId);
+  }
+
+  handleSaveProduct(formData: ProductFormData): void {
+    const edit = this.editingProduct();
+    this.isSavingProduct.set(true);
+
+    if (edit) {
+      // Update
+      this.api
+        .updateProductPricing(edit.id, {
+          name: formData.name,
+          retailUnitPrice: formData.retailUnitPrice,
+          wholesaleUnitPrice: formData.wholesaleUnitPrice || null,
+          wholesaleMinBaseQty: formData.wholesaleMinBaseQty || null,
+          currentCostPerBaseUnit: formData.currentCostPerBaseUnit,
+          minStockAlert: formData.minStockAlert,
+          allowNegativeStock: formData.allowNegativeStock,
+        })
+        .subscribe({
+          next: () => {
+            this.isSavingProduct.set(false);
+            this.isProductModalOpen.set(false);
+            this.loadCatalogData();
+            this.feedback.set({
+              type: 'success',
+              text: `Producto "${formData.name}" actualizado exitosamente.`,
+            });
           },
-        ]
-      : [];
-
-    this.api
-      .createProduct({
-        sku,
-        name,
-        baseUnitCode: this.newProductBaseUnit(),
-        retailUnitPrice: this.newProductRetailPrice(),
-        wholesaleUnitPrice: this.newProductWholesalePrice() || undefined,
-        wholesaleMinBaseQty: this.newProductWholesaleMinQty() || undefined,
-        currentCostPerBaseUnit: this.newProductCost(),
-        ivaRate: this.newProductIvaRate(),
-        barcodes,
-        presentations,
-      })
-      .subscribe({
-        next: (created) => {
-          this.newProductSku.set('');
-          this.newProductName.set('');
-          this.newProductBarcode.set('');
-          this.newPresentationName.set('');
-          this.newPresentationBarcode.set('');
-          this.loadCatalogData();
-          this.feedback.set({
-            type: 'success',
-            text: `Producto "${created.name}" (${created.sku}) registrado en catálogo.`,
-          });
-        },
-        error: (err) => {
-          this.feedback.set({
-            type: 'error',
-            text: err?.error?.message ?? 'Error al crear producto.',
-          });
-        },
-      });
+          error: (err) => {
+            this.isSavingProduct.set(false);
+            this.feedback.set({
+              type: 'error',
+              text: err?.error?.message ?? 'Error al actualizar producto.',
+            });
+          },
+        });
+    } else {
+      // Create
+      this.api
+        .createProduct({
+          sku: formData.sku,
+          name: formData.name,
+          description: formData.description,
+          categoryId: formData.categoryId,
+          baseUnitCode: formData.baseUnitCode,
+          isSoldByWeightOrBulk: formData.isSoldByWeightOrBulk,
+          retailUnitPrice: formData.retailUnitPrice,
+          wholesaleUnitPrice: formData.wholesaleUnitPrice,
+          wholesaleMinBaseQty: formData.wholesaleMinBaseQty,
+          currentCostPerBaseUnit: formData.currentCostPerBaseUnit,
+          ivaRate: formData.ivaRate,
+          iepsRate: formData.iepsRate,
+          minStockAlert: formData.minStockAlert,
+          allowNegativeStock: formData.allowNegativeStock,
+          barcodes: formData.barcodes,
+          presentations: formData.presentations,
+        })
+        .subscribe({
+          next: (created) => {
+            this.isSavingProduct.set(false);
+            this.isProductModalOpen.set(false);
+            this.loadCatalogData();
+            this.feedback.set({
+              type: 'success',
+              text: `Producto "${created.name}" (${created.sku}) creado en catálogo.`,
+            });
+          },
+          error: (err) => {
+            this.isSavingProduct.set(false);
+            this.feedback.set({
+              type: 'error',
+              text: err?.error?.message ?? 'Error al crear producto.',
+            });
+          },
+        });
+    }
   }
 
   quickUpdateRetailPrice(product: ProductRecord, newPrice: string): void {
@@ -334,6 +327,12 @@ export class App {
           this.feedback.set({
             type: 'success',
             text: `Precio de ${product.name} actualizado a $${newPrice} (tickets históricos permanecen inmutables).`,
+          });
+        },
+        error: (err) => {
+          this.feedback.set({
+            type: 'error',
+            text: err?.error?.message ?? 'Error al actualizar precio rápido.',
           });
         },
       });

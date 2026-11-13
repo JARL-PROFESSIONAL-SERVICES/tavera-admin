@@ -1,0 +1,556 @@
+<!-- BACKDROP -->
+<div
+  class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn"
+  role="dialog"
+  aria-modal="true"
+>
+  <div
+    class="w-full max-w-4xl bg-[var(--surface)] text-[var(--foreground)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+  >
+    <!-- MODAL HEADER -->
+    <div class="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-muted)]">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+          <ng-icon name="lucidePackage" size="20"></ng-icon>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold tracking-tight text-[var(--foreground)]">
+              {{ isEditMode ? 'Editar Producto' : 'Nuevo Producto en Catálogo' }}
+            </h2>
+            @if (formSku()) {
+              <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)]">
+                {{ formSku() }}
+              </span>
+            }
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)]">
+            Defina códigos, unidades base, presentaciones de venta y márgenes comerciales.
+          </p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        (click)="cancel.emit()"
+        class="p-2 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors"
+        title="Cerrar ventana"
+      >
+        <ng-icon name="lucideX" size="18"></ng-icon>
+      </button>
+    </div>
+
+    <!-- FORM SECTIONS TABS -->
+    <div class="flex items-center border-b border-[var(--border)] px-6 bg-[var(--surface)] overflow-x-auto text-xs font-semibold">
+      <button
+        type="button"
+        (click)="activeTab = 'IDENTITY'"
+        class="py-3 px-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors"
+        [ngClass]="{
+          'border-[var(--brand)] text-[var(--brand)]': activeTab === 'IDENTITY',
+          'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]': activeTab !== 'IDENTITY'
+        }"
+      >
+        <ng-icon name="lucideTag" size="15"></ng-icon>
+        1. Identificación y Códigos
+      </button>
+      <button
+        type="button"
+        (click)="activeTab = 'PRESENTATIONS'"
+        class="py-3 px-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors"
+        [ngClass]="{
+          'border-[var(--brand)] text-[var(--brand)]': activeTab === 'PRESENTATIONS',
+          'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]': activeTab !== 'PRESENTATIONS'
+        }"
+      >
+        <ng-icon name="lucideLayers" size="15"></ng-icon>
+        2. Unidades y Presentaciones
+      </button>
+      <button
+        type="button"
+        (click)="activeTab = 'PRICING'"
+        class="py-3 px-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors"
+        [ngClass]="{
+          'border-[var(--brand)] text-[var(--brand)]': activeTab === 'PRICING',
+          'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]': activeTab !== 'PRICING'
+        }"
+      >
+        <ng-icon name="lucideDollarSign" size="15"></ng-icon>
+        3. Costos, Precios y Margen
+      </button>
+      <button
+        type="button"
+        (click)="activeTab = 'INVENTORY'"
+        class="py-3 px-3 border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors"
+        [ngClass]="{
+          'border-[var(--brand)] text-[var(--brand)]': activeTab === 'INVENTORY',
+          'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]': activeTab !== 'INVENTORY'
+        }"
+      >
+        <ng-icon name="lucideAlertTriangle" size="15"></ng-icon>
+        4. Impuestos y Existencias
+      </button>
+    </div>
+
+    <!-- FORM CONTENT SCROLLABLE -->
+    <div class="p-6 overflow-y-auto flex-1 space-y-6">
+      <!-- SECTION 1: IDENTITY -->
+      @if (activeTab === 'IDENTITY') {
+        <div class="space-y-4 animate-fadeIn">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- SKU -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-[var(--foreground)]">
+                SKU / Clave Interna <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                [disabled]="isEditMode"
+                [ngModel]="formSku()"
+                (ngModelChange)="formSku.set($event.toUpperCase())"
+                placeholder="Ej. ACE-123"
+                class="w-full px-3.5 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm font-mono text-[var(--foreground)] uppercase focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all disabled:opacity-60"
+              />
+              <p class="text-[11px] text-[var(--muted-foreground)]">Identificador único inmutable para control de Kardex.</p>
+            </div>
+
+            <!-- CATEGORY -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-[var(--foreground)]">
+                Categoría
+              </label>
+              <select
+                [ngModel]="formCategoryId()"
+                (ngModelChange)="formCategoryId.set($event)"
+                class="w-full px-3.5 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all"
+              >
+                <option value="">-- Sin categoría asignada --</option>
+                @for (cat of categories; track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <!-- PRODUCT NAME -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-[var(--foreground)]">
+              Nombre Comercial del Producto <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              [ngModel]="formName()"
+              (ngModelChange)="formName.set($event)"
+              placeholder="Ej. Aceite Vegetal 123 1L"
+              class="w-full px-3.5 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all"
+            />
+          </div>
+
+          <!-- DESCRIPTION -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-[var(--foreground)]">
+              Descripción o Notas Adicionales
+            </label>
+            <textarea
+              rows="2"
+              [ngModel]="formDescription()"
+              (ngModelChange)="formDescription.set($event)"
+              placeholder="Detalles sobre presentación, fabricante o advertencias comerciales..."
+              class="w-full px-3.5 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all"
+            ></textarea>
+          </div>
+
+          <!-- BARCODES SECTION -->
+          <div class="p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <ng-icon name="lucideBarcode" size="16" class="text-[var(--brand)]"></ng-icon>
+                <span class="text-xs font-bold text-[var(--foreground)]">Códigos de Barras Primarios (EAN / UPC)</span>
+              </div>
+              <span class="text-[11px] text-[var(--muted-foreground)]">Para lectura directa con escáner</span>
+            </div>
+
+            <div class="flex gap-2">
+              <input
+                type="text"
+                [ngModel]="newBarcodeDraft()"
+                (ngModelChange)="newBarcodeDraft.set($event)"
+                (keyup.enter)="addBarcode()"
+                placeholder="Escanear o capturar código (ej. 7501000123456)"
+                class="flex-1 px-3.5 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs font-mono text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+              />
+              <button
+                type="button"
+                (click)="addBarcode()"
+                class="px-3.5 py-2 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg hover:opacity-95 transition-all flex items-center gap-1.5"
+              >
+                <ng-icon name="lucidePlus" size="14"></ng-icon>
+                Añadir
+              </button>
+            </div>
+
+            @if (formBarcodes().length > 0) {
+              <div class="flex flex-wrap gap-2 pt-1">
+                @for (code of formBarcodes(); track code; let idx = $index) {
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)]">
+                    <span>{{ code }}</span>
+                    <button
+                      type="button"
+                      (click)="removeBarcode(idx)"
+                      class="text-[var(--muted-foreground)] hover:text-red-500 transition-colors"
+                      title="Eliminar código"
+                    >
+                      <ng-icon name="lucideX" size="12"></ng-icon>
+                    </button>
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="text-[11px] text-[var(--muted-foreground)] italic">
+                Sin códigos asignados todavía. Si no agrega uno, el producto solo se buscará por nombre o SKU.
+              </p>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- SECTION 2: PRESENTATIONS & BASE UNITS -->
+      @if (activeTab === 'PRESENTATIONS') {
+        <div class="space-y-5 animate-fadeIn">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- BASE UNIT -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-[var(--foreground)]">
+                Unidad de Medida Base <span class="text-red-500">*</span>
+              </label>
+              <select
+                [ngModel]="formBaseUnitCode()"
+                (ngModelChange)="formBaseUnitCode.set($event)"
+                class="w-full px-3.5 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all"
+              >
+                @for (unit of units; track unit.id) {
+                  <option [value]="unit.code">{{ unit.name }} ({{ unit.code }})</option>
+                }
+              </select>
+              <p class="text-[11px] text-[var(--muted-foreground)]">Unidad fundamental en la que se descuenta el stock en Kardex.</p>
+            </div>
+
+            <!-- SOLD BY WEIGHT CHECKBOX -->
+            <div class="space-y-1.5 flex flex-col justify-end">
+              <label class="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] cursor-pointer hover:border-[var(--brand)] transition-colors">
+                <input
+                  type="checkbox"
+                  [ngModel]="formIsSoldByWeight()"
+                  (ngModelChange)="formIsSoldByWeight.set($event)"
+                  class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-zinc-400"
+                />
+                <div>
+                  <span class="block text-xs font-semibold text-[var(--foreground)]">¿Venta a granel o por pesaje?</span>
+                  <span class="text-[11px] text-[var(--muted-foreground)]">Habilita báscula y fracciones decimales en POS.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- MULTI-PRESENTATION CREATION -->
+          <div class="p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] space-y-4">
+            <div class="flex items-center justify-between border-b border-[var(--border)] pb-2">
+              <div>
+                <h4 class="text-xs font-bold text-[var(--foreground)]">Presentaciones Comerciales Adicionales</h4>
+                <p class="text-[11px] text-[var(--muted-foreground)]">Ejemplo: Cajas, Paquetes o Blíster con factor multiplicador.</p>
+              </div>
+            </div>
+
+            <!-- ADD PRESENTATION INLINE ROW -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+              <div>
+                <label class="block text-[11px] text-[var(--muted-foreground)] font-medium mb-1">Nombre</label>
+                <input
+                  type="text"
+                  [ngModel]="newPresName()"
+                  (ngModelChange)="newPresName.set($event)"
+                  placeholder="Ej. Caja c/12"
+                  class="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)]"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] text-[var(--muted-foreground)] font-medium mb-1">Factor (pzas base)</label>
+                <input
+                  type="number"
+                  min="1"
+                  [ngModel]="newPresFactor()"
+                  (ngModelChange)="newPresFactor.set($event)"
+                  placeholder="12"
+                  class="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs font-mono text-[var(--foreground)]"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] text-[var(--muted-foreground)] font-medium mb-1">Precio Venta ($)</label>
+                <input
+                  type="number"
+                  step="0.50"
+                  [ngModel]="newPresPrice()"
+                  (ngModelChange)="newPresPrice.set($event)"
+                  placeholder="252.00"
+                  class="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs font-mono text-[var(--foreground)]"
+                />
+              </div>
+              <div class="flex items-end">
+                <button
+                  type="button"
+                  (click)="addPresentation()"
+                  class="w-full py-2 bg-[var(--brand-solid)] text-white font-semibold rounded-lg hover:opacity-95 text-xs flex items-center justify-center gap-1.5"
+                >
+                  <ng-icon name="lucidePlus" size="14"></ng-icon>
+                  Añadir
+                </button>
+              </div>
+            </div>
+
+            <!-- PRESENTATIONS LIST -->
+            @if (formPresentations().length > 0) {
+              <div class="divide-y divide-[var(--border)] bg-[var(--surface)] rounded-lg border border-[var(--border)] overflow-hidden">
+                @for (pres of formPresentations(); track pres.name; let idx = $index) {
+                  <div class="p-3 flex items-center justify-between text-xs">
+                    <div>
+                      <div class="font-bold text-[var(--foreground)]">{{ pres.name }}</div>
+                      <div class="text-[11px] text-[var(--muted-foreground)]">
+                        Multiplica {{ pres.conversionFactor }} {{ formBaseUnitCode() }}
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                      <div class="font-mono font-bold text-[var(--foreground)]">
+                        ${{ pres.price }}
+                      </div>
+                      <button
+                        type="button"
+                        (click)="removePresentation(idx)"
+                        class="p-1 rounded text-[var(--muted-foreground)] hover:text-red-500 transition-colors"
+                        title="Eliminar presentación"
+                      >
+                        <ng-icon name="lucideTrash2" size="14"></ng-icon>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- SECTION 3: PRICING & LIVE MARGIN -->
+      @if (activeTab === 'PRICING') {
+        <div class="space-y-5 animate-fadeIn">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- COST -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-[var(--foreground)]">
+                Costo Base Unitario ($ MXN) <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                required
+                [ngModel]="formCost()"
+                (ngModelChange)="formCost.set($event)"
+                placeholder="18.00"
+                class="w-full px-3.5 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm font-mono text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all"
+              />
+              <p class="text-[11px] text-[var(--muted-foreground)]">Último costo de adquisición pagado a proveedor.</p>
+            </div>
+
+            <!-- RETAIL PRICE -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-[var(--foreground)]">
+                Precio Venta Menudeo ($ MXN) <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                required
+                [ngModel]="formRetailPrice()"
+                (ngModelChange)="formRetailPrice.set($event)"
+                placeholder="25.00"
+                class="w-full px-3.5 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm font-mono text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all"
+              />
+              <p class="text-[11px] text-[var(--muted-foreground)]">Precio público por unidad individual.</p>
+            </div>
+          </div>
+
+          <!-- LIVE MARGIN CALCULATOR CARD -->
+          <div class="p-4 rounded-xl border space-y-3" [ngClass]="marginCardClass()">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <ng-icon name="lucideDollarSign" size="18"></ng-icon>
+                <span class="text-xs font-bold">Cálculo de Margen Comercial en Tiempo Real</span>
+              </div>
+              <span class="text-sm font-extrabold font-mono">
+                {{ liveMarginPercentage() }}% Margen
+              </span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-current/20">
+              <div>
+                <span class="opacity-80 text-[11px]">Costo:</span>
+                <div class="font-bold font-mono">${{ formCost() || '0.00' }}</div>
+              </div>
+              <div>
+                <span class="opacity-80 text-[11px]">Venta:</span>
+                <div class="font-bold font-mono">${{ formRetailPrice() || '0.00' }}</div>
+              </div>
+              <div>
+                <span class="opacity-80 text-[11px]">Ganancia neta/pza:</span>
+                <div class="font-bold font-mono">${{ liveProfitAmount() }}</div>
+              </div>
+            </div>
+
+            <p class="text-[11px] opacity-80">
+              Fórmula oficial: ((Precio - Costo) / Precio) * 100%. Los tickets emitidos conservan snapshots inmutables del costo y precio vigentes al momento de la venta.
+            </p>
+          </div>
+
+          <!-- WHOLESALE TIER -->
+          <div class="p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)] space-y-3">
+            <div class="text-xs font-bold text-[var(--foreground)]">Escala de Mayoreo (Opcional)</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] text-[var(--muted-foreground)] font-medium mb-1">Precio Unitario Mayoreo ($)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  [ngModel]="formWholesalePrice()"
+                  (ngModelChange)="formWholesalePrice.set($event)"
+                  placeholder="22.50"
+                  class="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs font-mono text-[var(--foreground)]"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] text-[var(--muted-foreground)] font-medium mb-1">Cantidad Mínima para Mayoreo</label>
+                <input
+                  type="number"
+                  min="2"
+                  [ngModel]="formWholesaleMinQty()"
+                  (ngModelChange)="formWholesaleMinQty.set($event)"
+                  placeholder="6"
+                  class="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs font-mono text-[var(--foreground)]"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- SECTION 4: TAXES & INVENTORY CONTROL -->
+      @if (activeTab === 'INVENTORY') {
+        <div class="space-y-5 animate-fadeIn">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- TAX IVA -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-[var(--foreground)]">
+                Tasa de Impuesto IVA <span class="text-red-500">*</span>
+              </label>
+              <select
+                [ngModel]="formIvaRate()"
+                (ngModelChange)="formIvaRate.set($event)"
+                class="w-full px-3.5 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all"
+              >
+                <option value="0.1600">16% General (0.1600)</option>
+                <option value="0.0800">8% Fronterizo (0.0800)</option>
+                <option value="0.0000">0% Tasa Cero (0.0000)</option>
+                <option value="EXEMPT">Exento de IVA</option>
+              </select>
+            </div>
+
+            <!-- TAX IEPS -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-[var(--foreground)]">
+                Tasa Impuesto IEPS (Bebidas / Botanas)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                [ngModel]="formIepsRate()"
+                (ngModelChange)="formIepsRate.set($event)"
+                placeholder="0.0000"
+                class="w-full px-3.5 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm font-mono text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all"
+              />
+            </div>
+          </div>
+
+          <!-- MIN STOCK ALERT -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-[var(--foreground)]">
+                Alerta de Stock Mínimo
+              </label>
+              <input
+                type="number"
+                min="0"
+                [ngModel]="formMinStockAlert()"
+                (ngModelChange)="formMinStockAlert.set($event)"
+                placeholder="10"
+                class="w-full px-3.5 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm font-mono text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)] transition-all"
+              />
+              <p class="text-[11px] text-[var(--muted-foreground)]">Dispara advertencias en Dashboard e Inventario móvil cuando las existencias caen bajo este nivel.</p>
+            </div>
+
+            <!-- ALLOW NEGATIVE STOCK SWITCH -->
+            <div class="space-y-1.5 flex flex-col justify-end">
+              <label class="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] cursor-pointer hover:border-amber-500 transition-colors">
+                <input
+                  type="checkbox"
+                  [ngModel]="formAllowNegativeStock()"
+                  (ngModelChange)="formAllowNegativeStock.set($event)"
+                  class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-zinc-400"
+                />
+                <div>
+                  <span class="block text-xs font-semibold text-[var(--foreground)]">Permitir venta con stock negativo</span>
+                  <span class="text-[11px] text-[var(--muted-foreground)]">Permite cobrar en caja aun cuando el Kardex registre cero unidades.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- MODAL FOOTER FIXED -->
+    <div class="px-6 py-4 border-t border-[var(--border)] bg-[var(--surface-muted)] flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="text-xs text-[var(--muted-foreground)] flex items-center gap-2">
+        <span class="font-medium">Resumen:</span>
+        <span class="font-mono text-[var(--foreground)]">
+          Costo: ${{ formCost() || '0.00' }} | Venta: ${{ formRetailPrice() || '0.00' }} | Margen: {{ liveMarginPercentage() }}%
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <button
+          type="button"
+          (click)="cancel.emit()"
+          [disabled]="isSaving"
+          class="px-4 py-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-muted)] text-[var(--foreground)] text-xs font-semibold transition-colors disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="submitForm()"
+          [disabled]="isSaving || !isValid()"
+          class="px-5 py-2 rounded-lg bg-[var(--brand-solid)] text-white text-xs font-semibold shadow-sm hover:opacity-95 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (isSaving) {
+            <span class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            <span>Guardando...</span>
+          } @else {
+            <ng-icon name="lucideSave" size="14"></ng-icon>
+            <span>{{ isEditMode ? 'Guardar Cambios' : 'Registrar Producto' }}</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
