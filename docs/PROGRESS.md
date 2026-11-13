@@ -36,3 +36,23 @@
 - Instalación de `@ng-icons/core` y `@ng-icons/lucide` (`v36.1.0`) para iconografía unificada.
 - Implementación de `ThemeService` reactivo con señales Angular (`signal<ThemeMode>`), persistencia en `localStorage` y detección de `prefers-color-scheme` (soporta 'light', 'dark' y 'system').
 - Pruebas unitarias completas de `ThemeService` (`theme.service.spec.ts`) y validación de compilación limpia de producción.
+
+## Sprint 04 — Estilización Visual del Panel Administrativo con Design System Tavera (2026-11-12)
+
+### Completado
+- Creación de rama `feat/admin-ui-design-system` desde `origin/develop`.
+- Rediseño de la cabecera ejecutiva y barra de sesión:
+  - Badge distintivo de propietario en Verde Comercial (`#166534`).
+  - Selector de temas (Light / Dark / System) con iconos Lucide (`lucideSun`, `lucideMoon`, `lucideLaptop`).
+  - Chip de usuario autenticado con badge de rol y botón de cierre de sesión con icono `lucideLogOut`.
+- Modernización de la barra de navegación de los 7 módulos con iconografía Lucide:
+  - Dashboard Ejecutivo (`lucideLayoutDashboard`)
+  - Catálogo y Precios (`lucidePackage`)
+  - Inventario y Kardex (`lucideBoxes`)
+  - Proveedores y Compras (`lucideTruck`)
+  - Ventas y Cortes (`lucideReceipt`)
+  - Usuarios y Roles (`lucideUsers`)
+  - Auditoría (`lucideShieldCheck`)
+- Estilización de tarjetas KPI del Dashboard Ejecutivo con números tabulares (`.tabular-nums`), destacado de utilidad bruta en Verde Comercial y stock bajo en Naranja Comercial.
+- Refactorización de tablas de datos (catálogo, kardex, recepciones, tickets, usuarios y logs) con encabezados sticky, alineación numérica tabular y badges de estado.
+- Verificación completa: 3 suites, 7/7 pruebas unitarias pasadas y compilación de producción limpia sin advertencias (`363.11 kB`).

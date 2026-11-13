@@ -6,37 +6,73 @@
       <h1>{{ title() }}</h1>
     </div>
 
-    <div class="auth-bar">
-      @if (api.currentUser(); as user) {
-        <span class="user-tag">
-          <strong>{{ user.fullName }}</strong> ({{ user.roleCode }})
-        </span>
-        <button type="button" class="btn btn-outline" (click)="api.logout()">
-          Cerrar Sesión
+    <div class="header-right">
+      <!-- THEME SELECTOR (LIGHT / DARK / SYSTEM) -->
+      <div class="theme-toggle-group" role="group" aria-label="Selector de tema">
+        <button
+          type="button"
+          class="theme-btn"
+          [class.active]="theme.currentTheme() === 'light'"
+          (click)="theme.setTheme('light')"
+          title="Modo Claro"
+        >
+          <ng-icon name="lucideSun" size="14"></ng-icon>
         </button>
-      } @else {
-        <form class="login-form" (ngSubmit)="submitLogin()">
-          <input
-            type="text"
-            name="username"
-            placeholder="Usuario (owner)"
-            [ngModel]="loginUsername()"
-            (ngModelChange)="loginUsername.set($event)"
-            aria-label="Usuario administrador"
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Contraseña"
-            [ngModel]="loginPassword()"
-            (ngModelChange)="loginPassword.set($event)"
-            aria-label="Contraseña administrador"
-          />
-          <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
-            Ingresar
+        <button
+          type="button"
+          class="theme-btn"
+          [class.active]="theme.currentTheme() === 'dark'"
+          (click)="theme.setTheme('dark')"
+          title="Modo Oscuro"
+        >
+          <ng-icon name="lucideMoon" size="14"></ng-icon>
+        </button>
+        <button
+          type="button"
+          class="theme-btn"
+          [class.active]="theme.currentTheme() === 'system'"
+          (click)="theme.setTheme('system')"
+          title="Modo Automático del Sistema"
+        >
+          <ng-icon name="lucideLaptop" size="14"></ng-icon>
+        </button>
+      </div>
+
+      <div class="auth-bar">
+        @if (api.currentUser(); as user) {
+          <div class="user-chip">
+            <ng-icon name="lucideUser" size="15"></ng-icon>
+            <strong>{{ user.fullName }}</strong>
+            <small class="role-pill">{{ user.roleCode }}</small>
+          </div>
+          <button type="button" class="btn btn-outline-light" (click)="api.logout()">
+            <ng-icon name="lucideLogOut" size="14"></ng-icon>
+            Cerrar Sesión
           </button>
-        </form>
-      }
+        } @else {
+          <form class="login-form" (ngSubmit)="submitLogin()">
+            <input
+              type="text"
+              name="username"
+              placeholder="Usuario (owner)"
+              [ngModel]="loginUsername()"
+              (ngModelChange)="loginUsername.set($event)"
+              aria-label="Usuario administrador"
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Contraseña"
+              [ngModel]="loginPassword()"
+              (ngModelChange)="loginPassword.set($event)"
+              aria-label="Contraseña administrador"
+            />
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
+              Ingresar
+            </button>
+          </form>
+        }
+      </div>
     </div>
   </header>
 
@@ -48,6 +84,7 @@
       [class.active]="activeSection() === 'DASHBOARD'"
       (click)="selectSection('DASHBOARD')"
     >
+      <ng-icon name="lucideLayoutDashboard" size="15"></ng-icon>
       Dashboard Ejecutivo
     </button>
     <button
@@ -56,6 +93,7 @@
       [class.active]="activeSection() === 'CATALOG'"
       (click)="selectSection('CATALOG')"
     >
+      <ng-icon name="lucidePackage" size="15"></ng-icon>
       Catálogo y Precios
     </button>
     <button
@@ -64,6 +102,7 @@
       [class.active]="activeSection() === 'INVENTORY'"
       (click)="selectSection('INVENTORY')"
     >
+      <ng-icon name="lucideBoxes" size="15"></ng-icon>
       Inventario y Kardex
     </button>
     <button
@@ -72,6 +111,7 @@
       [class.active]="activeSection() === 'SUPPLIERS_PURCHASES'"
       (click)="selectSection('SUPPLIERS_PURCHASES')"
     >
+      <ng-icon name="lucideTruck" size="15"></ng-icon>
       Proveedores y Compras
     </button>
     <button
@@ -80,6 +120,7 @@
       [class.active]="activeSection() === 'SALES_CASH'"
       (click)="selectSection('SALES_CASH')"
     >
+      <ng-icon name="lucideReceipt" size="15"></ng-icon>
       Ventas y Cortes
     </button>
     <button
@@ -88,6 +129,7 @@
       [class.active]="activeSection() === 'USERS_RBAC'"
       (click)="selectSection('USERS_RBAC')"
     >
+      <ng-icon name="lucideUsers" size="15"></ng-icon>
       Usuarios y Roles
     </button>
     <button
@@ -96,13 +138,21 @@
       [class.active]="activeSection() === 'AUDIT'"
       (click)="selectSection('AUDIT')"
     >
+      <ng-icon name="lucideShieldCheck" size="15"></ng-icon>
       Auditoría
     </button>
   </nav>
 
   <!-- FEEDBACK BANNER -->
   <div class="feedback-bar" [attr.data-type]="feedback().type" role="status">
-    <span>{{ feedback().text }}</span>
+    <div class="feedback-msg">
+      @if (feedback().type === 'error') {
+        <ng-icon name="lucideAlertTriangle" size="16"></ng-icon>
+      } @else {
+        <ng-icon name="lucideCheckCircle2" size="16"></ng-icon>
+      }
+      <span>{{ feedback().text }}</span>
+    </div>
     @if (isLoading()) {
       <span class="loading-pill">Sincronizando con API...</span>
     }
