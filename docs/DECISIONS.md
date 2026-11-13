@@ -16,3 +16,18 @@
    - **Ventas, Usuarios RBAC y Auditoría (`/api/v1/sales`, `/api/v1/users`, `/api/v1/audit`):** Supervisión de tickets, control de cuentas/roles y bitácora transversal.
 3. **Control de permisos en UI respaldado por autoridad en Backend:**
    - `AdminApiService.hasPermission(code)` valida permisos en cliente para habilitar controles de escritura (`catalog:write`, `purchases:manage`, `users:manage`), manteniendo a `tavera-api` como autoridad definitiva.
+
+## ADR-002: Identidad Visual y Design System Compartido (Tailwind, Lucide y Temas)
+
+- **Fecha:** 2026-11-12
+- **Estado:** Aprobado
+
+### Decisiones
+1. **Tokens de color corporativos:**
+   - Primario: Verde comercial (`#166534`) para acciones primarias, ventas, estado positivo e identidad central.
+   - Superficie y estructura: Grafito neutro (`#27272A`) para contrastes altos, textos legibles y fondos dark mode.
+   - Acento y alertas: Naranja comercial (`#EA580C`) para badges de atención, stock crítico y advertencias operativas.
+2. **Tipografía y números tabulares:**
+   - Tipografía Inter aplicada globalmente con soporte de la clase `.tabular-nums` (`font-feature-settings: 'tnum' 1`) para evitar saltos visuales en tablas financieras, cortes y kardex.
+3. **Gestor de temas Light, Dark y System:**
+   - Implementado mediante `ThemeService` usando Angular Signals. Agrega/remueve el atributo `data-theme="dark"` en el elemento raíz `<html>` y escucha eventos `change` en `window.matchMedia('(prefers-color-scheme: dark)')` cuando el modo seleccionado es `'system'`. Persistido en `localStorage`.
