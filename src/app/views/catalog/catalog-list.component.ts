@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -12,10 +18,14 @@ import {
   lucideEye,
   lucideFilter,
   lucidePackage,
+  lucidePackagePlus,
   lucidePlus,
+  lucideRefreshCw,
   lucideSearch,
+  lucideSearchX,
   lucideX,
 } from '@ng-icons/lucide';
+import { SharedModule } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import {
   CategoryRecord,
@@ -23,10 +33,23 @@ import {
   UnitOfMeasure,
 } from '../../core/models/admin.models';
 
+export type CatalogViewState =
+  | 'LOADING'
+  | 'ERROR'
+  | 'EMPTY'
+  | 'NO_RESULTS'
+  | 'SUCCESS';
+
 @Component({
   selector: 'app-catalog-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, NgIconComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TableModule,
+    SharedModule,
+    NgIconComponent,
+  ],
   viewProviders: [
     provideIcons({
       lucideAlertTriangle,
@@ -38,8 +61,11 @@ import {
       lucideEye,
       lucideFilter,
       lucidePackage,
+      lucidePackagePlus,
       lucidePlus,
+      lucideRefreshCw,
       lucideSearch,
+      lucideSearchX,
       lucideX,
     }),
   ],
@@ -49,6 +75,8 @@ export class CatalogListComponent {
   @Input() products: ProductRecord[] = [];
   @Input() categories: CategoryRecord[] = [];
   @Input() units: UnitOfMeasure[] = [];
+  @Input() isLoading: boolean = false;
+  @Input() loadError: string | null = null;
 
   @Output() createProduct = new EventEmitter<void>();
   @Output() editProduct = new EventEmitter<ProductRecord>();
@@ -57,13 +85,33 @@ export class CatalogListComponent {
     product: ProductRecord;
     newPrice: string;
   }>();
+  @Output() retryLoad = new EventEmitter<void>();
 
   readonly searchQuery = signal('');
   readonly selectedCategory = signal('');
-  readonly stockFilter = signal<'ALL' | 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'>('ALL');
+  readonly stockFilter = signal<
+    'ALL' | 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'
+  >('ALL');
 
+  readonly pageSize = signal<number>(10);
   readonly editingProductId = signal<string | null>(null);
   readonly tempPrice = signal<string>('');
+
+  viewState(): CatalogViewState {
+    if (this.isLoading) {
+      return 'LOADING';
+    }
+    if (this.loadError) {
+      return 'ERROR';
+    }
+    if (!this.products || this.products.length === 0) {
+      return 'EMPTY';
+    }
+    if (this.filteredProducts().length === 0) {
+      return 'NO_RESULTS';
+    }
+    return 'SUCCESS';
+  }
 
   startQuickEdit(p: ProductRecord): void {
     this.editingProductId.set(p.id);
@@ -89,13 +137,13 @@ export class CatalogListComponent {
     const cat = this.selectedCategory();
     const sf = this.stockFilter();
 
-    return this.products.filter((p) => {
+    return (this.products ?? []).filter((p) => {
       // Search text match
       if (q) {
-        const matchName = p.name.toLowerCase().includes(q);
-        const matchSku = p.sku.toLowerCase().includes(q);
+        const matchName = (p.name ?? '').toLowerCase().includes(q);
+        const matchSku = (p.sku ?? '').toLowerCase().includes(q);
         const matchBarcode = p.barcodes?.some((b) =>
-          b.code.toLowerCase().includes(q),
+          (b.code ?? '').toLowerCase().includes(q),
         );
         if (!matchName && !matchSku && !matchBarcode) return false;
       }

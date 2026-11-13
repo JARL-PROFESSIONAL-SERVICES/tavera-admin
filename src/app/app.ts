@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -44,10 +44,8 @@ import { ThemeService } from './core/services/theme.service';
 import { AdminSection, AdminShellComponent } from './layout/admin-shell.component';
 import { CategoriesViewComponent } from './views/categories/categories-view.component';
 import { CatalogListComponent } from './views/catalog/catalog-list.component';
-import {
-  ProductFormData,
-  ProductFormModalComponent,
-} from './views/catalog/product-form-modal.component';
+import { ProductFormData } from './views/catalog/product-form-modal.component';
+import { ProductFormPageComponent } from './views/catalog/product-form-page.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
 import {
   InventoryAdjustmentData,
@@ -68,7 +66,7 @@ import { PricingViewComponent } from './views/pricing/pricing-view.component';
     AdminShellComponent,
     DashboardComponent,
     CatalogListComponent,
-    ProductFormModalComponent,
+    ProductFormPageComponent,
     CategoriesViewComponent,
     PricingViewComponent,
     InventoryKardexComponent,
@@ -102,9 +100,10 @@ import { PricingViewComponent } from './views/pricing/pricing-view.component';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {
+export class App implements OnInit {
   readonly api = inject(AdminApiService);
   readonly theme = inject(ThemeService);
+  readonly location = inject(Location);
 
   readonly title = signal('Abarrotes Tavera — Panel Administrativo');
   readonly activeSection = signal<AdminSection>('DASHBOARD');
@@ -122,9 +121,10 @@ export class App {
   readonly categories = signal<CategoryRecord[]>([]);
   readonly products = signal<ProductRecord[]>([]);
   readonly productSearchQuery = signal<string>('');
+  readonly isLoadingCatalog = signal<boolean>(false);
+  readonly catalogError = signal<string | null>(null);
 
-  // Modal / Drawer state for ADM-04
-  readonly isProductModalOpen = signal(false);
+  // Full-page Product Form state (ADM-04)
   readonly editingProduct = signal<ProductRecord | null>(null);
   readonly isSavingProduct = signal(false);
 
@@ -168,6 +168,25 @@ export class App {
   readonly auditModuleFilter = signal<string>('');
   readonly auditLogs = signal<AuditLogRecord[]>([]);
 
+  ngOnInit(): void {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      if (path === '/products/new') {
+        this.openCreateProductPage();
+      } else if (path.startsWith('/products/') && path.endsWith('/edit')) {
+        this.activeSection.set('PRODUCT_FORM');
+      } else if (path === '/catalog') {
+        this.activeSection.set('CATALOG');
+      } else if (path === '/categories') {
+        this.activeSection.set('CATEGORIES');
+      } else if (path === '/pricing') {
+        this.activeSection.set('PRICING');
+      } else if (path === '/inventory') {
+        this.activeSection.set('INVENTORY');
+      }
+    }
+  }
+
   onLoginSuccess(): void {
     this.feedback.set({
       type: 'success',
@@ -179,6 +198,13 @@ export class App {
 
   selectSection(section: AdminSection): void {
     this.activeSection.set(section);
+    if (typeof window !== 'undefined') {
+      if (section === 'CATALOG') this.location.go('/catalog');
+      else if (section === 'CATEGORIES') this.location.go('/categories');
+      else if (section === 'PRICING') this.location.go('/pricing');
+      else if (section === 'INVENTORY') this.location.go('/inventory');
+      else if (section === 'DASHBOARD') this.location.go('/');
+    }
     if (!this.api.isAuthenticated()) {
       return;
     }
@@ -231,28 +257,63 @@ export class App {
   }
 
   loadCatalogData(): void {
+    this.isLoadingCatalog.set(true);
+    this.catalogError.set(null);
     this.api.listUnits().subscribe({ next: (u) => this.units.set(u) });
     this.api.listCategories().subscribe({ next: (c) => this.categories.set(c) });
     this.api.listProducts(this.productSearchQuery()).subscribe({
       next: (prods) => {
+        this.isLoadingCatalog.set(false);
         this.products.set(prods);
         if (prods.length > 0 && !this.selectedKardexProductId()) {
           this.selectedKardexProductId.set(prods[0].id);
           this.quoteProductId.set(prods[0].id);
           this.receiptProductId.set(prods[0].id);
         }
+        if (typeof window !== 'undefined') {
+          const match = window.location.pathname.match(/^\/products\/([^/]+)\/edit$/);
+          if (match && match[1]) {
+            const found = prods.find((p) => p.id === match[1]);
+            if (found) {
+              this.editingProduct.set(found);
+              this.activeSection.set('PRODUCT_FORM');
+            }
+          }
+        }
+      },
+      error: (err) => {
+        this.isLoadingCatalog.set(false);
+        this.catalogError.set(
+          err?.error?.message ?? 'No se pudo conectar con el catálogo de productos.'
+        );
       },
     });
   }
 
-  openCreateProductModal(): void {
+  openCreateProductPage(): void {
     this.editingProduct.set(null);
-    this.isProductModalOpen.set(true);
+    this.activeSection.set('PRODUCT_FORM');
+    this.location.go('/products/new');
+  }
+
+  openEditProductPage(p: ProductRecord): void {
+    this.editingProduct.set(p);
+    this.activeSection.set('PRODUCT_FORM');
+    this.location.go(`/products/${p.id}/edit`);
+  }
+
+  closeProductFormPage(): void {
+    this.editingProduct.set(null);
+    this.activeSection.set('CATALOG');
+    this.location.go('/catalog');
+  }
+
+  openCreateProductModal(): void {
+    this.openCreateProductPage();
   }
 
   openEditProductModal(p: ProductRecord): void {
-    this.editingProduct.set(p);
-    this.isProductModalOpen.set(true);
+    this.openEditProductPage(p);
   }
 
   openKardexForProduct(productId: string): void {
@@ -326,7 +387,7 @@ export class App {
         .subscribe({
           next: () => {
             this.isSavingProduct.set(false);
-            this.isProductModalOpen.set(false);
+            this.closeProductFormPage();
             this.loadCatalogData();
             this.feedback.set({
               type: 'success',
@@ -364,7 +425,7 @@ export class App {
         .subscribe({
           next: (created) => {
             this.isSavingProduct.set(false);
-            this.isProductModalOpen.set(false);
+            this.closeProductFormPage();
             this.loadCatalogData();
             this.feedback.set({
               type: 'success',

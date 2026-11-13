@@ -77,3 +77,37 @@
 4. **Plantillas HTML separadas en Angular 22:**
    - Para evitar colisiones sintácticas entre los template literals de ES6 (`${...}`) e interpolaciones en Angular, todos los componentes de vistas mantienen archivos `.html` independientes (`templateUrl`).
    - El binding de señales de formulario usa enlaces explícitos `[ngModel]="sig()"` y `(ngModelChange)="sig.set($event)"`.
+
+## ADR-006: Rediseño de UX en Catálogo y Formularios Extensos de Productos (ADM-03 y ADM-04)
+
+- **Fecha:** 2026-11-13
+- **Estado:** Aprobado
+
+### Contexto y Problema
+1. **Fallo de Renderizado en Catálogo:** El catálogo de productos reportaba existencia de registros y mostraba el paginador, pero las filas de la tabla aparecían vacías (0 filas). El análisis a nivel de paquete en PrimeNG v22 reveló que `p-table` utiliza consultas de señal `contentChild("header")` y `contentChild("body")`, requiriendo variables de referencia `#header` y `#body` en las etiquetas `<ng-template>` además del atributo `pTemplate`. Asimismo, el estado reactivo `viewState` se desacopló de `computed` estático para evaluar limpiamente los 5 estados de vista durante los ciclos de detección de cambios de Angular.
+2. **Experiencia de Usuario en Formularios Extensos:** La gestión de productos comerciales con múltiples códigos de barras, presentaciones derivadas, costos base, precios de mayoreo e inventario resulta abrumadora y propensa a errores dentro de un modal emergente con pestañas y scroll interno.
+
+### Decisiones
+1. **Estados Diferenciados en Catálogo (ADM-03):**
+   - **LOADING:** Esqueleto visual animado con filas titilantes que preserva la estructura de la tabla y evita saltos de layout.
+   - **ERROR:** Contenedor de alerta con descripción accesible y botón para reintentar la carga sin recargar la página.
+   - **EMPTY:** Estado de bienvenida comercial cuando el sistema no tiene productos registrados, con ilustración/icono `lucidePackagePlus` y llamado a la acción prioritario "+ Registrar mi primer producto".
+   - **NO_RESULTS:** Estado cuando la búsqueda o filtros no encuentran coincidencias, con visualización de los términos buscados y botón para limpiar filtros y ver todos los artículos con un solo clic.
+   - **SUCCESS:** Tabla completa con datos reales renderizados, ordenamiento multi-columna, edición rápida de precio de menudeo y paginación condicional que se oculta automáticamente cuando la lista filtrada es menor o igual al tamaño de página (≤ 10 artículos).
+2. **Eliminación de Modales Extensos y Páginas Completas Dedicadas (ADM-04):**
+   - Se crearon rutas y vistas de página completa independientes para `/products/new` y `/products/:id/edit` (`ProductFormPageComponent`).
+   - El formulario se organiza en 7 bloques comerciales progresivos con lenguaje sencillo y libre de jerga técnica:
+     1. Información básica del producto (Nombre comercial claro, código interno SKU, notas).
+     2. Categoría y códigos de barras (Familia y chips interactivos para lectores de código de barras).
+     3. Precios y margen de ganancia (Costo base de compra, precio de venta al público y cálculo en vivo de rentabilidad con alertas visuales de salud de margen).
+     4. Unidades de medida y presentaciones comerciales (Unidad base, venta a granel/pesaje y presentaciones adicionales por caja o docena con factor multiplicador).
+     5. Inventario y alertas de existencias (Stock mínimo para reabastecimiento y permiso para vender en negativo).
+     6. Configuración avanzada opcional (Impuestos SAT IVA/IEPS colapsados de forma predeterminada para evitar confusión en usuarios no técnicos).
+     7. Barras de acción superior e inferior con navegación de retorno al catálogo.
+3. **Protección Contra Pérdida Accidental de Cambios:**
+   - Detección reactiva de estado "dirty" comparando el snapshot inicial del formulario contra el estado actual.
+   - Si el usuario tiene modificaciones sin guardar e intenta salir mediante "Cancelar" o "Volver al Catálogo", se despliega un diálogo de advertencia amigable que le permite elegir entre "Continuar editando" o "Salir y descartar cambios".
+4. **Regla Arquitectural de Diálogos vs Páginas en Tavera Suite:**
+   - Procesos de alta/edición extensos o de varios pasos: **Páginas completas**.
+   - Confirmaciones, advertencias breves y acciones rápidas: **Modales**.
+   - Consultas rápidas: **Paneles flotantes o drawers**.

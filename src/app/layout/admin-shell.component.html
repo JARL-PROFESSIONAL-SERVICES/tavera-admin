@@ -61,8 +61,8 @@
           (click)="onSelectSection('CATALOG')"
           class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all group"
           [ngClass]="{
-            'bg-emerald-600 text-white shadow-sm': activeSection === 'CATALOG',
-            'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'CATALOG',
+            'bg-emerald-600 text-white shadow-sm': activeSection === 'CATALOG' || activeSection === 'PRODUCT_FORM',
+            'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'CATALOG' && activeSection !== 'PRODUCT_FORM',
             'justify-center px-0': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Catálogo de Productos' : ''"

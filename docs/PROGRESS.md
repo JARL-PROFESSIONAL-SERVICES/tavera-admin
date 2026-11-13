@@ -130,3 +130,33 @@
   - 3 suites, 9/9 pruebas unitarias pasadas con Vitest (`pnpm run test`).
   - Compilación de producción limpia (`pnpm run build`) generando bundle de 1.21 MB raw / 235 kB transferido sin advertencias.
   - Capturas reales automatizadas en Light y Dark de las 4 vistas (ADM-05, ADM-06, ADM-07, ADM-08) generadas en `docs/screenshots/`.
+
+## Sprint 07 — Corrección de UX en Catálogo y Formulario de Productos en Página Completa (2026-11-13)
+
+### Completado
+- Creación de rama `feature/ui-admin-catalog-ux-redesign` desde `feature/ui-admin-catalog-inventory`.
+- **Diagnóstico y Corrección de Renderizado en Catálogo (ADM-03):**
+  - Identificación de causa raíz en PrimeNG v22: `p-table` consulta plantillas vía `contentChild("header")` y `contentChild("body")` por variable de referencia. Se agregaron `#header` y `#body` a las etiquetas `<ng-template>` además de `pTemplate`.
+  - Implementación de 5 estados diferenciados de interfaz:
+    1. **LOADING:** Esqueleto visual animado con filas titilantes que mantiene el orden de columnas y evita saltos de pantalla.
+    2. **ERROR:** Alerta amigable con botón de reintento (`retryLoad`).
+    3. **EMPTY:** Estado sin productos con ilustración `lucidePackagePlus` y llamado a crear el primer artículo comercial.
+    4. **NO_RESULTS:** Mensaje cuando los filtros no coinciden, mostrando el término buscado y botón para limpiar filtros.
+    5. **SUCCESS:** Tabla completa con datos reales renderizados, ordenamiento multi-columna, edición rápida de precios y paginación condicional oculta cuando $\le 10$ artículos.
+- **Rediseño Completo a Página Dedicada para Productos (ADM-04):**
+  - **Eliminación total del modal** para creación y edición de productos, migrando a rutas y vistas de página completa: `/products/new` y `/products/:id/edit`.
+  - Componente autónomo `ProductFormPageComponent` estructurado en 7 secciones progresivas con lenguaje comercial accesible:
+    1. Identificación básica (Nombre comercial, SKU, notas explicativas).
+    2. Categoría y códigos de barras múltiples con chips interactivos.
+    3. Precios y margen de rentabilidad en vivo con alertas de salud de ganancia (Saludable, Moderado, Crítico).
+    4. Unidades de medida y presentaciones derivadas (cajas/paquetes) con cálculo de factor.
+    5. Inventario inicial y alertas de existencias mínimas.
+    6. Configuración avanzada opcional (Impuestos SAT IVA/IEPS colapsados de forma predeterminada).
+    7. Barra superior e inferior de guardado con retorno seguro.
+- **Protección Contra Pérdida Accidental de Cambios:**
+  - Rastreo reactivo de cambios pendientes (`isDirty`).
+  - Modal amigable de confirmación ante intentos de salida no guardada ("Continuar editando" vs "Salir y descartar cambios").
+- **Pruebas y Verificación:**
+  - 3 suites, 10/10 pruebas unitarias aprobadas con Vitest (`pnpm run test`).
+  - Compilación de producción limpia (`ng build`) generando bundle de 1.23 MB raw / 238 kB transferido.
+  - Generación de capturas de pantalla reales automatizadas en Light y Dark para todos los estados de catálogo, páginas de creación/edición y diálogo de cambios sin guardar en `docs/screenshots/`.

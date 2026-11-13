@@ -80,6 +80,45 @@ describe('App (Admin Panel)', () => {
     expect(app.isAdjustmentModalOpen()).toBe(false);
   });
 
+  it('should navigate to full page product form for creation and edition (ADM-04 without modal)', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+
+    app.openCreateProductPage();
+    expect(app.activeSection()).toBe('PRODUCT_FORM');
+    expect(app.editingProduct()).toBeNull();
+
+    const sampleProduct = {
+      id: 'prod-test-1',
+      sku: 'TEST-SKU',
+      name: 'Producto de Prueba',
+      description: null,
+      categoryId: null,
+      baseUnitId: 'u-1',
+      isSoldByWeightOrBulk: false,
+      retailUnitPrice: '25.00',
+      wholesaleUnitPrice: null,
+      wholesaleMinBaseQty: null,
+      currentCostPerBaseUnit: '18.00',
+      ivaRate: '0.1600',
+      iepsRate: '0.0000',
+      stockQuantity: '10',
+      minStockAlert: '5',
+      allowNegativeStock: false,
+      isActive: true,
+      barcodes: [],
+      presentations: [],
+    };
+
+    app.openEditProductPage(sampleProduct);
+    expect(app.activeSection()).toBe('PRODUCT_FORM');
+    expect(app.editingProduct()?.id).toBe('prod-test-1');
+
+    app.closeProductFormPage();
+    expect(app.activeSection()).toBe('CATALOG');
+    expect(app.editingProduct()).toBeNull();
+  });
+
   it('should switch active section across modules', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;

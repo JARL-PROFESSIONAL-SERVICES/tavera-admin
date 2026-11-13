@@ -55,11 +55,26 @@
         [products]="products()"
         [categories]="categories()"
         [units]="units()"
-        (createProduct)="openCreateProductModal()"
-        (editProduct)="openEditProductModal($event)"
+        [isLoading]="isLoadingCatalog()"
+        [loadError]="catalogError()"
+        (createProduct)="openCreateProductPage()"
+        (editProduct)="openEditProductPage($event)"
         (viewKardex)="openKardexForProduct($event)"
         (updatePrice)="quickUpdateRetailPrice($event.product, $event.newPrice)"
+        (retryLoad)="loadCatalogData()"
       ></app-catalog-list>
+    }
+
+    <!-- 2.1 FORMULARIO DE PRODUCTO EN PÁGINA COMPLETA (ADM-04) -->
+    @if (activeSection() === 'PRODUCT_FORM') {
+      <app-product-form-page
+        [product]="editingProduct()"
+        [categories]="categories()"
+        [units]="units()"
+        [isSaving]="isSavingProduct()"
+        (save)="handleSaveProduct($event)"
+        (backToCatalog)="closeProductFormPage()"
+      ></app-product-form-page>
     }
 
     <!-- 3. CATEGORÍAS Y PRESENTACIONES (ADM-05) -->
@@ -342,17 +357,7 @@
       </div>
     }
 
-    <!-- MODAL ADM-04: FORMULARIO DE PRODUCTO -->
-    @if (isProductModalOpen()) {
-      <app-product-form-modal
-        [product]="editingProduct()"
-        [categories]="categories()"
-        [units]="units()"
-        [isSaving]="isSavingProduct()"
-        (save)="handleSaveProduct($event)"
-        (cancel)="isProductModalOpen.set(false)"
-      ></app-product-form-modal>
-    }
+
 
     <!-- MODAL ADM-08: AJUSTE OPERATIVO DE INVENTARIO -->
     @if (isAdjustmentModalOpen()) {

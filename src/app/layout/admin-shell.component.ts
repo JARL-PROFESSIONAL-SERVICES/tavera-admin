@@ -27,6 +27,7 @@ import { ThemeService } from '../core/services/theme.service';
 export type AdminSection =
   | 'DASHBOARD'
   | 'CATALOG'
+  | 'PRODUCT_FORM'
   | 'CATEGORIES'
   | 'PRICING'
   | 'INVENTORY'
@@ -84,6 +85,8 @@ export class AdminShellComponent {
         return 'Dashboard Ejecutivo';
       case 'CATALOG':
         return 'Catálogo de Productos';
+      case 'PRODUCT_FORM':
+        return 'Formulario de Producto';
       case 'CATEGORIES':
         return 'Categorías y Presentaciones';
       case 'PRICING':
