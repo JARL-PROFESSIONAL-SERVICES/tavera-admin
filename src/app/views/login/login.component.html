@@ -1,212 +1,141 @@
-<div class="min-h-screen w-full flex flex-col lg:flex-row bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
-  <!-- 45% LEFT BRAND COLUMN (DESKTOP) -->
-  <div class="lg:w-[45%] bg-[var(--sidebar)] text-white p-8 lg:p-14 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-[var(--border)]">
-    <!-- Ambient decorative accents -->
-    <div class="absolute -top-24 -left-24 w-80 h-80 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-amber-600/15 rounded-full blur-3xl pointer-events-none"></div>
+<div class="min-h-screen w-full flex items-center justify-center p-6 bg-[var(--background)] text-[var(--foreground)] relative overflow-hidden transition-colors duration-200">
+  <!-- Subtle ambient accent -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[32rem] h-[32rem] bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- Top Brand Emblem -->
-    <div class="relative z-10">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-lg shadow-emerald-950/40 text-white font-bold text-xl">
-          <ng-icon name="lucideStore" size="22"></ng-icon>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-xl font-bold tracking-tight text-white">Abarrotes Tavera</span>
-            <span class="px-2 py-0.5 text-[11px] font-semibold bg-emerald-700/60 text-emerald-200 rounded border border-emerald-500/30">SUITE ADMIN</span>
-          </div>
-          <p class="text-xs text-zinc-400">Plataforma de Control Comercial e Inventario</p>
-        </div>
+  <div class="w-full max-w-md space-y-6 relative z-10">
+    <!-- Brand Header -->
+    <div class="flex flex-col items-center text-center space-y-3">
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-lg shadow-emerald-950/30 text-white">
+        <ng-icon name="lucideStore" size="24"></ng-icon>
       </div>
-    </div>
-
-    <!-- Middle Value Propositions / Benefits -->
-    <div class="my-10 lg:my-0 relative z-10 space-y-6">
-      <div class="space-y-2">
-        <h2 class="text-2xl lg:text-3xl font-extrabold tracking-tight text-white">
-          Gestión comercial transparente, rápida y sin fricción.
-        </h2>
-        <p class="text-sm text-zinc-300 max-w-md leading-relaxed">
-          Supervise ventas en tiempo real, controle inventario con Kardex inmutable y asegure márgenes de ganancia precisos en cada presentación.
-        </p>
-      </div>
-
-      <div class="grid gap-3.5 pt-2">
-        <div class="flex items-start gap-3 p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50 backdrop-blur-sm">
-          <div class="p-2 rounded-md bg-emerald-600/20 text-emerald-400 mt-0.5">
-            <ng-icon name="lucidePackage" size="18"></ng-icon>
-          </div>
-          <div>
-            <h4 class="text-sm font-semibold text-zinc-100">Catálogo Multidimensional</h4>
-            <p class="text-xs text-zinc-400">Precios por mayoreo, códigos de barras múltiples y equivalencias entre piezas y cajas.</p>
-          </div>
+      <div>
+        <div class="flex items-center justify-center gap-2">
+          <span class="text-xl font-bold tracking-tight text-[var(--foreground)]">Abarrotes Tavera</span>
+          <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 rounded border border-emerald-500/20">SUITE ADMIN</span>
         </div>
-
-        <div class="flex items-start gap-3 p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50 backdrop-blur-sm">
-          <div class="p-2 rounded-md bg-amber-600/20 text-amber-400 mt-0.5">
-            <ng-icon name="lucideReceipt" size="18"></ng-icon>
-          </div>
-          <div>
-            <h4 class="text-sm font-semibold text-zinc-100">Auditoría y Cortes de Caja</h4>
-            <p class="text-xs text-zinc-400">Control de arqueos, turnos abiertos, conciliación de pagos y trazabilidad por cajero.</p>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-3 p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50 backdrop-blur-sm">
-          <div class="p-2 rounded-md bg-emerald-600/20 text-emerald-400 mt-0.5">
-            <ng-icon name="lucideShieldCheck" size="18"></ng-icon>
-          </div>
-          <div>
-            <h4 class="text-sm font-semibold text-zinc-100">Seguridad por Roles (RBAC)</h4>
-            <p class="text-xs text-zinc-400">Permisos estrictos para Propietarios y Administradores sin filtración de secretos.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Footer Info -->
-    <div class="relative z-10 flex items-center justify-between text-xs text-zinc-400 border-t border-zinc-800/80 pt-4">
-      <span>Versión 2.0 · Motor Local</span>
-      <span class="flex items-center gap-1.5 text-emerald-400 font-medium">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        Sistema en Línea
-      </span>
-    </div>
-  </div>
-
-  <!-- 55% RIGHT LOGIN COLUMN (DESKTOP) -->
-  <div class="lg:w-[55%] flex-1 flex items-center justify-center p-6 sm:p-10 lg:p-16">
-    <div class="w-full max-w-md space-y-6">
-      <!-- Header of Form -->
-      <div class="space-y-1.5 text-center sm:text-left">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-          <ng-icon name="lucideLock" size="12"></ng-icon>
-          Acceso Seguro
-        </span>
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">
+        <h1 class="text-2xl font-extrabold tracking-tight text-[var(--foreground)] mt-2">
           Iniciar Sesión
         </h1>
-        <p class="text-sm text-[var(--muted-foreground)]">
-          Ingrese sus credenciales autorizadas de Tavera Suite para continuar.
+        <p class="text-xs text-[var(--muted-foreground)] mt-1">
+          Ingrese sus credenciales autorizadas para acceder al panel.
         </p>
       </div>
+    </div>
 
-      <!-- Feedback Alert -->
-      @if (errorMessage()) {
-        <div class="p-3.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-400 text-sm flex items-start gap-3 animate-fadeIn" role="alert">
-          <ng-icon name="lucideAlertTriangle" size="18" class="mt-0.5 shrink-0"></ng-icon>
-          <div>
-            <strong class="font-semibold">Error de autenticación:</strong>
-            <p class="text-xs mt-0.5 leading-relaxed">{{ errorMessage() }}</p>
-          </div>
-        </div>
-      }
-
-      <!-- Form Card -->
-      <div class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
-        <form (ngSubmit)="handleLogin()" class="space-y-4">
-          <!-- Username Field -->
-          <div class="space-y-1.5">
-            <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-              Usuario
-            </label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--muted-foreground)]">
-                <ng-icon name="lucideUser" size="16"></ng-icon>
-              </div>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                autocomplete="username"
-                [(ngModel)]="username"
-                placeholder="Ej. owner o admin"
-                class="w-full pl-10 pr-4 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] placeholder-[var(--muted-foreground)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent transition-all"
-              />
-            </div>
-          </div>
-
-          <!-- Password Field -->
-          <div class="space-y-1.5">
-            <div class="flex items-center justify-between">
-              <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-                Contraseña
-              </label>
-              <span class="text-xs text-[var(--muted-foreground)]">Sensible a mayúsculas</span>
-            </div>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[var(--muted-foreground)]">
-                <ng-icon name="lucideLock" size="16"></ng-icon>
-              </div>
-              <input
-                id="password"
-                name="password"
-                [type]="showPassword() ? 'text' : 'password'"
-                required
-                autocomplete="current-password"
-                [(ngModel)]="password"
-                placeholder="••••••••••••"
-                class="w-full pl-10 pr-11 py-2.5 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] placeholder-[var(--muted-foreground)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent transition-all"
-              />
-              <button
-                type="button"
-                (click)="showPassword.set(!showPassword())"
-                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-                [title]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
-              >
-                <ng-icon [name]="showPassword() ? 'lucideEyeOff' : 'lucideEye'" size="16"></ng-icon>
-              </button>
-            </div>
-          </div>
-
-          <!-- Submit CTA -->
-          <button
-            type="submit"
-            [disabled]="isSubmitting() || !username.trim() || !password"
-            class="w-full py-2.5 px-4 bg-[var(--brand-solid)] hover:opacity-95 text-white font-medium text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:ring-offset-2"
-          >
-            @if (isSubmitting()) {
-              <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-              <span>Verificando credenciales...</span>
-            } @else {
-              <span>Ingresar a Tavera Admin</span>
-              <ng-icon name="lucideArrowRight" size="16"></ng-icon>
-            }
-          </button>
-        </form>
-
-        <!-- Quick Demo Credentials Selector -->
-        <div class="pt-4 border-t border-[var(--border)]">
-          <p class="text-xs font-semibold text-[var(--muted-foreground)] mb-2">
-            Acceso Rápido de Prueba (Entorno de Desarrollo):
-          </p>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              (click)="setPreset('owner', 'TaveraOwner2026!')"
-              class="p-2 rounded-md bg-[var(--surface-muted)] border border-[var(--border)] hover:border-[var(--brand)] text-left transition-colors"
-            >
-              <span class="block font-semibold text-[var(--foreground)]">Propietario (Owner)</span>
-              <span class="text-[11px] text-[var(--muted-foreground)] font-mono">owner</span>
-            </button>
-            <button
-              type="button"
-              (click)="setPreset('admin', 'TaveraAdmin2026!')"
-              class="p-2 rounded-md bg-[var(--surface-muted)] border border-[var(--border)] hover:border-[var(--brand)] text-left transition-colors"
-            >
-              <span class="block font-semibold text-[var(--foreground)]">Administrador</span>
-              <span class="text-[11px] text-[var(--muted-foreground)] font-mono">admin</span>
-            </button>
-          </div>
+    <!-- Feedback Alert -->
+    @if (errorMessage()) {
+      <div class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-400 text-sm flex items-start gap-3 animate-fadeIn" role="alert">
+        <ng-icon name="lucideAlertTriangle" size="18" class="mt-0.5 shrink-0"></ng-icon>
+        <div>
+          <strong class="font-semibold">Error de autenticación:</strong>
+          <p class="text-xs mt-0.5 leading-relaxed">{{ errorMessage() }}</p>
         </div>
       </div>
+    }
 
-      <!-- Bottom Privacy & Security notice -->
-      <div class="text-center text-xs text-[var(--muted-foreground)]">
-        Acceso restringido a personal comercial autorizado. Todas las sesiones quedan registradas en el módulo de auditoría.
+    <!-- Form Card -->
+    <div class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
+      <form (ngSubmit)="handleLogin()" class="space-y-4">
+        <!-- Username Field -->
+        <div class="space-y-1.5">
+          <label for="username" class="block text-xs font-semibold text-[var(--foreground)]">
+            Usuario
+          </label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideUser" size="16"></ng-icon>
+            </span>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              required
+              autocomplete="username"
+              [(ngModel)]="username"
+              placeholder="Ej. owner o admin"
+              class="w-full h-10 pl-9 pr-3 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent transition-all"
+            />
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="password" class="block text-xs font-semibold text-[var(--foreground)]">
+              Contraseña
+            </label>
+            <span class="text-[11px] text-[var(--muted-foreground)]">Sensible a mayúsculas</span>
+          </div>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideLock" size="16"></ng-icon>
+            </span>
+            <input
+              id="password"
+              name="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              required
+              autocomplete="current-password"
+              [(ngModel)]="password"
+              placeholder="••••••••••••"
+              class="w-full h-10 pl-9 pr-10 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:border-transparent transition-all"
+            />
+            <button
+              type="button"
+              (click)="showPassword.set(!showPassword())"
+              class="absolute right-3 flex items-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+              [title]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
+            >
+              <ng-icon [name]="showPassword() ? 'lucideEyeOff' : 'lucideEye'" size="16"></ng-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit CTA -->
+        <button
+          type="submit"
+          [disabled]="isSubmitting() || !username.trim() || !password"
+          class="w-full h-10 px-4 bg-[var(--brand-solid)] hover:opacity-95 text-white font-semibold text-sm rounded-lg shadow-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:ring-offset-2 cursor-pointer"
+        >
+          @if (isSubmitting()) {
+            <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            <span>Verificando credenciales...</span>
+          } @else {
+            <span>Ingresar a Tavera Admin</span>
+            <ng-icon name="lucideArrowRight" size="16"></ng-icon>
+          }
+        </button>
+      </form>
+
+      <!-- Quick Demo Credentials Selector -->
+      <div class="pt-4 border-t border-[var(--border)]">
+        <p class="text-xs font-medium text-[var(--muted-foreground)] mb-2">
+          Acceso Rápido de Prueba (Desarrollo):
+        </p>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <button
+            type="button"
+            (click)="setPreset('owner', 'TaveraOwner2026!')"
+            class="p-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] hover:border-[var(--brand)] text-left transition-colors cursor-pointer"
+          >
+            <span class="block font-semibold text-[var(--foreground)]">Propietario (Owner)</span>
+            <span class="text-[11px] text-[var(--muted-foreground)] font-mono">owner</span>
+          </button>
+          <button
+            type="button"
+            (click)="setPreset('admin', 'TaveraAdmin2026!')"
+            class="p-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] hover:border-[var(--brand)] text-left transition-colors cursor-pointer"
+          >
+            <span class="block font-semibold text-[var(--foreground)]">Administrador</span>
+            <span class="text-[11px] text-[var(--muted-foreground)] font-mono">admin</span>
+          </button>
+        </div>
       </div>
     </div>
+
+    <!-- Bottom Security Notice -->
+    <p class="text-center text-xs text-[var(--muted-foreground)]">
+      Acceso restringido a personal autorizado · Sesiones auditadas
+    </p>
   </div>
 </div>

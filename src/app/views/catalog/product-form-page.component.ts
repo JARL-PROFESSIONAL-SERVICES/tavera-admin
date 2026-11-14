@@ -519,11 +519,11 @@ export class ProductFormPageComponent implements OnChanges, AfterViewInit {
       baseUnitCode: this.formBaseUnitCode() || 'PZA',
       isSoldByWeightOrBulk: this.formIsSoldByWeight(),
       retailUnitPrice: this.formRetailPrice(),
-      wholesaleUnitPrice: this.showWholesaleSection() && this.formWholesalePrice()
-        ? this.formWholesalePrice()
+      wholesaleUnitPrice: this.formWholesalePrice()
+        ? String(this.formWholesalePrice())
         : undefined,
-      wholesaleMinBaseQty: this.showWholesaleSection() && this.formWholesaleMinQty()
-        ? this.formWholesaleMinQty()
+      wholesaleMinBaseQty: this.formWholesaleMinQty()
+        ? String(this.formWholesaleMinQty())
         : undefined,
       currentCostPerBaseUnit: this.formCost() || '0.00',
       ivaRate: this.formIvaRate() || '0.0000',

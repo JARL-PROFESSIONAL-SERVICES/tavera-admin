@@ -1,69 +1,11 @@
-<!-- GLOBAL TOAST NOTIFICATIONS (SOBER ENTERPRISE DESIGN) -->
-<p-toast position="top-right" [baseZIndex]="99999">
-  <ng-template #headless let-message let-closeFn="closeFn">
-    <div
-      class="group relative flex items-start gap-3 p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-md overflow-hidden transition-all duration-200 w-full max-w-sm"
-      role="status"
-    >
-      <!-- Accent side indicator strip (sober 3px) -->
-      <div
-        class="absolute left-0 top-0 bottom-0 w-1"
-        [ngClass]="{
-          'bg-emerald-600 dark:bg-emerald-500': message.severity === 'success',
-          'bg-red-600 dark:bg-red-500': message.severity === 'error',
-          'bg-amber-500 dark:bg-amber-400': message.severity === 'warn',
-          'bg-blue-600 dark:bg-blue-400': message.severity === 'info'
-        }"
-      ></div>
-
-      <!-- Semantic Status Icon -->
-      <div
-        class="shrink-0 mt-0.5 p-1 rounded-md flex items-center justify-center"
-        [ngClass]="{
-          'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10': message.severity === 'success',
-          'text-red-700 dark:text-red-400 bg-red-500/10': message.severity === 'error',
-          'text-amber-700 dark:text-amber-400 bg-amber-500/10': message.severity === 'warn',
-          'text-blue-700 dark:text-blue-400 bg-blue-500/10': message.severity === 'info'
-        }"
-      >
-        @if (message.severity === 'success') {
-          <ng-icon name="lucideCheckCircle2" size="18"></ng-icon>
-        } @else if (message.severity === 'error') {
-          <ng-icon name="lucideAlertTriangle" size="18"></ng-icon>
-        } @else if (message.severity === 'warn') {
-          <ng-icon name="lucideAlertCircle" size="18"></ng-icon>
-        } @else {
-          <ng-icon name="lucideInfo" size="18"></ng-icon>
-        }
-      </div>
-
-      <!-- Content text -->
-      <div class="flex-1 min-w-0 pr-1">
-        @if (message.summary) {
-          <h4 class="text-xs font-bold text-[var(--foreground)] leading-snug">
-            {{ message.summary }}
-          </h4>
-        }
-        @if (message.detail) {
-          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed mt-0.5 font-normal">
-            {{ message.detail }}
-          </p>
-        }
-      </div>
-
-      <!-- Close Button -->
-      <button
-        type="button"
-        (click)="closeFn($event)"
-        class="shrink-0 p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-muted)] transition-colors cursor-pointer"
-        title="Cerrar notificación"
-        aria-label="Cerrar"
-      >
-        <ng-icon name="lucideX" size="14"></ng-icon>
-      </button>
-    </div>
-  </ng-template>
-</p-toast>
+<!-- GLOBAL TOAST NOTIFICATIONS (SPARTAN / SONNER) -->
+<ngx-sonner-toaster
+  position="top-right"
+  [richColors]="false"
+  [closeButton]="true"
+  [expand]="false"
+  [theme]="theme.isDark() ? 'dark' : 'light'"
+/>
 
 <!-- UNAUTHENTICATED STATE: ADM-01 LOGIN INDEPENDIENTE -->
 @if (!api.isAuthenticated()) {
@@ -72,7 +14,11 @@
   <!-- AUTHENTICATED STATE: ADMIN SHELL WITH COLLAPSIBLE SIDEBAR & TOPBAR -->
   <app-admin-shell
     [activeSection]="activeSection()"
+    [activeSuppliersTab]="suppliersActiveTab()"
+    [isEditingProduct]="editingProduct() !== null"
     (sectionChange)="selectSection($event)"
+    (createProduct)="openCreateProductPage()"
+    (selectSuppliersTab)="openSuppliersTab($event)"
   >
 
     <!-- 1. DASHBOARD EJECUTIVO (ADM-02) -->
@@ -146,69 +92,324 @@
     <!-- 6. PROVEEDORES Y COMPRAS (ADM-09) -->
     @if (activeSection() === 'SUPPLIERS_PURCHASES') {
       <div class="space-y-6">
-        <div class="pb-2 border-b border-[var(--border)]">
-          <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-            Proveedores y Recepción de Mercancía
-          </h1>
-          <p class="text-xs sm:text-sm text-[var(--muted-foreground)]">
-            Catálogo interno de distribuidores, historial de cotizaciones y registro de órdenes de compra.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
-            <h3 class="text-sm font-bold text-[var(--foreground)]">Proveedores Registrados</h3>
-            <div class="divide-y divide-[var(--border)] text-xs max-h-80 overflow-y-auto">
-              @for (sup of suppliers(); track sup.id) {
-                <div class="py-2.5 flex items-center justify-between">
-                  <div>
-                    <div class="font-bold text-[var(--foreground)]">{{ sup.name }}</div>
-                    <div class="text-[11px] text-[var(--muted-foreground)] font-mono">Clave: {{ sup.code }} · Tel: {{ sup.phone || 'N/A' }}</div>
-                  </div>
-                  <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Activo</span>
-                </div>
-              }
-            </div>
-
-            <div class="pt-4 border-t border-[var(--border)] space-y-2 text-xs">
-              <span class="font-bold text-[var(--foreground)]">+ Registrar Proveedor</span>
-              <div class="grid grid-cols-2 gap-2">
-                <input type="text" [ngModel]="newSupplierCode()" (ngModelChange)="newSupplierCode.set($event)" placeholder="Clave (ej. PROV-01)" class="px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
-                <input type="text" [ngModel]="newSupplierName()" (ngModelChange)="newSupplierName.set($event)" placeholder="Razón Social" class="px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
-              </div>
-              <input type="text" [ngModel]="newSupplierPhone()" (ngModelChange)="newSupplierPhone.set($event)" placeholder="Teléfono de contacto" class="w-full px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs" />
-              <button type="button" (click)="submitCreateSupplier()" class="w-full py-2 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg hover:opacity-95">Guardar Proveedor</button>
-            </div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3 border-b border-[var(--border)]">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+              Proveedores y Compras
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-0.5">
+              Directorio de proveedores e historial de recepciones de mercancía.
+            </p>
           </div>
 
-          <div class="lg:col-span-2 p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4">
-            <h3 class="text-sm font-bold text-[var(--foreground)]">Historial de Recepciones de Compra</h3>
+          <button
+            type="button"
+            (click)="showCreateSupplierModal.set(true)"
+            class="h-10 px-4 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg shadow-xs hover:opacity-95 transition-all flex items-center gap-2 self-start sm:self-auto cursor-pointer"
+          >
+            <ng-icon name="lucidePlus" size="16"></ng-icon>
+            <span>Nuevo Proveedor</span>
+          </button>
+        </div>
+
+        <!-- PESTAÑAS SEPARADAS: PROVEEDORES | COMPRAS PENDIENTES | COMPRAS CANCELADAS | HISTORIAL -->
+        <div class="flex flex-wrap items-center gap-2 border-b border-[var(--border)]">
+          <button
+            type="button"
+            (click)="suppliersActiveTab.set('SUPPLIERS')"
+            class="px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2"
+            [ngClass]="suppliersActiveTab() === 'SUPPLIERS' ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400' : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'"
+          >
+            <ng-icon name="lucideTruck" size="15"></ng-icon>
+            <span>Proveedores</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--foreground)]">
+              {{ suppliers().length }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            (click)="suppliersActiveTab.set('PENDING')"
+            class="px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2"
+            [ngClass]="suppliersActiveTab() === 'PENDING' ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400' : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'"
+          >
+            <ng-icon name="lucideClock" size="15"></ng-icon>
+            <span>Compras Pendientes</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--foreground)]">
+              {{ pendingPurchases().length }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            (click)="suppliersActiveTab.set('CANCELLED')"
+            class="px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2"
+            [ngClass]="suppliersActiveTab() === 'CANCELLED' ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400' : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'"
+          >
+            <ng-icon name="lucideBan" size="15"></ng-icon>
+            <span>Compras Canceladas</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--foreground)]">
+              {{ cancelledPurchases().length }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            (click)="suppliersActiveTab.set('HISTORY')"
+            class="px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2"
+            [ngClass]="suppliersActiveTab() === 'HISTORY' ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400' : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'"
+          >
+            <ng-icon name="lucideReceipt" size="15"></ng-icon>
+            <span>Historial de Compras</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--foreground)]">
+              {{ purchaseReceipts().length }}
+            </span>
+          </button>
+        </div>
+
+        <!-- TAB 1: LISTA DE PROVEEDORES -->
+        @if (suppliersActiveTab() === 'SUPPLIERS') {
+          <div class="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto text-xs">
               <table class="w-full text-left">
                 <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
                   <tr>
-                    <th class="py-2.5 px-3">Folio</th>
-                    <th class="py-2.5 px-3">Proveedor</th>
-                    <th class="py-2.5 px-3">Factura</th>
-                    <th class="py-2.5 px-3 text-right">Costo Total</th>
-                    <th class="py-2.5 px-3">Fecha</th>
+                    <th class="py-3 px-4">Clave</th>
+                    <th class="py-3 px-4">Razón Social / Nombre</th>
+                    <th class="py-3 px-4">Teléfono</th>
+                    <th class="py-3 px-4 text-center">Estado</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
-                  @for (r of purchaseReceipts(); track r.id) {
-                    <tr class="hover:bg-[var(--surface-muted)]">
-                      <td class="py-2.5 px-3 font-mono font-bold">{{ r.folio }}</td>
-                      <td class="py-2.5 px-3 font-medium">{{ r.supplier?.name ?? 'Proveedor' }}</td>
-                      <td class="py-2.5 px-3 font-mono text-[var(--muted-foreground)]">{{ r.invoiceNumber || 'S/N' }}</td>
-                      <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-600">${{ r.totalCost }}</td>
-                      <td class="py-2.5 px-3 text-[11px] text-[var(--muted-foreground)]">{{ r.receivedAt | date:'short' }}</td>
+                  @for (sup of suppliers(); track sup.id) {
+                    <tr class="hover:bg-[var(--surface-muted)] transition-colors">
+                      <td class="py-3 px-4 font-mono font-semibold">{{ sup.code }}</td>
+                      <td class="py-3 px-4 font-semibold">{{ sup.name }}</td>
+                      <td class="py-3 px-4 font-mono text-[var(--muted-foreground)]">{{ sup.phone || 'Sin teléfono' }}</td>
+                      <td class="py-3 px-4 text-center">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                          Activo
+                        </span>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="4" class="py-12 px-4 text-center">
+                        <div class="flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+                          <div class="w-10 h-10 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+                            <ng-icon name="lucideTruck" size="20"></ng-icon>
+                          </div>
+                          <p class="text-xs font-semibold text-[var(--foreground)]">Sin proveedores registrados</p>
+                          <p class="text-[11px]">Haz clic en "Nuevo Proveedor" para dar de alta tu primer distribuidor.</p>
+                        </div>
+                      </td>
                     </tr>
                   }
                 </tbody>
               </table>
             </div>
           </div>
-        </div>
+        }
+
+        <!-- TAB 2: COMPRAS PENDIENTES -->
+        @if (suppliersActiveTab() === 'PENDING') {
+          <div class="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs overflow-hidden">
+            <div class="overflow-x-auto text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
+                  <tr>
+                    <th class="py-3 px-4">Folio</th>
+                    <th class="py-3 px-4">Proveedor</th>
+                    <th class="py-3 px-4">Factura / Referencia</th>
+                    <th class="py-3 px-4 text-right">Costo Estimado</th>
+                    <th class="py-3 px-4">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
+                  @for (r of pendingPurchases(); track r.id) {
+                    <tr class="hover:bg-[var(--surface-muted)] transition-colors">
+                      <td class="py-3 px-4 font-mono font-bold">{{ r.folio }}</td>
+                      <td class="py-3 px-4 font-medium">{{ r.supplier?.name ?? 'Proveedor' }}</td>
+                      <td class="py-3 px-4 font-mono text-[var(--muted-foreground)]">{{ r.invoiceNumber || 'S/N' }}</td>
+                      <td class="py-3 px-4 text-right font-mono font-bold text-amber-600">${{ r.totalCost }}</td>
+                      <td class="py-3 px-4 text-[11px] text-[var(--muted-foreground)]">{{ r.receivedAt | date:'short' }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="5" class="py-12 px-4 text-center">
+                        <div class="flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+                          <div class="w-10 h-10 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+                            <ng-icon name="lucideClock" size="20"></ng-icon>
+                          </div>
+                          <p class="text-xs font-semibold text-[var(--foreground)]">No hay compras pendientes</p>
+                          <p class="text-[11px]">Las órdenes de compra por recibir aparecerán aquí.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <!-- TAB 3: COMPRAS CANCELADAS -->
+        @if (suppliersActiveTab() === 'CANCELLED') {
+          <div class="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs overflow-hidden">
+            <div class="overflow-x-auto text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
+                  <tr>
+                    <th class="py-3 px-4">Folio</th>
+                    <th class="py-3 px-4">Proveedor</th>
+                    <th class="py-3 px-4">Factura / Referencia</th>
+                    <th class="py-3 px-4 text-right">Costo Total</th>
+                    <th class="py-3 px-4">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
+                  @for (r of cancelledPurchases(); track r.id) {
+                    <tr class="hover:bg-[var(--surface-muted)] transition-colors">
+                      <td class="py-3 px-4 font-mono font-bold">{{ r.folio }}</td>
+                      <td class="py-3 px-4 font-medium">{{ r.supplier?.name ?? 'Proveedor' }}</td>
+                      <td class="py-3 px-4 font-mono text-[var(--muted-foreground)]">{{ r.invoiceNumber || 'S/N' }}</td>
+                      <td class="py-3 px-4 text-right font-mono font-bold text-red-500">${{ r.totalCost }}</td>
+                      <td class="py-3 px-4 text-[11px] text-[var(--muted-foreground)]">{{ r.receivedAt | date:'short' }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="5" class="py-12 px-4 text-center">
+                        <div class="flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+                          <div class="w-10 h-10 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+                            <ng-icon name="lucideBan" size="20"></ng-icon>
+                          </div>
+                          <p class="text-xs font-semibold text-[var(--foreground)]">No hay compras canceladas</p>
+                          <p class="text-[11px]">Las compras anuladas o rechazadas se mostrarán en esta sección.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <!-- TAB 4: HISTORIAL DE RECEPCIONES DE COMPRA -->
+        @if (suppliersActiveTab() === 'HISTORY') {
+          <div class="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs overflow-hidden">
+            <div class="overflow-x-auto text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
+                  <tr>
+                    <th class="py-3 px-4">Folio</th>
+                    <th class="py-3 px-4">Proveedor</th>
+                    <th class="py-3 px-4">Factura</th>
+                    <th class="py-3 px-4 text-right">Costo Total</th>
+                    <th class="py-3 px-4">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
+                  @for (r of purchaseReceipts(); track r.id) {
+                    <tr class="hover:bg-[var(--surface-muted)] transition-colors">
+                      <td class="py-3 px-4 font-mono font-bold">{{ r.folio }}</td>
+                      <td class="py-3 px-4 font-medium">{{ r.supplier?.name ?? 'Proveedor' }}</td>
+                      <td class="py-3 px-4 font-mono text-[var(--muted-foreground)]">{{ r.invoiceNumber || 'S/N' }}</td>
+                      <td class="py-3 px-4 text-right font-mono font-bold text-emerald-600">${{ r.totalCost }}</td>
+                      <td class="py-3 px-4 text-[11px] text-[var(--muted-foreground)]">{{ r.receivedAt | date:'short' }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="5" class="py-12 px-4 text-center">
+                        <div class="flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+                          <div class="w-10 h-10 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+                            <ng-icon name="lucideTruck" size="20"></ng-icon>
+                          </div>
+                          <p class="text-xs font-semibold text-[var(--foreground)]">No hay recepciones de compra registradas</p>
+                          <p class="text-[11px]">Las entradas de mercancía y facturas de proveedores aparecerán aquí.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <!-- MODAL: NUEVO PROVEEDOR -->
+        @if (showCreateSupplierModal()) {
+          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
+            <div class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 max-w-md w-full shadow-xl space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+                <div class="flex items-center gap-2">
+                  <ng-icon name="lucideTruck" size="18" class="text-emerald-600 dark:text-emerald-400"></ng-icon>
+                  <h3 class="text-sm font-bold text-[var(--foreground)]">Registrar Nuevo Proveedor</h3>
+                </div>
+                <button
+                  type="button"
+                  (click)="showCreateSupplierModal.set(false)"
+                  class="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer"
+                >
+                  <ng-icon name="lucideX" size="16"></ng-icon>
+                </button>
+              </div>
+
+              <div class="space-y-3">
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-medium text-[var(--foreground)]">Clave del Proveedor *</label>
+                  <input
+                    type="text"
+                    [ngModel]="newSupplierCode()"
+                    (ngModelChange)="newSupplierCode.set($event)"
+                    placeholder="Ej. PROV-01"
+                    class="w-full h-10 px-3 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  />
+                </div>
+
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-medium text-[var(--foreground)]">Razón Social o Nombre *</label>
+                  <input
+                    type="text"
+                    [ngModel]="newSupplierName()"
+                    (ngModelChange)="newSupplierName.set($event)"
+                    placeholder="Ej. Distribuidora Central"
+                    class="w-full h-10 px-3 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  />
+                </div>
+
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-medium text-[var(--foreground)]">Teléfono de Contacto</label>
+                  <input
+                    type="text"
+                    [ngModel]="newSupplierPhone()"
+                    (ngModelChange)="newSupplierPhone.set($event)"
+                    placeholder="Ej. 55 1234 5678"
+                    class="w-full h-10 px-3 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  />
+                </div>
+              </div>
+
+              <div class="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  (click)="showCreateSupplierModal.set(false)"
+                  class="h-10 px-4 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-muted)] text-xs font-semibold text-[var(--foreground)] cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  (click)="submitCreateSupplier()"
+                  [disabled]="!newSupplierCode().trim() || !newSupplierName().trim()"
+                  class="h-10 px-4 rounded-lg bg-[var(--brand-solid)] text-white text-xs font-semibold hover:opacity-95 disabled:opacity-50 cursor-pointer"
+                >
+                  Guardar Proveedor
+                </button>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     }
 
@@ -256,6 +457,18 @@
                       <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                         {{ s.status }}
                       </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7" class="py-12 px-4 text-center">
+                      <div class="flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+                        <div class="w-10 h-10 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+                          <ng-icon name="lucideReceipt" size="20"></ng-icon>
+                        </div>
+                        <p class="text-xs font-semibold text-[var(--foreground)]">No hay tickets de venta registrados</p>
+                        <p class="text-[11px]">Los tickets emitidos desde las cajas POS aparecerán automáticamente en este listado.</p>
+                      </div>
                     </td>
                   </tr>
                 }
@@ -311,6 +524,18 @@
                         <button type="button" (click)="toggleUserActive(u)" class="text-xs text-[var(--brand)] hover:underline">
                           {{ u.isActive ? 'Desactivar' : 'Reactivar' }}
                         </button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="5" class="py-12 px-4 text-center">
+                        <div class="flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+                          <div class="w-10 h-10 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+                            <ng-icon name="lucideUsers" size="20"></ng-icon>
+                          </div>
+                          <p class="text-xs font-semibold text-[var(--foreground)]">No hay cuentas de usuario registradas</p>
+                          <p class="text-[11px]">Crea un nuevo usuario operativo desde el panel lateral.</p>
+                        </div>
                       </td>
                     </tr>
                   }
@@ -385,6 +610,18 @@
                     </td>
                     <td class="py-2.5 px-3 font-medium">{{ log.actorUser?.fullName ?? 'Sistema Automático' }}</td>
                     <td class="py-2.5 px-3 font-mono text-[11px] text-[var(--muted-foreground)]">{{ log.entityType }}: {{ log.entityId }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="py-12 px-4 text-center">
+                      <div class="flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+                        <div class="w-10 h-10 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+                          <ng-icon name="lucideShieldCheck" size="20"></ng-icon>
+                        </div>
+                        <p class="text-xs font-semibold text-[var(--foreground)]">Sin eventos en la bitácora de auditoría</p>
+                        <p class="text-[11px]">Las acciones críticas del sistema quedarán registradas aquí.</p>
+                      </div>
+                    </td>
                   </tr>
                 }
               </tbody>

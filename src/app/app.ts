@@ -1,12 +1,14 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   lucideAlertCircle,
   lucideAlertTriangle,
+  lucideBan,
   lucideBoxes,
   lucideCheckCircle2,
+  lucideClock,
   lucideDollarSign,
   lucideEdit,
   lucideFolderTree,
@@ -27,7 +29,7 @@ import {
   lucideUsers,
   lucideX,
 } from '@ng-icons/lucide';
-import { ToastModule } from 'primeng/toast';
+import { NgxSonnerToaster } from 'ngx-sonner';
 import { ToastService } from './core/services/toast.service';
 import {
   AuditLogRecord,
@@ -45,7 +47,7 @@ import {
 } from './core/models/admin.models';
 import { AdminApiService } from './core/services/admin-api.service';
 import { ThemeService } from './core/services/theme.service';
-import { AdminSection, AdminShellComponent } from './layout/admin-shell.component';
+import { AdminSection, AdminShellComponent, SuppliersTab } from './layout/admin-shell.component';
 import { CategoriesViewComponent } from './views/categories/categories-view.component';
 import { CatalogListComponent } from './views/catalog/catalog-list.component';
 import { ProductFormData } from './views/catalog/product-form-modal.component';
@@ -69,7 +71,7 @@ import { PricingViewComponent } from './views/pricing/pricing-view.component';
     CommonModule,
     FormsModule,
     NgIconComponent,
-    ToastModule,
+    NgxSonnerToaster,
     LoginComponent,
     AdminShellComponent,
     DashboardComponent,
@@ -84,8 +86,10 @@ import { PricingViewComponent } from './views/pricing/pricing-view.component';
     provideIcons({
       lucideAlertCircle,
       lucideAlertTriangle,
+      lucideBan,
       lucideBoxes,
       lucideCheckCircle2,
+      lucideClock,
       lucideDollarSign,
       lucideEdit,
       lucideFolderTree,
@@ -149,6 +153,18 @@ export class App implements OnInit {
   // Suppliers, Comparison & Purchases state
   readonly suppliers = signal<SupplierRecord[]>([]);
   readonly purchaseReceipts = signal<PurchaseReceiptRecord[]>([]);
+  readonly pendingPurchases = computed(() =>
+    this.purchaseReceipts().filter(
+      (r: PurchaseReceiptRecord & { status?: string }) => r.status === 'PENDING',
+    ),
+  );
+  readonly cancelledPurchases = computed(() =>
+    this.purchaseReceipts().filter(
+      (r: PurchaseReceiptRecord & { status?: string }) => r.status === 'CANCELLED',
+    ),
+  );
+  readonly suppliersActiveTab = signal<SuppliersTab>('SUPPLIERS');
+  readonly showCreateSupplierModal = signal(false);
   readonly supplierComparison =
     signal<ProductSupplierComparisonResponse | null>(null);
   readonly newSupplierCode = signal<string>('');
@@ -543,6 +559,11 @@ export class App implements OnInit {
     });
   }
 
+  openSuppliersTab(tab: SuppliersTab): void {
+    this.suppliersActiveTab.set(tab);
+    this.selectSection('SUPPLIERS_PURCHASES');
+  }
+
   submitCreateSupplier(): void {
     const code = this.newSupplierCode().trim();
     const name = this.newSupplierName().trim();
@@ -560,6 +581,7 @@ export class App implements OnInit {
           this.newSupplierCode.set('');
           this.newSupplierName.set('');
           this.newSupplierPhone.set('');
+          this.showCreateSupplierModal.set(false);
           this.loadSuppliersAndPurchases();
           this.toast.success('Proveedor registrado', `Proveedor ${sup.name} registrado exitosamente.`);
         },

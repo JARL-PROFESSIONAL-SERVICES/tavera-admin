@@ -1,13 +1,28 @@
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { MessageService } from 'primeng/api';
 import { App } from './app';
 
 describe('App (Admin Panel)', () => {
   beforeEach(async () => {
+    if (!window.matchMedia) {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: (query: string) => ({
+          matches: false,
+          media: query,
+          onchange: null,
+          addListener: () => {},
+          removeListener: () => {},
+          addEventListener: () => {},
+          removeEventListener: () => {},
+          dispatchEvent: () => false,
+        }),
+      });
+    }
+
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideHttpClient(), MessageService],
+      providers: [provideHttpClient()],
     }).compileComponents();
   });
 

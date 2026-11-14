@@ -1,65 +1,118 @@
-<div class="space-y-6 pb-24 max-w-5xl mx-auto">
-  <!-- 1. BREADCRUMBS & FAST REGISTER HEADER -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-[var(--border)]">
+<div class="w-full space-y-5 pb-24">
+  <!-- 1. HEADER & KEYBOARD SHORTCUTS -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[var(--border)]">
     <div class="flex items-center gap-3">
       <button
         type="button"
         (click)="onCancel()"
-        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-muted)] transition-colors border border-[var(--border)]"
+        class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-muted)] transition-colors border border-[var(--border)] cursor-pointer"
         title="Volver al catálogo de productos (Esc)"
       >
         <ng-icon name="lucideArrowLeft" size="18"></ng-icon>
       </button>
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="text-lg sm:text-xl font-bold text-[var(--foreground)] tracking-tight">
+          <h1 class="text-lg font-bold text-[var(--foreground)] tracking-tight">
             {{ isEditMode ? 'Editar Producto Comercial' : 'Registro Rápido de Producto' }}
           </h1>
           <span
-            class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider"
+            class="px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider"
             [ngClass]="isEditMode ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'"
           >
-            {{ isEditMode ? 'Modo Edición' : 'Alta Rápida' }}
+            {{ isEditMode ? 'Edición' : 'Alta Rápida' }}
           </span>
         </div>
         <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
-          {{ isEditMode ? 'Actualice la información comercial y precios del producto.' : 'Capture los datos esenciales. Presione Enter para avanzar entre campos o utilice el lector de códigos.' }}
+          {{ isEditMode ? 'Actualice la información comercial, inventario y precios del producto.' : 'Capture los datos esenciales. Presione Enter para avanzar entre campos o utilice el lector de códigos.' }}
         </p>
       </div>
     </div>
 
-    <!-- Keyboard Shortcuts Pills (Eleventa Speed) -->
-    <div class="hidden md:flex items-center gap-2 text-[11px] text-[var(--muted-foreground)]">
-      <span class="inline-flex items-center gap-1 bg-[var(--surface)] border border-[var(--border)] px-2 py-1 rounded-md">
-        <kbd class="font-mono text-[10px] font-semibold text-[var(--foreground)] bg-[var(--surface-muted)] px-1 rounded">F10</kbd>
+    <div class="hidden lg:flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+      <span class="inline-flex items-center gap-1.5 bg-[var(--surface)] border border-[var(--border)] px-2.5 py-1 rounded-md">
+        <kbd class="font-mono text-[11px] font-semibold text-[var(--foreground)] bg-[var(--surface-muted)] px-1 rounded">F10</kbd>
         Guardar
       </span>
-      <span class="inline-flex items-center gap-1 bg-[var(--surface)] border border-[var(--border)] px-2 py-1 rounded-md">
-        <kbd class="font-mono text-[10px] font-semibold text-[var(--foreground)] bg-[var(--surface-muted)] px-1 rounded">F11</kbd>
-        Guardar y registrar otro
-      </span>
-      <span class="inline-flex items-center gap-1 bg-[var(--surface)] border border-[var(--border)] px-2 py-1 rounded-md">
-        <kbd class="font-mono text-[10px] font-semibold text-[var(--foreground)] bg-[var(--surface-muted)] px-1 rounded">Esc</kbd>
+      @if (!isEditMode) {
+        <span class="inline-flex items-center gap-1.5 bg-[var(--surface)] border border-[var(--border)] px-2.5 py-1 rounded-md">
+          <kbd class="font-mono text-[11px] font-semibold text-[var(--foreground)] bg-[var(--surface-muted)] px-1 rounded">F11</kbd>
+          Guardar y otro
+        </span>
+      }
+      <span class="inline-flex items-center gap-1.5 bg-[var(--surface)] border border-[var(--border)] px-2.5 py-1 rounded-md">
+        <kbd class="font-mono text-[11px] font-semibold text-[var(--foreground)] bg-[var(--surface-muted)] px-1 rounded">Esc</kbd>
         Salir
       </span>
     </div>
   </div>
 
-  <!-- 2. TARJETA PRINCIPAL DE REGISTRO RÁPIDO (LOS 5 CAMPOS ESENCIALES) -->
-  <div class="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs overflow-hidden">
-    <div class="p-5 sm:p-6 space-y-5">
+  <!-- 2. GRID PRINCIPAL DE CARDS (ANCHO COMPLETO, TAMAÑOS UNIFORMES) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-      <!-- Fila 1: Código de Barras y Categoría -->
+    <!-- CARD 1: IDENTIFICACIÓN Y PRECIOS BASE (PRIMORDIAL) -->
+    <div class="lg:col-span-12 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-xs space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--border)]">
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideTag" size="16" class="text-emerald-600 dark:text-emerald-400"></ng-icon>
+          <h2 class="text-sm font-semibold text-[var(--foreground)]">Identificación y Precios Base</h2>
+        </div>
+
+        <!-- SKU inline limpio -->
+        <div class="flex items-center gap-2 text-xs">
+          @if (!showSkuManualEdit()) {
+            <span class="text-[var(--muted-foreground)]">SKU:</span>
+            <span class="font-mono font-semibold px-2 py-0.5 rounded bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--foreground)]">
+              {{ formSku() || 'Automático' }}
+            </span>
+            @if (!isEditMode) {
+              <span class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                <ng-icon name="lucideSparkles" size="13"></ng-icon>
+                Auto
+              </span>
+            }
+            <button
+              type="button"
+              (click)="showSkuManualEdit.set(true)"
+              class="text-emerald-700 dark:text-emerald-400 hover:underline font-medium cursor-pointer"
+            >
+              Personalizar
+            </button>
+          } @else {
+            <span class="text-[var(--muted-foreground)]">SKU:</span>
+            <input
+              type="text"
+              [ngModel]="formSku()"
+              (ngModelChange)="onManualSkuChange($event)"
+              class="h-8 px-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono font-semibold text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 w-40"
+              placeholder="CLAVE-MANUAL"
+            />
+            <button
+              type="button"
+              (click)="regenerateSku()"
+              class="text-emerald-700 dark:text-emerald-400 hover:underline font-medium cursor-pointer"
+            >
+              Auto
+            </button>
+            <button
+              type="button"
+              (click)="showSkuManualEdit.set(false)"
+              class="text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer"
+            >
+              Listo
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Fila 1: Código de Barras | Nombre Comercial | Categoría -->
       <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <!-- Código de barras (Optimizado para escáner) -->
-        <div class="md:col-span-7 space-y-1.5">
-          <label class="block text-xs font-semibold text-[var(--foreground)]">
+        <div class="md:col-span-4 space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">
             Código de Barras Principal
-            <span class="text-[var(--muted-foreground)] font-normal text-[11px]">(Escanee o escriba)</span>
           </label>
           <div class="relative flex items-center">
-            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none">
-              <ng-icon name="lucideBarcode" size="18"></ng-icon>
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideBarcode" size="16"></ng-icon>
             </span>
             <input
               #barcodeInput
@@ -67,31 +120,27 @@
               [ngModel]="primaryBarcodeDraft()"
               (ngModelChange)="primaryBarcodeDraft.set($event)"
               (keydown.enter)="onBarcodeScanEnter($event)"
-              placeholder="Pase el lector o escriba el código y presione Enter..."
-              class="w-full pl-9 pr-24 py-2 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs sm:text-sm text-[var(--foreground)] font-mono placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
+              placeholder="Escanear o escribir código..."
+              class="w-full h-10 pl-9 pr-20 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm font-mono text-[var(--foreground)] placeholder:font-sans placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
             />
             <button
               type="button"
               (click)="addBarcodeFromDraft()"
               [disabled]="!primaryBarcodeDraft().trim()"
-              class="absolute right-1.5 px-2.5 py-1 text-[11px] font-semibold rounded-md bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              class="absolute right-1.5 h-7 px-2.5 text-xs font-medium rounded-md bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
             >
               Agregar
             </button>
           </div>
-
-          <!-- Chips de códigos de barras asociados -->
           @if (formBarcodes().length > 0) {
             <div class="flex flex-wrap items-center gap-1.5 pt-1">
-              <span class="text-[10px] text-[var(--muted-foreground)] font-medium">Asociados:</span>
               @for (code of formBarcodes(); track code; let idx = $index) {
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 text-[11px] font-mono">
-                  <ng-icon name="lucideBarcode" size="12"></ng-icon>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 text-xs font-mono">
                   {{ code }}
                   <button
                     type="button"
                     (click)="removeBarcode(idx)"
-                    class="hover:text-red-600 p-0.5 rounded transition-colors"
+                    class="hover:text-red-600 p-0.5 rounded transition-colors cursor-pointer"
                     title="Eliminar código"
                   >
                     <ng-icon name="lucideX" size="12"></ng-icon>
@@ -102,159 +151,104 @@
           }
         </div>
 
-        <!-- Categoría -->
         <div class="md:col-span-5 space-y-1.5">
-          <label class="block text-xs font-semibold text-[var(--foreground)]">
-            Familia o Categoría
-            <span class="text-red-500">*</span>
+          <label class="block text-xs font-medium text-[var(--foreground)]">
+            Nombre Comercial del Producto <span class="text-red-500">*</span>
           </label>
-          <div class="relative">
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucidePackage" size="16"></ng-icon>
+            </span>
+            <input
+              #nameInput
+              type="text"
+              [ngModel]="formName()"
+              (ngModelChange)="onNameInput($event)"
+              (keydown.enter)="onNameEnter($event)"
+              placeholder="Ej. Coca Cola 600ml, Aceite Nutrioli 946ml..."
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
+            />
+          </div>
+        </div>
+
+        <div class="md:col-span-3 space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">
+            Familia o Categoría <span class="text-red-500">*</span>
+          </label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideLayers" size="16"></ng-icon>
+            </span>
             <select
               [ngModel]="formCategoryId()"
               (ngModelChange)="formCategoryId.set($event)"
-              class="w-full px-3 py-2 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs sm:text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors appearance-none pr-8 cursor-pointer"
+              class="w-full h-10 pl-9 pr-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors appearance-none cursor-pointer"
             >
               @for (cat of categories; track cat.id) {
                 <option [value]="cat.id">{{ cat.name }}</option>
               }
             </select>
-            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none">
+            <span class="absolute right-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
               <ng-icon name="lucideChevronDown" size="14"></ng-icon>
             </span>
           </div>
         </div>
       </div>
 
-      <!-- Fila 2: Nombre Comercial del Producto y SKU Inteligente -->
-      <div class="space-y-1.5">
-        <label class="block text-xs font-semibold text-[var(--foreground)]">
-          Nombre Comercial del Producto
-          <span class="text-red-500">*</span>
-          <span class="text-[var(--muted-foreground)] font-normal text-[11px]">(Marca, contenido y presentación)</span>
-        </label>
-        <input
-          #nameInput
-          type="text"
-          [ngModel]="formName()"
-          (ngModelChange)="onNameInput($event)"
-          (keydown.enter)="onNameEnter($event)"
-          placeholder="Ej. Coca Cola 600ml No Retornable, Galletas Marías 170g, Aceite Nutrioli 946ml..."
-          class="w-full px-3 py-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm sm:text-base font-medium text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
-        />
-
-        <!-- SKU Generado Automáticamente con Edición Opcional -->
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
-          @if (!showSkuManualEdit()) {
-            <div class="flex items-center gap-2">
-              <span class="text-[var(--muted-foreground)]">Clave interna (SKU):</span>
-              <span class="font-mono font-semibold px-2 py-0.5 rounded bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--foreground)] text-[11px]">
-                {{ formSku() || 'Se generará automáticamente' }}
-              </span>
-              @if (!isEditMode) {
-                <span class="inline-flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400">
-                  <ng-icon name="lucideSparkles" size="12"></ng-icon>
-                  Auto-generada
-                </span>
-              }
-              <button
-                type="button"
-                (click)="showSkuManualEdit.set(true)"
-                class="text-[11px] text-emerald-700 dark:text-emerald-400 hover:underline font-semibold ml-1 cursor-pointer"
-              >
-                Personalizar
-              </button>
-            </div>
-          } @else {
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-              <span class="text-[var(--muted-foreground)] shrink-0">Clave SKU:</span>
-              <input
-                type="text"
-                [ngModel]="formSku()"
-                (ngModelChange)="onManualSkuChange($event)"
-                class="px-2 py-1 rounded bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-mono font-bold text-[var(--foreground)] focus:ring-1 focus:ring-emerald-600 w-44"
-                placeholder="CLAVE-MANUAL"
-              />
-              <button
-                type="button"
-                (click)="regenerateSku()"
-                class="text-[11px] text-emerald-700 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
-                title="Volver a generar clave automática"
-              >
-                Auto-generar
-              </button>
-              <button
-                type="button"
-                (click)="showSkuManualEdit.set(false)"
-                class="text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] ml-2"
-              >
-                Listo
-              </button>
-            </div>
-          }
+      <!-- Fila 2: Costo | Precio Menudeo | Margen -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 pt-3 border-t border-[var(--border)] items-end">
+        <div class="md:col-span-4 space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">
+            Costo de Compra <span class="text-[var(--muted-foreground)] font-normal">(Sin impuestos)</span>
+          </label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideDollarSign" size="16"></ng-icon>
+            </span>
+            <input
+              #costInput
+              type="number"
+              step="0.01"
+              min="0"
+              [ngModel]="formCost()"
+              (ngModelChange)="formCost.set($event)"
+              (keydown.enter)="onCostEnter($event)"
+              placeholder="0.00"
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm font-medium text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors tabular-nums"
+            />
+          </div>
         </div>
-      </div>
 
-      <!-- Fila 3: Precios de Compra, Venta y Margen Bruto en Vivo (Estilo Eleventa) -->
-      <div class="pt-2 border-t border-[var(--border)]">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-          <!-- Costo de Adquisición -->
-          <div class="md:col-span-4 space-y-1.5">
-            <label class="block text-xs font-semibold text-[var(--foreground)]">
-              Costo de Compra
-              <span class="text-[var(--muted-foreground)] font-normal text-[11px]">(Sin impuestos)</span>
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] font-semibold text-xs">$</span>
-              <input
-                #costInput
-                type="number"
-                step="0.01"
-                min="0"
-                [ngModel]="formCost()"
-                (ngModelChange)="formCost.set($event)"
-                (keydown.enter)="onCostEnter($event)"
-                placeholder="0.00"
-                class="w-full pl-7 pr-3 py-2 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm font-semibold text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
-              />
-            </div>
+        <div class="md:col-span-4 space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">
+            Precio al Público (Menudeo) <span class="text-red-500">*</span>
+          </label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-emerald-600 dark:text-emerald-400 pointer-events-none flex items-center">
+              <ng-icon name="lucideDollarSign" size="16"></ng-icon>
+            </span>
+            <input
+              #priceInput
+              type="number"
+              step="0.01"
+              min="0.01"
+              [ngModel]="formRetailPrice()"
+              (ngModelChange)="formRetailPrice.set($event)"
+              (keydown.enter)="onPriceEnter($event)"
+              placeholder="0.00"
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm font-semibold text-emerald-700 dark:text-emerald-400 placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors tabular-nums"
+            />
           </div>
+        </div>
 
-          <!-- Precio de Venta al Menudeo -->
-          <div class="md:col-span-4 space-y-1.5">
-            <label class="block text-xs font-semibold text-[var(--foreground)]">
-              Precio al Público (Menudeo)
-              <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-600 font-semibold text-xs">$</span>
-              <input
-                #priceInput
-                type="number"
-                step="0.01"
-                min="0.01"
-                [ngModel]="formRetailPrice()"
-                (ngModelChange)="formRetailPrice.set($event)"
-                (keydown.enter)="onPriceEnter($event)"
-                placeholder="0.00"
-                class="w-full pl-7 pr-3 py-2 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm font-bold text-emerald-700 dark:text-emerald-400 placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
-              />
-            </div>
-          </div>
-
-          <!-- Rentabilidad en Tiempo Real (ESTRICTAMENTE SIN NÚMEROS FICTICIOS) -->
-          <div class="md:col-span-4 p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] flex flex-col justify-center min-h-[66px]">
+        <div class="md:col-span-4">
+          <div class="h-10 px-3.5 rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] flex items-center justify-between gap-2">
             @if (hasPricingData()) {
-              <div class="flex items-center justify-between text-xs font-semibold">
-                <span class="text-[var(--muted-foreground)]">Margen Bruto:</span>
-                <span class="text-sm font-bold text-[var(--foreground)]">{{ liveMarginPercentage() }}%</span>
-              </div>
-              <div class="flex items-center justify-between text-[11px] mt-1">
-                <span class="text-[var(--muted-foreground)]">Ganancia Bruta:</span>
-                <span class="font-semibold text-emerald-700 dark:text-emerald-400">+${{ liveProfitAmount() }} / u</span>
-              </div>
-              <div class="mt-1 flex items-center justify-between">
+              <div class="flex items-center gap-2 text-xs">
+                <span class="text-[var(--muted-foreground)]">Margen:</span>
+                <span class="font-bold text-sm text-[var(--foreground)] tabular-nums">{{ liveMarginPercentage() }}%</span>
                 <span
-                  class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider"
+                  class="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase"
                   [ngClass]="{
                     'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400': liveMarginNumeric() >= 20,
                     'bg-amber-500/10 text-amber-700 dark:text-amber-400': liveMarginNumeric() >= 10 && liveMarginNumeric() < 20,
@@ -263,270 +257,46 @@
                 >
                   {{ marginBadgeLabel() }}
                 </span>
-                <span class="text-[10px] text-[var(--muted-foreground)]">Por unidad base</span>
               </div>
+              <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 tabular-nums">
+                +${{ liveProfitAmount() }} / u
+              </span>
             } @else {
-              <div class="text-center text-xs text-[var(--muted-foreground)]">
-                <ng-icon name="lucideTrendingUp" size="14" class="inline mr-1"></ng-icon>
-                <span class="italic">Capture costo y precio para proyectar margen</span>
+              <div class="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+                <ng-icon name="lucideTrendingUp" size="15"></ng-icon>
+                <span>Capture costo y precio para ver margen</span>
               </div>
             }
           </div>
         </div>
       </div>
-
-    </div>
-  </div>
-
-  <!-- 3. HUB DE DIVULGACIÓN PROGRESIVA: FUNCIONES AVANZADAS OPCIONALES -->
-  <div class="space-y-4">
-    <div class="flex items-center justify-between">
-      <h2 class="text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">
-        Funciones y Opciones Avanzadas
-      </h2>
-      <span class="text-[11px] text-[var(--muted-foreground)]">Activa solo lo que tu producto requiera</span>
     </div>
 
-    <!-- Chips Selectores de Secciones Avanzadas -->
-    <div class="flex flex-wrap gap-2">
-      <!-- 1. Mayoreo -->
-      <button
-        type="button"
-        (click)="showWholesaleSection.set(!showWholesaleSection())"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer"
-        [ngClass]="showWholesaleSection() ? 'bg-emerald-500/10 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-semibold' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-muted)]'"
-      >
-        <ng-icon name="lucideTrendingUp" size="14"></ng-icon>
-        <span>Precio Mayoreo</span>
-        @if (showWholesaleSection() && formWholesalePrice()) {
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        }
-        <ng-icon [name]="showWholesaleSection() ? 'lucideChevronUp' : 'lucideChevronDown'" size="12"></ng-icon>
-      </button>
-
-      <!-- 2. Presentaciones -->
-      <button
-        type="button"
-        (click)="showPresentationsSection.set(!showPresentationsSection())"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer"
-        [ngClass]="showPresentationsSection() ? 'bg-emerald-500/10 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-semibold' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-muted)]'"
-      >
-        <ng-icon name="lucideBoxes" size="14"></ng-icon>
-        <span>Presentaciones / Cajas</span>
-        @if (formPresentations().length > 0) {
-          <span class="px-1.5 py-0.2 rounded-full bg-emerald-600 text-white text-[10px] font-bold">
-            {{ formPresentations().length }}
+    <!-- CARD 2: FORMA DE VENTA (GRANEL Y UNIDAD) - ESENCIAL AL INICIO -->
+    <div class="lg:col-span-6 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-xs space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideScale" size="16" class="text-emerald-600 dark:text-emerald-400"></ng-icon>
+          <h2 class="text-sm font-semibold text-[var(--foreground)]">Forma de Venta (Unidad y Granel)</h2>
+        </div>
+        @if (formIsSoldByWeight()) {
+          <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[11px] font-semibold">
+            Báscula activa
           </span>
         }
-        <ng-icon [name]="showPresentationsSection() ? 'lucideChevronUp' : 'lucideChevronDown'" size="12"></ng-icon>
-      </button>
-
-      <!-- 3. Granel y Báscula -->
-      <button
-        type="button"
-        (click)="showUnitBulkSection.set(!showUnitBulkSection())"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer"
-        [ngClass]="showUnitBulkSection() ? 'bg-emerald-500/10 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-semibold' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-muted)]'"
-      >
-        <ng-icon name="lucideScale" size="14"></ng-icon>
-        <span>Granel y Unidad ({{ formBaseUnitCode() }})</span>
-        @if (formIsSoldByWeight()) {
-          <span class="px-1 py-0.2 rounded bg-amber-500/20 text-amber-700 text-[10px] font-semibold">Báscula</span>
-        }
-        <ng-icon [name]="showUnitBulkSection() ? 'lucideChevronUp' : 'lucideChevronDown'" size="12"></ng-icon>
-      </button>
-
-      <!-- 4. Control de Stock -->
-      <button
-        type="button"
-        (click)="showStockSection.set(!showStockSection())"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer"
-        [ngClass]="showStockSection() ? 'bg-emerald-500/10 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-semibold' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-muted)]'"
-      >
-        <ng-icon name="lucidePackage" size="14"></ng-icon>
-        <span>Control de Stock</span>
-        @if (formMinStockAlert() !== '5' || formAllowNegativeStock()) {
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        }
-        <ng-icon [name]="showStockSection() ? 'lucideChevronUp' : 'lucideChevronDown'" size="12"></ng-icon>
-      </button>
-
-      <!-- 5. Impuestos SAT -->
-      <button
-        type="button"
-        (click)="showFiscalSection.set(!showFiscalSection())"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer"
-        [ngClass]="showFiscalSection() ? 'bg-emerald-500/10 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-semibold' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-muted)]'"
-      >
-        <ng-icon name="lucideInfo" size="14"></ng-icon>
-        <span>Impuestos SAT (IVA / IEPS)</span>
-        <ng-icon [name]="showFiscalSection() ? 'lucideChevronUp' : 'lucideChevronDown'" size="12"></ng-icon>
-      </button>
-
-      <!-- 6. Notas y Descripción -->
-      <button
-        type="button"
-        (click)="showNotesSection.set(!showNotesSection())"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer"
-        [ngClass]="showNotesSection() ? 'bg-emerald-500/10 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-semibold' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-muted)]'"
-      >
-        <ng-icon name="lucideHelpCircle" size="14"></ng-icon>
-        <span>Descripción y Notas</span>
-        <ng-icon [name]="showNotesSection() ? 'lucideChevronUp' : 'lucideChevronDown'" size="12"></ng-icon>
-      </button>
-    </div>
-
-    <!-- PANELES DESPLEGABLES SEGÚN ACTIVACIÓN -->
-
-    <!-- A. Panel: Precio de Mayoreo por Volumen -->
-    @if (showWholesaleSection()) {
-      <div class="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs space-y-3 animate-fadeIn">
-        <div class="flex items-center justify-between border-b border-[var(--border)] pb-2">
-          <div class="flex items-center gap-2">
-            <ng-icon name="lucideTrendingUp" size="16" class="text-emerald-600"></ng-icon>
-            <h3 class="text-xs font-bold text-[var(--foreground)]">Escala de Mayoreo por Volumen</h3>
-          </div>
-          <button type="button" (click)="showWholesaleSection.set(false)" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-            Ocultar
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="space-y-1">
-            <label class="block text-xs font-medium text-[var(--foreground)]">Precio de Mayoreo ($)</label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--muted-foreground)] font-semibold">$</span>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [ngModel]="formWholesalePrice()"
-                (ngModelChange)="formWholesalePrice.set($event)"
-                placeholder="0.00"
-                class="w-full pl-7 pr-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:ring-1 focus:ring-emerald-600"
-              />
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="block text-xs font-medium text-[var(--foreground)]">A partir de (piezas mínimas)</label>
-            <input
-              type="number"
-              min="1"
-              [ngModel]="formWholesaleMinQty()"
-              (ngModelChange)="formWholesaleMinQty.set($event)"
-              placeholder="Ej. 6 ó 12"
-              class="w-full px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:ring-1 focus:ring-emerald-600"
-            />
-          </div>
-        </div>
       </div>
-    }
 
-    <!-- B. Panel: Presentaciones y Empaques Adicionales -->
-    @if (showPresentationsSection()) {
-      <div class="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs space-y-3 animate-fadeIn">
-        <div class="flex items-center justify-between border-b border-[var(--border)] pb-2">
-          <div class="flex items-center gap-2">
-            <ng-icon name="lucideBoxes" size="16" class="text-emerald-600"></ng-icon>
-            <h3 class="text-xs font-bold text-[var(--foreground)]">Presentaciones Comerciales Derivadas (Cajas, Paquetes)</h3>
-          </div>
-          <button type="button" (click)="showPresentationsSection.set(false)" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-            Ocultar
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-          <div class="sm:col-span-5 space-y-1">
-            <label class="block text-xs font-medium text-[var(--foreground)]">Nombre presentación</label>
-            <input
-              type="text"
-              [ngModel]="newPresName()"
-              (ngModelChange)="newPresName.set($event)"
-              placeholder="Ej. Caja 12 piezas, Charola 24 pzas..."
-              class="w-full px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:ring-1 focus:ring-emerald-600"
-            />
-          </div>
-          <div class="sm:col-span-3 space-y-1">
-            <label class="block text-xs font-medium text-[var(--foreground)]">Piezas base</label>
-            <input
-              type="number"
-              min="2"
-              [ngModel]="newPresFactor()"
-              (ngModelChange)="newPresFactor.set($event)"
-              placeholder="12"
-              class="w-full px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:ring-1 focus:ring-emerald-600"
-            />
-          </div>
-          <div class="sm:col-span-3 space-y-1">
-            <label class="block text-xs font-medium text-[var(--foreground)]">Precio presentación ($)</label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              [ngModel]="newPresPrice()"
-              (ngModelChange)="newPresPrice.set($event)"
-              placeholder="0.00"
-              class="w-full px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:ring-1 focus:ring-emerald-600"
-            />
-          </div>
-          <div class="sm:col-span-1">
-            <button
-              type="button"
-              (click)="addPresentation()"
-              class="w-full py-1.5 px-3 rounded-lg bg-emerald-600 text-white font-semibold text-xs hover:bg-emerald-700 transition-colors flex items-center justify-center cursor-pointer"
-              title="Agregar presentación"
-            >
-              <ng-icon name="lucidePlus" size="14"></ng-icon>
-            </button>
-          </div>
-        </div>
-
-        @if (formPresentations().length > 0) {
-          <div class="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg overflow-hidden mt-3">
-            @for (pres of formPresentations(); track pres.name; let idx = $index) {
-              <div class="flex items-center justify-between p-2.5 bg-[var(--surface-muted)] text-xs">
-                <div>
-                  <span class="font-semibold text-[var(--foreground)]">{{ pres.name }}</span>
-                  <span class="text-[var(--muted-foreground)] ml-2 font-mono">({{ pres.conversionFactor }} pzas)</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="font-bold text-emerald-700 dark:text-emerald-400 font-mono">${{ pres.price }}</span>
-                  <button
-                    type="button"
-                    (click)="removePresentation(idx)"
-                    class="p-1 rounded text-[var(--muted-foreground)] hover:text-red-600 hover:bg-red-500/10 transition-colors"
-                    title="Eliminar"
-                  >
-                    <ng-icon name="lucideTrash2" size="14"></ng-icon>
-                  </button>
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    }
-
-    <!-- C. Panel: Granel, Pesaje en Báscula y Unidad Base -->
-    @if (showUnitBulkSection()) {
-      <div class="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs space-y-3 animate-fadeIn">
-        <div class="flex items-center justify-between border-b border-[var(--border)] pb-2">
-          <div class="flex items-center gap-2">
-            <ng-icon name="lucideScale" size="16" class="text-emerald-600"></ng-icon>
-            <h3 class="text-xs font-bold text-[var(--foreground)]">Unidad de Medida e Integración con Báscula</h3>
-          </div>
-          <button type="button" (click)="showUnitBulkSection.set(false)" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-            Ocultar
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="space-y-1">
-            <label class="block text-xs font-medium text-[var(--foreground)]">Unidad Base de Inventario</label>
+      <div class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">Unidad Base de Inventario</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideScale" size="16"></ng-icon>
+            </span>
             <select
               [ngModel]="formBaseUnitCode()"
               (ngModelChange)="formBaseUnitCode.set($event)"
-              class="w-full px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)]"
+              class="w-full h-10 pl-9 pr-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors appearance-none cursor-pointer"
             >
               @for (u of units; track u.code) {
                 <option [value]="u.code">{{ u.name }} ({{ u.code }})</option>
@@ -538,156 +308,319 @@
                 <option value="M">Metro (M)</option>
               }
             </select>
-          </div>
-
-          <div class="flex items-center pt-4">
-            <label class="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                [checked]="formIsSoldByWeight()"
-                (change)="formIsSoldByWeight.set(!formIsSoldByWeight())"
-                class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-[var(--border)]"
-              />
-              <span class="text-xs text-[var(--foreground)] font-medium">
-                Se vende a granel / se pesa en báscula (soporta decimales en venta)
-              </span>
-            </label>
+            <span class="absolute right-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideChevronDown" size="14"></ng-icon>
+            </span>
           </div>
         </div>
+
+        <label class="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] cursor-pointer hover:border-emerald-600/40 transition-colors">
+          <input
+            type="checkbox"
+            [checked]="formIsSoldByWeight()"
+            (change)="formIsSoldByWeight.set(!formIsSoldByWeight())"
+            class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-[var(--border)]"
+          />
+          <span class="text-xs text-[var(--foreground)] font-medium">
+            Se vende a granel / se pesa en báscula (soporta decimales en venta)
+          </span>
+        </label>
       </div>
-    }
+    </div>
 
-    <!-- D. Panel: Control de Stock y Alertas -->
-    @if (showStockSection()) {
-      <div class="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs space-y-3 animate-fadeIn">
-        <div class="flex items-center justify-between border-b border-[var(--border)] pb-2">
-          <div class="flex items-center gap-2">
-            <ng-icon name="lucidePackage" size="16" class="text-emerald-600"></ng-icon>
-            <h3 class="text-xs font-bold text-[var(--foreground)]">Control de Inventario y Alertas</h3>
-          </div>
-          <button type="button" (click)="showStockSection.set(false)" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-            Ocultar
-          </button>
+    <!-- CARD 3: CONTROL DE STOCK E INVENTARIO - ESENCIAL AL INICIO -->
+    <div class="lg:col-span-6 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-xs space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucidePackage" size="16" class="text-emerald-600 dark:text-emerald-400"></ng-icon>
+          <h2 class="text-sm font-semibold text-[var(--foreground)]">Control de Stock e Inventario</h2>
         </div>
+        <span class="text-xs text-[var(--muted-foreground)]">Alertas y venta sin stock</span>
+      </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="space-y-1">
-            <label class="block text-xs font-medium text-[var(--foreground)]">Alerta de Existencia Mínima</label>
+      <div class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">
+            Alerta de Existencia Mínima
+            <span class="text-[var(--muted-foreground)] font-normal">(Avisa en Dashboard)</span>
+          </label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideAlertCircle" size="16"></ng-icon>
+            </span>
             <input
               type="number"
               min="0"
               [ngModel]="formMinStockAlert()"
               (ngModelChange)="formMinStockAlert.set($event)"
               placeholder="5"
-              class="w-full px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:ring-1 focus:ring-emerald-600"
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors tabular-nums"
             />
-            <p class="text-[11px] text-[var(--muted-foreground)]">Avisa en el Dashboard cuando el stock sea menor o igual a este valor.</p>
           </div>
+        </div>
 
-          <div class="flex items-center pt-3">
-            <label class="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                [checked]="formAllowNegativeStock()"
-                (change)="formAllowNegativeStock.set(!formAllowNegativeStock())"
-                class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-[var(--border)]"
-              />
-              <span class="text-xs text-[var(--foreground)] font-medium">
-                Permitir vender en caja aunque el inventario esté en cero
-              </span>
-            </label>
+        <label class="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] cursor-pointer hover:border-emerald-600/40 transition-colors">
+          <input
+            type="checkbox"
+            [checked]="formAllowNegativeStock()"
+            (change)="formAllowNegativeStock.set(!formAllowNegativeStock())"
+            class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-[var(--border)]"
+          />
+          <span class="text-xs text-[var(--foreground)] font-medium">
+            Permitir vender en caja aunque el inventario esté en cero
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- CARD 4: PRECIO DE MAYOREO POR VOLUMEN -->
+    <div class="lg:col-span-6 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-xs space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideTrendingUp" size="16" class="text-emerald-600 dark:text-emerald-400"></ng-icon>
+          <h2 class="text-sm font-semibold text-[var(--foreground)]">Precio de Mayoreo por Volumen</h2>
+        </div>
+        <span class="text-xs text-[var(--muted-foreground)]">Opcional</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">Precio de Mayoreo</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideDollarSign" size="16"></ng-icon>
+            </span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              [ngModel]="formWholesalePrice()"
+              (ngModelChange)="formWholesalePrice.set($event)"
+              placeholder="0.00"
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors tabular-nums"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">A partir de (piezas mínimas)</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideLayers" size="16"></ng-icon>
+            </span>
+            <input
+              type="number"
+              min="1"
+              [ngModel]="formWholesaleMinQty()"
+              (ngModelChange)="formWholesaleMinQty.set($event)"
+              placeholder="Ej. 6 ó 12"
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors tabular-nums"
+            />
           </div>
         </div>
       </div>
-    }
+    </div>
 
-    <!-- E. Panel: Impuestos Fiscales SAT -->
-    @if (showFiscalSection()) {
-      <div class="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs space-y-3 animate-fadeIn">
-        <div class="flex items-center justify-between border-b border-[var(--border)] pb-2">
-          <div class="flex items-center gap-2">
-            <ng-icon name="lucideInfo" size="16" class="text-emerald-600"></ng-icon>
-            <h3 class="text-xs font-bold text-[var(--foreground)]">Configuración de Impuestos Fiscales SAT</h3>
-          </div>
-          <button type="button" (click)="showFiscalSection.set(false)" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-            Ocultar
-          </button>
+    <!-- CARD 5: IMPUESTOS FISCALES SAT -->
+    <div class="lg:col-span-6 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-xs space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideInfo" size="16" class="text-emerald-600 dark:text-emerald-400"></ng-icon>
+          <h2 class="text-sm font-semibold text-[var(--foreground)]">Impuestos Fiscales SAT (IVA / IEPS)</h2>
         </div>
+        <span class="text-xs text-[var(--muted-foreground)]">Facturación</span>
+      </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="space-y-1">
-            <label class="block text-xs font-medium text-[var(--foreground)]">Tasa IVA</label>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">Tasa IVA</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideInfo" size="16"></ng-icon>
+            </span>
             <select
               [ngModel]="formIvaRate()"
               (ngModelChange)="formIvaRate.set($event)"
-              class="w-full px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)]"
+              class="w-full h-10 pl-9 pr-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors appearance-none cursor-pointer"
             >
               <option value="0.0000">Tasa 0% (Alimentos básicos)</option>
               <option value="0.1600">Tasa 16% (General)</option>
             </select>
+            <span class="absolute right-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideChevronDown" size="14"></ng-icon>
+            </span>
           </div>
-          <div class="space-y-1">
-            <label class="block text-xs font-medium text-[var(--foreground)]">Tasa IEPS</label>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">Tasa IEPS</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideInfo" size="16"></ng-icon>
+            </span>
             <select
               [ngModel]="formIepsRate()"
               (ngModelChange)="formIepsRate.set($event)"
-              class="w-full px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)]"
+              class="w-full h-10 pl-9 pr-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors appearance-none cursor-pointer"
             >
               <option value="0.0000">Sin IEPS (0%)</option>
-              <option value="0.0800">IEPS 8% (Comida chatarra / alta densidad calórica)</option>
+              <option value="0.0800">IEPS 8% (Alta densidad calórica)</option>
             </select>
+            <span class="absolute right-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideChevronDown" size="14"></ng-icon>
+            </span>
           </div>
         </div>
       </div>
-    }
+    </div>
 
-    <!-- F. Panel: Descripción y Notas -->
-    @if (showNotesSection()) {
-      <div class="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xs space-y-3 animate-fadeIn">
-        <div class="flex items-center justify-between border-b border-[var(--border)] pb-2">
-          <div class="flex items-center gap-2">
-            <ng-icon name="lucideHelpCircle" size="16" class="text-emerald-600"></ng-icon>
-            <h3 class="text-xs font-bold text-[var(--foreground)]">Notas y Descripción Comercial</h3>
+    <!-- CARD 6: PRESENTACIONES Y CAJAS DERIVADAS -->
+    <div class="lg:col-span-7 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-xs space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideBoxes" size="16" class="text-emerald-600 dark:text-emerald-400"></ng-icon>
+          <h2 class="text-sm font-semibold text-[var(--foreground)]">Presentaciones / Cajas Derivadas</h2>
+        </div>
+        @if (formPresentations().length > 0) {
+          <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+            {{ formPresentations().length }} {{ formPresentations().length === 1 ? 'agregada' : 'agregadas' }}
+          </span>
+        }
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+        <div class="sm:col-span-5 space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">Nombre presentación</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideBoxes" size="16"></ng-icon>
+            </span>
+            <input
+              type="text"
+              [ngModel]="newPresName()"
+              (ngModelChange)="newPresName.set($event)"
+              placeholder="Ej. Caja 12 pzas..."
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
+            />
           </div>
-          <button type="button" (click)="showNotesSection.set(false)" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-            Ocultar
-          </button>
         </div>
 
+        <div class="sm:col-span-3 space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">Piezas base</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideLayers" size="16"></ng-icon>
+            </span>
+            <input
+              type="number"
+              min="2"
+              [ngModel]="newPresFactor()"
+              (ngModelChange)="newPresFactor.set($event)"
+              placeholder="12"
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors tabular-nums"
+            />
+          </div>
+        </div>
+
+        <div class="sm:col-span-3 space-y-1.5">
+          <label class="block text-xs font-medium text-[var(--foreground)]">Precio</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+              <ng-icon name="lucideDollarSign" size="16"></ng-icon>
+            </span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              [ngModel]="newPresPrice()"
+              (ngModelChange)="newPresPrice.set($event)"
+              placeholder="0.00"
+              class="w-full h-10 pl-9 pr-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors tabular-nums"
+            />
+          </div>
+        </div>
+
+        <div class="sm:col-span-1">
+          <button
+            type="button"
+            (click)="addPresentation()"
+            class="w-full h-10 px-3 rounded-lg bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition-colors flex items-center justify-center cursor-pointer"
+            title="Agregar presentación"
+          >
+            <ng-icon name="lucidePlus" size="16"></ng-icon>
+          </button>
+        </div>
+      </div>
+
+      @if (formPresentations().length > 0) {
+        <div class="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg overflow-hidden">
+          @for (pres of formPresentations(); track pres.name; let idx = $index) {
+            <div class="flex items-center justify-between px-3 py-2 bg-[var(--surface-muted)] text-xs">
+              <div>
+                <span class="font-semibold text-[var(--foreground)]">{{ pres.name }}</span>
+                <span class="text-[var(--muted-foreground)] ml-2 font-mono">({{ pres.conversionFactor }} pzas)</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-emerald-700 dark:text-emerald-400 font-mono">${{ pres.price }}</span>
+                <button
+                  type="button"
+                  (click)="removePresentation(idx)"
+                  class="p-1 rounded text-[var(--muted-foreground)] hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
+                  title="Eliminar"
+                >
+                  <ng-icon name="lucideTrash2" size="14"></ng-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- CARD 7: DESCRIPCIÓN Y NOTAS -->
+    <div class="lg:col-span-5 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-xs space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+        <div class="flex items-center gap-2">
+          <ng-icon name="lucideHelpCircle" size="16" class="text-emerald-600 dark:text-emerald-400"></ng-icon>
+          <h2 class="text-sm font-semibold text-[var(--foreground)]">Descripción y Notas</h2>
+        </div>
+        <span class="text-xs text-[var(--muted-foreground)]">Opcional</span>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-xs font-medium text-[var(--foreground)]">Notas internas de almacén o proveedor</label>
         <textarea
           rows="3"
           [ngModel]="formDescription()"
           (ngModelChange)="formDescription.set($event)"
           placeholder="Notas internas para almacén, proveedor habitual o detalles del producto..."
-          class="w-full px-3 py-2 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-1 focus:ring-emerald-600"
+          class="w-full px-3 py-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors resize-none"
         ></textarea>
       </div>
-    }
+    </div>
   </div>
 
-  <!-- 4. DOCK FIJO INFERIOR DE ACCIONES (SÓLIDO, SIN TRANSPARENCIAS CONFUSAS) -->
+  <!-- 3. DOCK FIJO INFERIOR DE ACCIONES -->
   <div class="fixed bottom-0 right-0 left-0 lg:left-64 bg-[var(--surface)] border-t border-[var(--border)] p-3 sm:px-6 shadow-md z-30 flex items-center justify-between">
-    <!-- Izquierda: Cancelar / Volver -->
     <button
       type="button"
       (click)="onCancel()"
-      class="px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-muted)] text-[var(--foreground)] text-xs font-semibold transition-colors cursor-pointer"
+      class="h-10 px-4 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-muted)] text-[var(--foreground)] text-xs font-semibold transition-colors cursor-pointer"
       title="Salir del formulario (Esc)"
     >
       Cancelar
     </button>
 
-    <!-- Derecha: Guardar y Registrar Otro + Guardar Producto -->
     <div class="flex items-center gap-2 sm:gap-3">
       @if (!isEditMode) {
         <button
           type="button"
           (click)="submitForm(true)"
           [disabled]="isSaving"
-          class="px-3 sm:px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-muted)] text-[var(--foreground)] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+          class="h-10 px-4 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-muted)] text-[var(--foreground)] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
           title="Guarda este producto y limpia el formulario para registrar otro de inmediato (F11 / Ctrl+Enter)"
         >
-          <ng-icon name="lucidePlus" size="14" class="text-emerald-600"></ng-icon>
+          <ng-icon name="lucidePlus" size="15" class="text-emerald-600"></ng-icon>
           <span class="hidden sm:inline">Guardar y</span> Registrar Otro
         </button>
       }
@@ -696,7 +629,7 @@
         type="button"
         (click)="submitForm(false)"
         [disabled]="isSaving"
-        class="px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+        class="h-10 px-5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
         title="Guardar cambios y volver al catálogo (F10 / Ctrl+S)"
       >
         <ng-icon name="lucideCheck" size="16"></ng-icon>
@@ -705,7 +638,7 @@
     </div>
   </div>
 
-  <!-- 5. DIÁLOGO DE CONFIRMACIÓN PARA CAMBIOS SIN GUARDAR (SOLO EN CASO DE PÉRDIDA DE DATOS) -->
+  <!-- 4. DIÁLOGO DE CONFIRMACIÓN PARA CAMBIOS SIN GUARDAR -->
   @if (showUnsavedModal()) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fadeIn">
       <div class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 max-w-md w-full shadow-xl space-y-4">
@@ -725,14 +658,14 @@
           <button
             type="button"
             (click)="showUnsavedModal.set(false)"
-            class="px-3.5 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--foreground)] text-xs font-semibold hover:bg-[var(--surface)] transition-colors cursor-pointer"
+            class="h-9 px-3.5 rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] text-[var(--foreground)] text-xs font-semibold hover:bg-[var(--surface)] transition-colors cursor-pointer"
           >
             Continuar capturando
           </button>
           <button
             type="button"
             (click)="confirmDiscardAndLeave()"
-            class="px-3.5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors cursor-pointer"
+            class="h-9 px-3.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors cursor-pointer"
           >
             Descartar y salir
           </button>

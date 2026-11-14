@@ -50,23 +50,63 @@ export class InventoryKardexComponent {
   @Output() selectProduct = new EventEmitter<string>();
   @Output() openAdjustmentWizard = new EventEmitter<void>();
 
+  productSearch = '';
+  stockStatusFilter: 'ALL' | 'LOW' | 'OUT' = 'ALL';
   movementFilter = 'ALL';
 
   onSelectProduct(id: string): void {
     this.selectProduct.emit(id);
   }
 
-  getTotalStock(): number {
-    return this.products.reduce(
-      (acc, p) => acc + Number(p.stockQuantity || 0),
-      0,
-    );
+  getLowStockCount(): number {
+    return this.products.filter((p) => {
+      const stock = Number(p.stockQuantity || 0);
+      const min = Number(p.minStockAlert || 0);
+      return stock > 0 && stock <= min;
+    }).length;
   }
 
-  getLowStockCount(): number {
-    return this.products.filter(
-      (p) => Number(p.stockQuantity || 0) <= Number(p.minStockAlert || 0),
-    ).length;
+  getOutOfStockCount(): number {
+    return this.products.filter((p) => Number(p.stockQuantity || 0) <= 0).length;
+  }
+
+  filteredProducts(): ProductRecord[] {
+    const query = this.productSearch.trim().toLowerCase();
+    return this.products.filter((p) => {
+      const stock = Number(p.stockQuantity || 0);
+      const min = Number(p.minStockAlert || 0);
+
+      if (this.stockStatusFilter === 'LOW' && !(stock > 0 && stock <= min)) {
+        return false;
+      }
+      if (this.stockStatusFilter === 'OUT' && stock > 0) {
+        return false;
+      }
+      if (!query) return true;
+      return (
+        p.name.toLowerCase().includes(query) ||
+        p.sku.toLowerCase().includes(query)
+      );
+    });
+  }
+
+  formatQty(value: string | number | undefined | null): string {
+    if (value === undefined || value === null || value === '') return '0';
+    const num = Number(value);
+    if (Number.isNaN(num)) return String(value);
+    return Number.isInteger(num) ? String(num) : String(Number(num.toFixed(3)));
+  }
+
+  getStockBadgeClass(prod: ProductRecord): string {
+    const stock = Number(prod.stockQuantity || 0);
+    const min = Number(prod.minStockAlert || 0);
+    if (stock <= 0) {
+      return 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20';
+    }
+    if (stock <= min) {
+      return 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20';
+    }
+    return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20';
   }
 
   filteredMovements(): KardexMovementRecord[] {
@@ -80,19 +120,19 @@ export class InventoryKardexComponent {
   formatMovementLabel(type: string): string {
     switch (type) {
       case 'INITIAL_LOAD':
-        return 'Carga Inicial';
+        return 'Stock Inicial';
       case 'PURCHASE_RECEIPT':
-        return 'Recepción Compra';
+        return 'Compra a Proveedor';
       case 'SALE_OUT':
-        return 'Salida por Venta';
+        return 'Venta en Caja';
       case 'SALE_RETURN_IN':
-        return 'Devolución Cliente';
+        return 'Devolución';
       case 'ADJUSTMENT_IN':
-        return 'Ajuste Positivo';
+        return 'Entrada Manual';
       case 'ADJUSTMENT_OUT':
-        return 'Ajuste Negativo';
+        return 'Salida Manual';
       case 'WASTE_OUT':
-        return 'Merma / Merma Faltante';
+        return 'Merma / Daño';
       default:
         return type;
     }

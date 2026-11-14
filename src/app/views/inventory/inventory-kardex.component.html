@@ -1,196 +1,256 @@
 <div class="space-y-6">
-  <!-- HEADER & SUMMARY -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[var(--border)]">
+  <!-- HEADER -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3 border-b border-[var(--border)]">
     <div>
-      <div class="flex items-center gap-2">
-        <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-          Inventario y Kardex Físico
-        </h1>
-        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-          Inmutable
-        </span>
-      </div>
-      <p class="text-xs sm:text-sm text-[var(--muted-foreground)]">
-        Registro cronológico de entradas, salidas por venta, mermas, cancelaciones y ajustes operativos.
+      <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+        Control de Inventario y Movimientos
+      </h1>
+      <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-0.5">
+        Consulta existencias por producto, detecta artículos con stock bajo y revisa entradas o salidas.
       </p>
     </div>
 
-    <!-- CTA REGISTRAR AJUSTE -->
     <button
       type="button"
       (click)="openAdjustmentWizard.emit()"
-      class="px-4 py-2.5 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg shadow-sm hover:opacity-95 transition-all flex items-center gap-2 self-start sm:self-auto"
+      class="h-10 px-4 bg-[var(--brand-solid)] text-white text-xs font-semibold rounded-lg shadow-xs hover:opacity-95 transition-all flex items-center gap-2 self-start sm:self-auto cursor-pointer"
     >
       <ng-icon name="lucidePlus" size="16"></ng-icon>
-      <span>+ Ajuste de Inventario</span>
+      <span>Ajustar Inventario</span>
     </button>
   </div>
 
-  <!-- 3 SUMMARY INVENTORY KPIS -->
+  <!-- 3 KPIS ACCIONABLES (CLICABLES PARA FILTRAR) -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    <div class="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs flex items-center gap-3">
+    <button
+      type="button"
+      (click)="stockStatusFilter = 'ALL'"
+      class="p-4 rounded-xl bg-[var(--surface)] border text-left shadow-xs flex items-center gap-3 transition-colors cursor-pointer"
+      [ngClass]="stockStatusFilter === 'ALL' ? 'border-emerald-600 ring-1 ring-emerald-600/30' : 'border-[var(--border)] hover:bg-[var(--surface-muted)]'"
+    >
       <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
         <ng-icon name="lucidePackage" size="20"></ng-icon>
       </div>
       <div>
-        <span class="text-xs text-[var(--muted-foreground)] font-medium">Catálogo Activo</span>
-        <div class="text-xl font-bold font-mono text-[var(--foreground)]">{{ products.length }} artículos</div>
+        <span class="text-xs text-[var(--muted-foreground)] font-medium block">Todos los Productos</span>
+        <span class="text-xl font-bold tabular-nums text-[var(--foreground)]">{{ products.length }}</span>
       </div>
-    </div>
+    </button>
 
-    <div class="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs flex items-center gap-3">
-      <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
-        <ng-icon name="lucideBoxes" size="20"></ng-icon>
-      </div>
-      <div>
-        <span class="text-xs text-[var(--muted-foreground)] font-medium">Total Existencias Físicas</span>
-        <div class="text-xl font-bold font-mono text-[var(--foreground)]">{{ getTotalStock() }} piezas base</div>
-      </div>
-    </div>
-
-    <div class="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs flex items-center gap-3">
+    <button
+      type="button"
+      (click)="stockStatusFilter = 'LOW'"
+      class="p-4 rounded-xl bg-[var(--surface)] border text-left shadow-xs flex items-center gap-3 transition-colors cursor-pointer"
+      [ngClass]="stockStatusFilter === 'LOW' ? 'border-amber-500 ring-1 ring-amber-500/30' : 'border-[var(--border)] hover:bg-[var(--surface-muted)]'"
+    >
       <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
         <ng-icon name="lucideAlertTriangle" size="20"></ng-icon>
       </div>
       <div>
-        <span class="text-xs text-[var(--muted-foreground)] font-medium">Bajo Nivel Mínimo</span>
-        <div class="text-xl font-bold font-mono text-amber-600 dark:text-amber-400">{{ getLowStockCount() }} artículos</div>
+        <span class="text-xs text-[var(--muted-foreground)] font-medium block">Con Stock Bajo</span>
+        <span class="text-xl font-bold tabular-nums text-amber-600 dark:text-amber-400">{{ getLowStockCount() }}</span>
       </div>
-    </div>
+    </button>
+
+    <button
+      type="button"
+      (click)="stockStatusFilter = 'OUT'"
+      class="p-4 rounded-xl bg-[var(--surface)] border text-left shadow-xs flex items-center gap-3 transition-colors cursor-pointer"
+      [ngClass]="stockStatusFilter === 'OUT' ? 'border-red-500 ring-1 ring-red-500/30' : 'border-[var(--border)] hover:bg-[var(--surface-muted)]'"
+    >
+      <div class="w-10 h-10 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+        <ng-icon name="lucideBoxes" size="20"></ng-icon>
+      </div>
+      <div>
+        <span class="text-xs text-[var(--muted-foreground)] font-medium block">Agotados (Sin Stock)</span>
+        <span class="text-xl font-bold tabular-nums text-red-600 dark:text-red-400">{{ getOutOfStockCount() }}</span>
+      </div>
+    </button>
   </div>
 
-  <!-- PRODUCT SELECTOR TOOLBAR -->
-  <div class="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-    <div class="flex items-center gap-2 flex-1 max-w-lg">
-      <label class="text-xs font-semibold text-[var(--foreground)] whitespace-nowrap">
-        Seleccionar Artículo:
-      </label>
-      <select
-        [ngModel]="selectedProductId"
-        (ngModelChange)="onSelectProduct($event)"
-        class="flex-1 px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
-      >
-        @for (prod of products; track prod.id) {
-          <option [value]="prod.id">
-            {{ prod.name }} ({{ prod.sku }}) — Stock: {{ prod.stockQuantity }} {{ prod.baseUnit?.code ?? 'PZA' }}
-          </option>
+  <!-- VISTA PRÁCTICA: LISTA DE PRODUCTOS (IZQ) + HISTORIAL DE MOVIMIENTOS (DER) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+    <!-- PANEL IZQUIERDO: BUSCADOR Y LISTA DE PRODUCTOS -->
+    <div class="lg:col-span-4 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs overflow-hidden">
+      <div class="p-4 border-b border-[var(--border)] space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-[var(--foreground)]">Productos</h2>
+          <span class="text-xs text-[var(--muted-foreground)]">{{ filteredProducts().length }} visibles</span>
+        </div>
+
+        <div class="relative flex items-center">
+          <span class="absolute left-3 text-[var(--muted-foreground)] pointer-events-none flex items-center">
+            <ng-icon name="lucideSearch" size="15"></ng-icon>
+          </span>
+          <input
+            type="text"
+            [(ngModel)]="productSearch"
+            placeholder="Buscar por nombre o SKU..."
+            class="w-full h-9 pl-9 pr-3 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600"
+          />
+        </div>
+      </div>
+
+      <div class="divide-y divide-[var(--border)] max-h-[520px] overflow-y-auto">
+        @for (prod of filteredProducts(); track prod.id) {
+          <button
+            type="button"
+            (click)="onSelectProduct(prod.id)"
+            class="w-full px-4 py-3 text-left flex items-center justify-between gap-3 transition-colors cursor-pointer"
+            [ngClass]="selectedProductId === prod.id ? 'bg-emerald-500/10 border-l-2 border-l-emerald-600' : 'hover:bg-[var(--surface-muted)]'"
+          >
+            <div class="min-w-0">
+              <div class="text-xs font-semibold text-[var(--foreground)] truncate">{{ prod.name }}</div>
+              <div class="text-[11px] font-mono text-[var(--muted-foreground)]">{{ prod.sku }}</div>
+            </div>
+            <span
+              class="shrink-0 px-2 py-0.5 rounded-md text-xs font-mono font-bold border tabular-nums"
+              [ngClass]="getStockBadgeClass(prod)"
+            >
+              {{ formatQty(prod.stockQuantity) }} {{ prod.baseUnit?.code ?? 'PZA' }}
+            </span>
+          </button>
+        } @empty {
+          <div class="py-10 px-4 text-center flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+            <div class="w-9 h-9 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+              <ng-icon name="lucidePackage" size="18"></ng-icon>
+            </div>
+            <p class="text-xs font-medium text-[var(--foreground)]">Sin productos</p>
+            <p class="text-[11px]">No hay artículos que coincidan con el filtro.</p>
+          </div>
         }
-      </select>
+      </div>
     </div>
 
-    <!-- Movement Type Filter -->
-    <div class="flex items-center gap-2 text-xs">
-      <span class="text-[var(--muted-foreground)]">Filtrar movimiento:</span>
-      <select
-        [(ngModel)]="movementFilter"
-        class="px-3 py-2 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
-      >
-        <option value="ALL">Todos los movimientos</option>
-        <option value="PURCHASE_RECEIPT">Recepciones de Compra</option>
-        <option value="SALE_OUT">Ventas en Mostrador (POS)</option>
-        <option value="SALE_RETURN_IN">Devoluciones de Clientes</option>
-        <option value="ADJUSTMENT_IN">Ajustes Positivos</option>
-        <option value="ADJUSTMENT_OUT">Ajustes Negativos</option>
-        <option value="WASTE_OUT">Mermas y Daños</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- KARDEX TRACEABILITY CARD & TABLE -->
-  <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-5">
-    @if (kardex; as k) {
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[var(--border)] pb-4">
-        <div>
-          <div class="flex items-center gap-2">
-            <h3 class="text-lg font-bold text-[var(--foreground)]">{{ k.product.name }}</h3>
-            <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[var(--surface-muted)] border border-[var(--border)]">
-              {{ k.product.sku }}
-            </span>
-          </div>
-          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
-            Unidad fundamental de descuento: <strong class="font-mono text-[var(--foreground)]">{{ k.product.baseUnitCode }}</strong>
-          </p>
-        </div>
-
-        <div class="flex items-center gap-4 text-right">
+    <!-- PANEL DERECHO: DETALLE Y MOVIMIENTOS DEL PRODUCTO SELECCIONADO -->
+    <div class="lg:col-span-8 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-xs space-y-5">
+      @if (kardex; as k) {
+        <!-- Cabecera del producto -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[var(--border)]">
           <div>
-            <span class="text-[11px] text-[var(--muted-foreground)] block">Alerta Mínima</span>
-            <span class="font-mono font-bold text-sm text-[var(--foreground)]">{{ k.product.minStockAlert }}</span>
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="text-base font-bold text-[var(--foreground)]">{{ k.product.name }}</h3>
+              <span class="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--muted-foreground)]">
+                {{ k.product.sku }}
+              </span>
+            </div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1">
+              Historial de entradas, ventas y ajustes de este artículo.
+            </p>
           </div>
-          <div class="pl-4 border-l border-[var(--border)]">
-            <span class="text-[11px] text-[var(--muted-foreground)] block">Stock Físico Actual</span>
-            <span class="font-mono font-extrabold text-2xl text-emerald-600 dark:text-emerald-400">
-              {{ k.product.currentStock }}
-            </span>
+
+          <div class="flex items-center gap-4 shrink-0">
+            <div class="text-right">
+              <span class="text-[11px] text-[var(--muted-foreground)] block">Mínimo alerta</span>
+              <span class="font-mono font-semibold text-sm text-[var(--foreground)] tabular-nums">
+                {{ formatQty(k.product.minStockAlert) }} {{ k.product.baseUnitCode || 'PZA' }}
+              </span>
+            </div>
+            <div class="pl-4 border-l border-[var(--border)] text-right">
+              <span class="text-[11px] text-[var(--muted-foreground)] block">Stock actual</span>
+              <span class="font-mono font-bold text-xl text-emerald-600 dark:text-emerald-400 tabular-nums">
+                {{ formatQty(k.product.currentStock) }} {{ k.product.baseUnitCode || 'PZA' }}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- MOVEMENTS TABLE -->
-      <div class="overflow-x-auto text-xs">
-        <table class="w-full text-left">
-          <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
-            <tr>
-              <th class="py-2.5 px-3">Fecha y Hora</th>
-              <th class="py-2.5 px-3">Tipo de Movimiento</th>
-              <th class="py-2.5 px-3 text-right">Variación (Delta)</th>
-              <th class="py-2.5 px-3 text-right">Stock Anterior</th>
-              <th class="py-2.5 px-3 text-right">Stock Resultante</th>
-              <th class="py-2.5 px-3 text-right">Costo Unitario</th>
-              <th class="py-2.5 px-3">Justificación / Folio</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
-            @for (m of filteredMovements(); track m.id) {
-              <tr class="hover:bg-[var(--surface-muted)] transition-colors">
-                <td class="py-2.5 px-3 font-mono text-[11px] text-[var(--muted-foreground)]">
-                  {{ m.createdAt | date:'short' }}
-                </td>
+        <!-- Filtro de movimientos -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="text-xs font-semibold text-[var(--foreground)]">Historial de Movimientos</span>
+          <select
+            [(ngModel)]="movementFilter"
+            class="h-9 px-3 bg-[var(--surface-muted)] border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-600 cursor-pointer"
+          >
+            <option value="ALL">Todos los movimientos</option>
+            <option value="PURCHASE_RECEIPT">Compras a Proveedor</option>
+            <option value="SALE_OUT">Ventas en Caja</option>
+            <option value="SALE_RETURN_IN">Devoluciones</option>
+            <option value="ADJUSTMENT_IN">Entradas Manuales</option>
+            <option value="ADJUSTMENT_OUT">Salidas Manuales</option>
+            <option value="WASTE_OUT">Mermas / Daños</option>
+          </select>
+        </div>
 
-                <td class="py-2.5 px-3">
-                  <span
-                    class="px-2 py-0.5 rounded text-[10px] font-bold border"
-                    [ngClass]="getMovementTypeBadge(m.movementType)"
-                  >
-                    {{ formatMovementLabel(m.movementType) }}
-                  </span>
-                </td>
-
-                <td class="py-2.5 px-3 text-right font-mono font-bold" [ngClass]="m.baseQuantityDelta.startsWith('-') ? 'text-red-500' : 'text-emerald-600'">
-                  {{ m.baseQuantityDelta.startsWith('-') ? m.baseQuantityDelta : '+' + m.baseQuantityDelta }}
-                </td>
-
-                <td class="py-2.5 px-3 text-right font-mono text-[var(--muted-foreground)]">
-                  {{ m.stockBefore }}
-                </td>
-
-                <td class="py-2.5 px-3 text-right font-mono font-bold text-[var(--foreground)]">
-                  {{ m.stockAfter }}
-                </td>
-
-                <td class="py-2.5 px-3 text-right font-mono text-[var(--muted-foreground)]">
-                  {{ m.unitCostApplied ? ('$' + m.unitCostApplied) : '—' }}
-                </td>
-
-                <td class="py-2.5 px-3 text-[11px] text-[var(--muted-foreground)] max-w-xs truncate">
-                  {{ m.reason }}
-                </td>
-              </tr>
-            } @empty {
+        <!-- Tabla clara y entendible -->
+        <div class="overflow-x-auto text-xs border border-[var(--border)] rounded-lg">
+          <table class="w-full text-left">
+            <thead class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] uppercase border-b border-[var(--border)]">
               <tr>
-                <td colspan="7" class="py-8 text-center text-xs text-[var(--muted-foreground)]">
-                  No hay movimientos registrados para este criterio en el Kardex.
-                </td>
+                <th class="py-2.5 px-3">Fecha y Hora</th>
+                <th class="py-2.5 px-3">Movimiento</th>
+                <th class="py-2.5 px-3 text-right">Cantidad</th>
+                <th class="py-2.5 px-3 text-right">Antes</th>
+                <th class="py-2.5 px-3 text-right">Después</th>
+                <th class="py-2.5 px-3 text-right">Costo</th>
+                <th class="py-2.5 px-3">Motivo / Referencia</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    } @else {
-      <div class="py-16 text-center text-xs text-[var(--muted-foreground)]">
-        <ng-icon name="lucideBoxes" size="36" class="mx-auto mb-2 text-zinc-400"></ng-icon>
-        <p>Seleccione un producto para cargar su trazabilidad histórica de Kardex.</p>
-      </div>
-    }
+            </thead>
+            <tbody class="divide-y divide-[var(--border)] text-[var(--foreground)]">
+              @for (m of filteredMovements(); track m.id) {
+                <tr class="hover:bg-[var(--surface-muted)] transition-colors">
+                  <td class="py-2.5 px-3 font-mono text-[11px] text-[var(--muted-foreground)] whitespace-nowrap">
+                    {{ m.createdAt | date:'short' }}
+                  </td>
+
+                  <td class="py-2.5 px-3 whitespace-nowrap">
+                    <span
+                      class="px-2 py-0.5 rounded text-[10px] font-bold border"
+                      [ngClass]="getMovementTypeBadge(m.movementType)"
+                    >
+                      {{ formatMovementLabel(m.movementType) }}
+                    </span>
+                  </td>
+
+                  <td
+                    class="py-2.5 px-3 text-right font-mono font-bold tabular-nums"
+                    [ngClass]="m.baseQuantityDelta.startsWith('-') ? 'text-red-500' : 'text-emerald-600'"
+                  >
+                    {{ m.baseQuantityDelta.startsWith('-') ? formatQty(m.baseQuantityDelta) : '+' + formatQty(m.baseQuantityDelta) }}
+                  </td>
+
+                  <td class="py-2.5 px-3 text-right font-mono text-[var(--muted-foreground)] tabular-nums">
+                    {{ formatQty(m.stockBefore) }}
+                  </td>
+
+                  <td class="py-2.5 px-3 text-right font-mono font-bold text-[var(--foreground)] tabular-nums">
+                    {{ formatQty(m.stockAfter) }}
+                  </td>
+
+                  <td class="py-2.5 px-3 text-right font-mono text-[var(--muted-foreground)] tabular-nums">
+                    {{ m.unitCostApplied ? ('$' + m.unitCostApplied) : '—' }}
+                  </td>
+
+                  <td class="py-2.5 px-3 text-[11px] text-[var(--muted-foreground)] max-w-xs truncate">
+                    {{ m.reason }}
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="py-12 px-4 text-center">
+                    <div class="flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+                      <div class="w-10 h-10 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+                        <ng-icon name="lucidePackage" size="20"></ng-icon>
+                      </div>
+                      <p class="text-xs font-semibold text-[var(--foreground)]">Sin movimientos registrados</p>
+                      <p class="text-[11px]">Cuando haya compras, ventas o ajustes para este producto aparecerán aquí.</p>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="py-16 text-center flex flex-col items-center justify-center gap-2 text-[var(--muted-foreground)]">
+          <div class="w-11 h-11 rounded-full bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center">
+            <ng-icon name="lucideBoxes" size="22"></ng-icon>
+          </div>
+          <p class="text-xs font-semibold text-[var(--foreground)]">Selecciona un producto</p>
+          <p class="text-[11px]">Elige un artículo de la lista izquierda para ver su historial de entradas y salidas.</p>
+        </div>
+      }
+    </div>
   </div>
 </div>

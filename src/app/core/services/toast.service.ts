@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { Injectable } from '@angular/core';
+import { toast } from 'ngx-sonner';
 
 export type ToastSeverity = 'success' | 'info' | 'warn' | 'error';
 
@@ -15,56 +15,35 @@ export interface ToastOptions {
   providedIn: 'root',
 })
 export class ToastService {
-  private readonly messageService: MessageService;
-
-  constructor(customMessageService?: MessageService) {
-    this.messageService =
-      customMessageService ??
-      inject(MessageService, { optional: true }) ??
-      new MessageService();
-  }
-
   /**
-   * Notificación de éxito (verde comercial Tavera)
+   * Notificación de éxito (Spartan / Sonner).
    * Ideal para: producto guardado, sesión iniciada, inventario ajustado, etc.
    */
   success(summary: string, detail?: string, life = 4000): void {
-    this.messageService.clear();
-    this.messageService.add({
-      severity: 'success',
-      summary,
-      detail,
-      life,
+    toast.success(summary, {
+      description: detail,
+      duration: life,
     });
   }
 
   error(summary: string, detail?: string, life = 5000): void {
-    this.messageService.clear();
-    this.messageService.add({
-      severity: 'error',
-      summary,
-      detail,
-      life,
+    toast.error(summary, {
+      description: detail,
+      duration: life,
     });
   }
 
   warn(summary: string, detail?: string, life = 4500): void {
-    this.messageService.clear();
-    this.messageService.add({
-      severity: 'warn',
-      summary,
-      detail,
-      life,
+    toast.warning(summary, {
+      description: detail,
+      duration: life,
     });
   }
 
   info(summary: string, detail?: string, life = 4000): void {
-    this.messageService.clear();
-    this.messageService.add({
-      severity: 'info',
-      summary,
-      detail,
-      life,
+    toast.info(summary, {
+      description: detail,
+      duration: life,
     });
   }
 
@@ -72,19 +51,32 @@ export class ToastService {
    * Muestra un toast personalizado con opciones completas.
    */
   show(options: ToastOptions): void {
-    this.messageService.add({
-      severity: options.severity ?? 'info',
-      summary: options.summary,
-      detail: options.detail,
-      life: options.life ?? 4000,
-      sticky: options.sticky ?? false,
-    });
+    const data = {
+      description: options.detail,
+      duration: options.sticky ? Number.POSITIVE_INFINITY : (options.life ?? 4000),
+    };
+
+    switch (options.severity ?? 'info') {
+      case 'success':
+        toast.success(options.summary, data);
+        break;
+      case 'error':
+        toast.error(options.summary, data);
+        break;
+      case 'warn':
+        toast.warning(options.summary, data);
+        break;
+      case 'info':
+      default:
+        toast.info(options.summary, data);
+        break;
+    }
   }
 
   /**
    * Limpia todos los toasts activos en pantalla.
    */
   clear(): void {
-    this.messageService.clear();
+    toast.dismiss();
   }
 }
