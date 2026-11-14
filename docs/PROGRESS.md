@@ -194,3 +194,44 @@
     - `adm-toast-success-login-light.png` / `adm-toast-success-login-dark.png`: Toast de bienvenida al iniciar sesión.
     - `adm-toast-warn-validation-light.png`: Toast de advertencia por campos requeridos en el formulario de producto.
     - `adm-toast-success-product-light.png` / `adm-toast-success-product-dark.png`: Toast de producto registrado en catálogo.
+
+## Sprint 09 — Rediseño Enterprise del Formulario, Layout y Toasts Sobrios (2026-11-13)
+
+### Completado
+- Creación de rama `feature/ui-admin-enterprise-redesign` desde `feature/ui-admin-toast-notifications`.
+- **Refactorización de Layout y Sidebar:**
+  - Solución definitiva al recorte del logotipo en sidebar colapsado: el logotipo ahora se centra limpiamente como un botón con icono `lucideStore` y tooltip explicativo que permite expandir al hacer clic.
+  - Botón de alternancia de menú lateral colocado en el TopBar junto a los breadcrumbs, garantizando visibilidad permanente sin empalmarse con la marca comercial.
+  - Ancho reactivo del área de contenido sincronizado (`w-64` / 256px expandido vs `w-20` / 80px colapsado) evitando desbordamientos horizontales en todas las resoluciones.
+- **Barra de Acciones Inferior:**
+  - Eliminación de transparencias, reflejos y desenfoques que dificultaban la lectura de controles.
+  - Fondo de superficie sólido `bg-[var(--surface)]` con borde superior sutil `border-t border-[var(--border)]` y sombra ligera.
+  - Consolidación en una única zona de acción de guardado/cancelación, eliminando botones redundantes en la cabecera.
+  - Garantía de espacio con padding inferior en el contenedor para evitar que los campos queden ocultos tras la barra flotante.
+- **Rediseño Enterprise del Formulario de Productos (Inspiración Apollo PrimeNG):**
+  - Página completa (`/products/new` y `/products/:id/edit`), libre de modales y de tarjetas pesadas saturadas.
+  - Composición asimétrica a 2 columnas (`lg:col-span-8` información principal, `lg:col-span-4` estado, categoría, existencias y rentabilidad).
+  - Divisores horizontales y espaciado generoso con jerarquía visual sobria en lugar de múltiples contenedores encimados.
+  - Generación asistida de clave SKU comercial con botón "Sugerir clave" que normaliza el nombre y genera códigos estándar.
+  - Revelación progresiva (*progressive disclosure*) para la escala de precios de mayoreo e impuestos fiscales SAT (IVA/IEPS).
+  - Corrección financiera y terminológica:
+    - Términos oficiales "Ganancia Bruta" y "Margen Bruto" por unidad.
+    - Eliminación de datos ficticios previos a la captura; cuando los campos están en cero se muestra el estado neutral "Pendiente de captura".
+    - Resumen de rentabilidad compacto y discreto en columna lateral.
+- **Toasts y Notificaciones Sobrias:**
+  - Rediseño minimalista de la plantilla `#headless` de PrimeNG Toast: fondos sólidos, bordes sutiles y franja indicadora semántica de 4px.
+  - Limpieza preventiva de duplicados (`clear()`) antes de emitir un nuevo mensaje para evitar saturación de la interfaz.
+- **Pruebas y Verificación:**
+  - 4 suites de pruebas unitarias con Vitest (`16/16` pruebas aprobadas al 100%).
+  - Compilación de producción con Angular CLI (`ng build`) completada con éxito (`0` errores, `0` advertencias).
+  - Verificación visual completa mediante script automatizado con capturas en Light y Dark en resoluciones 1920x1080, 1366x768 y 1024x768 (Tablet):
+    - `adm-layout-expanded-light.png`
+    - `adm-layout-collapsed-light.png`
+    - `adm-layout-collapsed-dark.png`
+    - `adm-product-new-light-1920.png`
+    - `adm-product-new-dark-1920.png`
+    - `adm-product-new-light-1366.png`
+    - `adm-product-new-dark-1366.png`
+    - `adm-product-new-tablet-1024.png`
+    - `adm-product-new-configured-light.png`
+    - `adm-product-new-configured-dark.png`

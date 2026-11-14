@@ -144,3 +144,35 @@ Este enfoque presentaba inconvenientes de UX:
      - Título en negrita y descripción detallada en texto legible.
      - Botón de cierre manual accesible por teclado (`role="status"`, `aria-label="Cerrar"`).
      - Contenedor con `pointer-events: none` y tarjetas con `pointer-events: auto` para no obstruir clics en la interfaz cuando no haya notificaciones activas.
+
+
+## ADR-008: Rediseño Enterprise del Formulario de Productos (Apollo PrimeNG Composition), Layout Dinámico y Toasts Sobrios
+
+- **Fecha:** 2026-11-13
+- **Estado:** Aprobado
+
+### Contexto y Problema
+Tras la implementación de páginas completas y toasts iniciales, la interfaz de administración requería un salto cualitativo hacia un estándar enterprise (tomando como referencia compositiva la plantilla Apollo PrimeNG E-Commerce):
+1. **Layout y Marca:** El sidebar en estado colapsado cortaba el nombre y logotipo de Abarrotes Tavera horizontalmente; además, el botón de alternancia se superponía con elementos del menú y el ancho del área principal no se adaptaba armónicamente.
+2. **Barra de Acciones Inferior:** Presentaba fondos translúcidos y desenfoques (*backdrop-blur*) que dificultaban la lectura, coexistía con botones redundantes de guardar en la parte superior y corría el riesgo de tapar los campos inferiores del formulario.
+3. **Saturación en el Formulario:** Existía una acumulación de tarjetas grandes encimadas con excesivo ruido visual, cálculos de rentabilidad ficticios mostrados con números artificiales antes de capturar datos, y el uso erróneo del término contable "ganancia neta" en lugar de "ganancia bruta".
+4. **Toasts Intrusivos:** Efectos visuales excesivos y acumulación de múltiples notificaciones repetidas al navegar entre vistas.
+
+### Decisiones
+1. **Composición Asimétrica Enterprise (Referencia Apollo PrimeNG):**
+   - Estructuración en 2 columnas principales con rejilla responsive (`grid-cols-1 lg:grid-cols-12`):
+     - **Columna Primaria (8 columnas):** Datos generales del producto (nombre, descripción, clave SKU con botón asistido "Sugerir clave"), precios base y escala de mayoreo progresiva (*progressive disclosure*), unidades y presentaciones comerciales derivadas.
+     - **Columna Secundaria (4 columnas):** Clasificación por categorías con badge de estado, control de existencias mínimas y tarjeta sobria de rentabilidad proyectada.
+   - Reemplazo de cajas y tarjetas pesadas por divisores limpios (`divide-y divide-[var(--border)]`) y espacios de respiro consistentes.
+2. **Corrección Financiera y Terminológica:**
+   - Adopción estricta de **Ganancia Bruta** y **Margen Bruto**.
+   - Supresión de números ficticios o estimaciones simuladas: mientras el costo o el precio estén en cero o sin capturar, la tarjeta de rentabilidad se mantiene en estado neutral ("Pendiente de captura: Ingrese costo y precio para proyectar").
+3. **Consolidación de Acciones en Barra Inferior Sólida:**
+   - Eliminación de los botones secundarios duplicados en la cabecera.
+   - Barra fija inferior (`sticky bottom-0`) con superficie sólida opaca (`bg-[var(--surface)]`), borde superior de 1px y padding inferior en el formulario para asegurar visibilidad total de los campos.
+4. **Layout Dinámico y Logotipo Adaptativo:**
+   - En estado colapsado (`w-20` / 80px), el logotipo se contrae elegantemente a un botón cuadrado centrado con icono `lucideStore` y tooltip explicativo, que expande el menú al hacer clic.
+   - El botón de colapso/expansión se reubicó en el TopBar junto a los breadcrumbs, manteniéndose siempre accesible sin obstruir el contenido.
+5. **Toasts Sobrios y Descarte Preventivo:**
+   - Rediseño minimalista de la notificación toast sin sombras pesadas ni brillos artificiales.
+   - Invocación preventiva de `clear()` en `ToastService` previo a emitir cualquier nuevo mensaje para impedir acumulaciones ruidosas en pantalla.

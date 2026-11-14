@@ -29,6 +29,7 @@ export class ToastService {
    * Ideal para: producto guardado, sesión iniciada, inventario ajustado, etc.
    */
   success(summary: string, detail?: string, life = 4000): void {
+    this.messageService.clear();
     this.messageService.add({
       severity: 'success',
       summary,
@@ -37,11 +38,8 @@ export class ToastService {
     });
   }
 
-  /**
-   * Notificación de error (rojo advertencia)
-   * Ideal para: fallos de red, error de validación, error de credenciales, etc.
-   */
-  error(summary: string, detail?: string, life = 5500): void {
+  error(summary: string, detail?: string, life = 5000): void {
+    this.messageService.clear();
     this.messageService.add({
       severity: 'error',
       summary,
@@ -50,11 +48,8 @@ export class ToastService {
     });
   }
 
-  /**
-   * Notificación de advertencia (naranja comercial Tavera)
-   * Ideal para: stock bajo, cambios pendientes, confirmaciones preventivas.
-   */
   warn(summary: string, detail?: string, life = 4500): void {
+    this.messageService.clear();
     this.messageService.add({
       severity: 'warn',
       summary,
@@ -63,11 +58,8 @@ export class ToastService {
     });
   }
 
-  /**
-   * Notificación informativa (azul neutro)
-   * Ideal para: información operativa, sincronización iniciada, etc.
-   */
   info(summary: string, detail?: string, life = 4000): void {
+    this.messageService.clear();
     this.messageService.add({
       severity: 'info',
       summary,

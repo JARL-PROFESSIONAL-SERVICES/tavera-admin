@@ -1,42 +1,53 @@
 <div class="min-h-screen flex bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
-  <!-- SIDEBAR (DESKTOP: 248px or 72px; MOBILE: DRAWER) -->
+  <!-- SIDEBAR (DESKTOP: 256px or 80px; MOBILE: DRAWER) -->
   <aside
-    class="fixed inset-y-0 left-0 z-40 bg-[var(--sidebar)] text-zinc-300 flex flex-col justify-between border-r border-zinc-800 transition-all duration-300"
+    class="fixed inset-y-0 left-0 z-40 bg-[var(--sidebar)] text-zinc-300 flex flex-col justify-between border-r border-zinc-800 transition-all duration-300 select-none"
     [ngClass]="{
-      'w-[248px]': isExpanded(),
-      'w-[72px]': !isExpanded(),
+      'w-64': isExpanded(),
+      'w-20': !isExpanded(),
       'translate-x-0': mobileMenuOpen(),
       '-translate-x-full lg:translate-x-0': !mobileMenuOpen()
     }"
   >
     <!-- Top Branding / Logo -->
-    <div>
-      <div class="h-16 px-4 flex items-center justify-between border-b border-zinc-800">
-        <div class="flex items-center gap-3 overflow-hidden">
-          <div class="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center shrink-0 text-white font-bold shadow-md shadow-emerald-950/30">
-            <ng-icon name="lucideStore" size="18"></ng-icon>
-          </div>
-          @if (isExpanded()) {
-            <div class="truncate">
-              <div class="text-sm font-bold text-white tracking-tight">Abarrotes Tavera</div>
-              <div class="text-[10px] text-zinc-400 font-medium">Panel Administrativo</div>
+    <div class="flex flex-col">
+      @if (isExpanded()) {
+        <div class="h-16 px-4 flex items-center justify-between border-b border-zinc-800 shrink-0">
+          <div class="flex items-center gap-3 overflow-hidden min-w-0">
+            <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center shrink-0 text-white font-bold shadow-md shadow-emerald-950/40">
+              <ng-icon name="lucideStore" size="20"></ng-icon>
             </div>
-          }
-        </div>
+            <div class="truncate">
+              <div class="text-sm font-bold text-white tracking-tight leading-tight">Abarrotes Tavera</div>
+              <div class="text-[11px] text-zinc-400 font-medium">Panel Administrativo</div>
+            </div>
+          </div>
 
-        <!-- Collapse Toggle (Desktop only) -->
-        <button
-          type="button"
-          (click)="isExpanded.set(!isExpanded())"
-          class="hidden lg:flex w-7 h-7 rounded-md items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
-          [title]="isExpanded() ? 'Colapsar menú lateral' : 'Expandir menú lateral'"
-        >
-          <ng-icon [name]="isExpanded() ? 'lucideChevronLeft' : 'lucideChevronRight'" size="16"></ng-icon>
-        </button>
-      </div>
+          <!-- Collapse Toggle (Desktop only) -->
+          <button
+            type="button"
+            (click)="isExpanded.set(false)"
+            class="hidden lg:flex w-7 h-7 rounded-md items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors shrink-0"
+            title="Colapsar menú lateral"
+          >
+            <ng-icon name="lucideChevronLeft" size="16"></ng-icon>
+          </button>
+        </div>
+      } @else {
+        <div class="h-16 flex items-center justify-center border-b border-zinc-800 shrink-0">
+          <button
+            type="button"
+            (click)="isExpanded.set(true)"
+            class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-950/40 hover:scale-105 transition-transform"
+            title="Abarrotes Tavera — Clic para expandir menú"
+          >
+            <ng-icon name="lucideStore" size="20"></ng-icon>
+          </button>
+        </div>
+      }
 
       <!-- Navigation Links -->
-      <nav class="p-2 space-y-1 mt-2" aria-label="Navegación principal">
+      <nav class="p-2 space-y-1.5 mt-2" aria-label="Navegación principal">
         <!-- 1. DASHBOARD -->
         <button
           type="button"
@@ -45,7 +56,7 @@
           [ngClass]="{
             'bg-emerald-600 text-white shadow-sm': activeSection === 'DASHBOARD',
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'DASHBOARD',
-            'justify-center px-0': !isExpanded()
+            'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Dashboard Ejecutivo' : ''"
         >
@@ -63,7 +74,7 @@
           [ngClass]="{
             'bg-emerald-600 text-white shadow-sm': activeSection === 'CATALOG' || activeSection === 'PRODUCT_FORM',
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'CATALOG' && activeSection !== 'PRODUCT_FORM',
-            'justify-center px-0': !isExpanded()
+            'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Catálogo de Productos' : ''"
         >
@@ -81,7 +92,7 @@
           [ngClass]="{
             'bg-emerald-600 text-white shadow-sm': activeSection === 'CATEGORIES',
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'CATEGORIES',
-            'justify-center px-0': !isExpanded()
+            'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Categorías y Presentaciones' : ''"
         >
@@ -99,7 +110,7 @@
           [ngClass]="{
             'bg-emerald-600 text-white shadow-sm': activeSection === 'PRICING',
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'PRICING',
-            'justify-center px-0': !isExpanded()
+            'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Precios y Mayoreo' : ''"
         >
@@ -117,7 +128,7 @@
           [ngClass]="{
             'bg-emerald-600 text-white shadow-sm': activeSection === 'INVENTORY',
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'INVENTORY',
-            'justify-center px-0': !isExpanded()
+            'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Inventario y Kardex' : ''"
         >
@@ -135,7 +146,7 @@
           [ngClass]="{
             'bg-emerald-600 text-white shadow-sm': activeSection === 'SUPPLIERS_PURCHASES',
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'SUPPLIERS_PURCHASES',
-            'justify-center px-0': !isExpanded()
+            'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Proveedores y Compras' : ''"
         >
@@ -153,7 +164,7 @@
           [ngClass]="{
             'bg-emerald-600 text-white shadow-sm': activeSection === 'SALES_CASH',
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'SALES_CASH',
-            'justify-center px-0': !isExpanded()
+            'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Ventas y Cortes' : ''"
         >
@@ -171,7 +182,7 @@
           [ngClass]="{
             'bg-emerald-600 text-white shadow-sm': activeSection === 'USERS_RBAC',
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'USERS_RBAC',
-            'justify-center px-0': !isExpanded()
+            'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Usuarios y Roles' : ''"
         >
@@ -189,7 +200,7 @@
           [ngClass]="{
             'bg-emerald-600 text-white shadow-sm': activeSection === 'AUDIT',
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'AUDIT',
-            'justify-center px-0': !isExpanded()
+            'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
           [title]="!isExpanded() ? 'Auditoría' : ''"
         >
@@ -229,16 +240,17 @@
 
   <!-- MAIN APP WRAPPER -->
   <div
-    class="flex-1 flex flex-col min-h-screen transition-all duration-300"
+    class="flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300"
     [ngClass]="{
-      'lg:pl-[248px]': isExpanded(),
-      'lg:pl-[72px]': !isExpanded()
+      'lg:pl-64': isExpanded(),
+      'lg:pl-20': !isExpanded()
     }"
   >
     <!-- TOPBAR (64px) -->
     <header class="h-16 sticky top-0 z-20 bg-[var(--surface)] border-b border-[var(--border)] px-4 sm:px-6 flex items-center justify-between shadow-xs">
-      <!-- Left: Mobile Menu Toggle & Breadcrumbs -->
+      <!-- Left: Mobile Menu Toggle, Desktop Toggle & Breadcrumbs -->
       <div class="flex items-center gap-3">
+        <!-- Mobile Menu Toggle -->
         <button
           type="button"
           (click)="mobileMenuOpen.set(!mobileMenuOpen())"
@@ -248,8 +260,18 @@
           <ng-icon name="lucideMenu" size="20"></ng-icon>
         </button>
 
+        <!-- Desktop Sidebar Toggle -->
+        <button
+          type="button"
+          (click)="isExpanded.set(!isExpanded())"
+          class="hidden lg:flex w-8 h-8 rounded-lg items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-muted)] transition-colors border border-[var(--border)]"
+          [title]="isExpanded() ? 'Colapsar menú lateral' : 'Expandir menú lateral'"
+        >
+          <ng-icon [name]="isExpanded() ? 'lucideChevronLeft' : 'lucideChevronRight'" size="16"></ng-icon>
+        </button>
+
         <!-- Breadcrumbs -->
-        <div class="flex items-center gap-2 text-xs font-medium">
+        <div class="flex items-center gap-2 text-xs font-medium pl-1">
           <span class="text-[var(--muted-foreground)]">Tavera Admin</span>
           <span class="text-[var(--border)] font-bold">/</span>
           <span class="text-[var(--foreground)] font-semibold">{{ getSectionTitle(activeSection) }}</span>
@@ -323,7 +345,7 @@
     </header>
 
     <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto min-w-0">
       <ng-content></ng-content>
     </main>
   </div>

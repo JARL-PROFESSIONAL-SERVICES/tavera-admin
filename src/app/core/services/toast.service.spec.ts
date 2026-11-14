@@ -28,13 +28,13 @@ describe('ToastService', () => {
     });
   });
 
-  it('should send error toast with 5500ms life', () => {
+  it('should send error toast with 5000ms life', () => {
     service.error('Error de red', 'No se pudo conectar al servidor');
     expect(messageServiceSpy.add).toHaveBeenCalledWith({
       severity: 'error',
       summary: 'Error de red',
       detail: 'No se pudo conectar al servidor',
-      life: 5500,
+      life: 5000,
     });
   });
 
