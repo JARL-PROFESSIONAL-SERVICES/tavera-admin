@@ -1,5 +1,6 @@
 import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -147,6 +148,8 @@ export class App implements OnInit {
   // Inventory & Kardex state (ADM-07 & ADM-08)
   readonly selectedKardexProductId = signal<string>('');
   readonly kardexError = signal(false);
+  private kardexRequest?: Subscription;
+  private catalogProductsRequest?: Subscription;
   readonly currentKardex = signal<KardexResponse | null>(null);
   readonly isAdjustmentModalOpen = signal(false);
   readonly isSavingAdjustment = signal(false);
@@ -223,7 +226,7 @@ export class App implements OnInit {
       `Bienvenido(a) ${user?.fullName ?? 'al sistema'} (${user?.roleCode ?? 'Administrador'}).`,
     );
     this.loadDashboard();
-    this.loadCatalogData();
+    this.loadCatalogData(this.activeSection() === 'INVENTORY' ? '' : this.productSearchQuery());
   }
 
   selectSection(section: AdminSection): void {
@@ -288,7 +291,8 @@ export class App implements OnInit {
     this.catalogError.set(null);
     this.api.listUnits().subscribe({ next: (u) => this.units.set(u) });
     this.api.listCategories().subscribe({ next: (c) => this.categories.set(c) });
-    this.api.listProducts(query).subscribe({
+    this.catalogProductsRequest?.unsubscribe();
+    this.catalogProductsRequest = this.api.listProducts(query).subscribe({
       next: (prods) => {
         this.isLoadingCatalog.set(false);
         this.products.set(prods);
@@ -499,6 +503,7 @@ export class App implements OnInit {
   }
 
   closeProductKardex(): void {
+    this.kardexRequest?.unsubscribe();
     this.selectedKardexProductId.set('');
     this.currentKardex.set(null);
     this.kardexError.set(false);
@@ -508,16 +513,11 @@ export class App implements OnInit {
     if (!productId) {
       return;
     }
+    this.closeProductKardex();
     this.selectedKardexProductId.set(productId);
-    this.currentKardex.set(null);
-    this.kardexError.set(false);
-    this.api.getKardex(productId).subscribe({
-      next: (k) => {
-        if (this.selectedKardexProductId() === productId) this.currentKardex.set(k);
-      },
-      error: () => {
-        if (this.selectedKardexProductId() === productId) this.kardexError.set(true);
-      },
+    this.kardexRequest = this.api.getKardex(productId).subscribe({
+      next: (history) => this.currentKardex.set(history),
+      error: () => this.kardexError.set(true),
     });
   }
 

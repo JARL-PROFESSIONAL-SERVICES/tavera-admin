@@ -292,3 +292,8 @@
 - Los movimientos muestran cambio y saldo. El saldo anterior, costo, motivo y referencia aparecen en el detalle de cada movimiento.
 - Corregido el modelo del Admin para consumir baseUnit, quantityDelta, previousStock y newStock tal como los devuelve la API.
 - La rama parte de origin/develop e incorpora 92416c7 del PR #14 para trabajar sobre la última vista del Admin.
+
+### Correcciones de Inventario
+
+- Los ajustes serializan los importes numéricos del formulario y omiten el costo si se deja vacío. La cantidad y el motivo se capturan explícitamente.
+- Se cancelan las consultas anteriores de productos y movimientos al solicitar datos nuevos. El ajuste está disponible cuando se han cargado las existencias.

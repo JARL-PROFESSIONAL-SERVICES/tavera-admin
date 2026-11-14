@@ -218,3 +218,5 @@ Inicio prioriza el estado operativo y presenta el detalle financiero bajo demand
 ## Consulta de existencias e historial
 
 ADM-07 muestra primero existencias por producto y obtiene sus movimientos al abrir el detalle. El ajuste se ofrece a usuarios con inventory:adjust y la autorización se aplica en la API. El historial muestra los movimientos recientes de la consulta existente.
+
+El costo de ajuste es opcional. Cuando se captura, el formulario exige un valor positivo conforme al contrato de Inventario de la API.

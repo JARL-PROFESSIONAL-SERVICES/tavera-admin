@@ -84,7 +84,7 @@
         [kardexError]="kardexError()"
         [productsLoading]="isLoadingCatalog()"
         [productsError]="catalogError()"
-        [canAdjust]="api.hasPermission('inventory:adjust')"
+        [canAdjust]="api.hasPermission('inventory:adjust') && !isLoadingCatalog() && !catalogError() && products().length > 0"
         (closeHistory)="closeProductKardex()"
         (retryProducts)="loadCatalogData('')"
         [selectedProductId]="selectedKardexProductId()"

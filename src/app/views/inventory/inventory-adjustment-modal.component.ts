@@ -6,7 +6,6 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
-  computed,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +28,7 @@ export interface InventoryAdjustmentData {
   productId: string;
   movementType: AdjustmentMovementType;
   quantity: string;
-  unitCostApplied: string;
+  unitCostApplied?: string;
   reason: string;
 }
 
@@ -57,9 +56,9 @@ export class InventoryAdjustmentModalComponent implements OnChanges {
 
   readonly selectedProductId = signal('');
   readonly movementType = signal<AdjustmentMovementType>('ADJUSTMENT_IN');
-  readonly quantity = signal('10');
-  readonly unitCost = signal('18.00');
-  readonly reason = signal('Ajuste de inventario por conteo físico en tienda');
+  readonly quantity = signal<number | null>(null);
+  readonly unitCost = signal<number | null>(null);
+  readonly reason = signal('');
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['defaultProductId'] && this.defaultProductId) {
@@ -79,7 +78,8 @@ export class InventoryAdjustmentModalComponent implements OnChanges {
   private syncCostFromProduct(id: string): void {
     const p = this.products.find((prod) => prod.id === id);
     if (p) {
-      this.unitCost.set(p.currentCostPerBaseUnit || '18.00');
+      const cost = Number(p.currentCostPerBaseUnit);
+      this.unitCost.set(cost > 0 ? cost : null);
     }
   }
 
@@ -100,21 +100,23 @@ export class InventoryAdjustmentModalComponent implements OnChanges {
   }
 
   isValid(): boolean {
+    const cost = this.unitCost();
     return Boolean(
-      this.selectedProductId() &&
-        Number(this.quantity()) > 0 &&
-        Number(this.unitCost()) >= 0 &&
+      this.products.some((product) => product.id === this.selectedProductId()) &&
+        Number.isFinite(this.quantity()) && Number(this.quantity()) > 0 &&
+        (cost === null || (Number.isFinite(cost) && cost > 0)) &&
         this.reason().trim(),
     );
   }
 
   submitAdjustment(): void {
-    if (!this.isValid()) return;
+    if (this.isSaving || !this.isValid()) return;
+    const cost = this.unitCost();
     this.applyAdjustment.emit({
       productId: this.selectedProductId(),
       movementType: this.movementType(),
-      quantity: this.quantity().trim(),
-      unitCostApplied: this.unitCost().trim(),
+      quantity: String(this.quantity()),
+      ...(cost === null ? {} : { unitCostApplied: String(cost) }),
       reason: this.reason().trim(),
     });
   }

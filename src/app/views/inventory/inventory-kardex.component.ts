@@ -114,6 +114,8 @@ export class InventoryKardexComponent {
         return 'Venta en Caja';
       case 'SALE_RETURN_IN':
         return 'Devolución';
+      case 'SALE_CANCEL_IN':
+        return 'Cancelación de venta';
       case 'ADJUSTMENT_IN':
         return 'Entrada Manual';
       case 'ADJUSTMENT_OUT':
