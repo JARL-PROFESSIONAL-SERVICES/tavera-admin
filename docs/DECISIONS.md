@@ -210,3 +210,7 @@ El formulario de alta de productos requería equilibrar dos necesidades operativ
    - Permite dar de alta múltiples artículos de forma continua: envía el registro a la API, actualiza el catálogo reactivamente, emite un toast de confirmación temporal y resetea el formulario reenfocando de inmediato el código de barras sin recargar la página.
 5. **Confirmación Condicional sin Interrupciones Innecesarias:**
    - Solo se muestra advertencia de confirmación al presionar "Cancelar" si el formulario contiene modificaciones no guardadas (`isDirty`). Si el usuario no ha capturado datos, la salida es inmediata.
+
+## Jerarquía del resumen y del alta de productos
+
+Inicio prioriza el estado operativo y presenta el detalle financiero bajo demanda. La etiqueta «Histórico acumulado» identifica el alcance actual del reporte. El alta utiliza una sección plegable para reducir la cantidad de campos visibles durante la captura consecutiva. En edición se abre para que los datos avanzados existentes queden a la vista.

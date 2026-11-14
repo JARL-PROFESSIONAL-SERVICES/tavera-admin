@@ -47,8 +47,6 @@ export class DashboardComponent {
   @Output() refresh = new EventEmitter<void>();
   @Output() viewCatalog = new EventEmitter<void>();
 
-  selectedPeriod: 'TODAY' | 'WEEK' | 'MONTH' = 'TODAY';
-
   formatMoney(val: string | number | undefined | null): string {
     const num = Number(val ?? 0);
     return isNaN(num)

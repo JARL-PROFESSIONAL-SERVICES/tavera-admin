@@ -245,12 +245,6 @@
       >
         <ng-template #header pTemplate="header">
           <tr class="bg-[var(--surface-muted)] text-[var(--muted-foreground)] text-xs font-semibold uppercase tracking-wider border-b border-[var(--border)]">
-            <th pSortableColumn="sku" class="py-3 px-4">
-              <div class="flex items-center gap-1.5 cursor-pointer select-none">
-                <span>SKU / Códigos</span>
-                <ng-icon name="lucideArrowUpDown" size="12"></ng-icon>
-              </div>
-            </th>
             <th pSortableColumn="name" class="py-3 px-4">
               <div class="flex items-center gap-1.5 cursor-pointer select-none">
                 <span>Producto</span>
@@ -284,21 +278,6 @@
 
         <ng-template #body let-product pTemplate="body">
           <tr class="border-b border-[var(--border)] hover:bg-[var(--surface-muted)] transition-colors text-xs text-[var(--foreground)]">
-            <!-- SKU & BARCODES -->
-            <td class="py-3 px-4">
-              <div class="font-mono font-bold text-[var(--foreground)]">{{ product.sku }}</div>
-              @if (product.barcodes && product.barcodes.length > 0) {
-                <div class="text-[10px] text-[var(--muted-foreground)] font-mono flex items-center gap-1 mt-0.5">
-                  <span>{{ product.barcodes[0].code }}</span>
-                  @if (product.barcodes.length > 1) {
-                    <span class="text-[9px] px-1 py-0.2 bg-[var(--surface-muted)] border border-[var(--border)] rounded">
-                      +{{ product.barcodes.length - 1 }}
-                    </span>
-                  }
-                </div>
-              }
-            </td>
-
             <!-- PRODUCT NAME & CATEGORY -->
             <td class="py-3 px-4">
               <div class="font-semibold text-[var(--foreground)]">{{ product.name }}</div>
@@ -310,6 +289,17 @@
                   </span>
                 }
               </div>
+              <div class="mt-1 text-[11px] font-mono text-[var(--muted-foreground)]">{{ product.sku }}</div>
+              @if (product.barcodes && product.barcodes.length > 0) {
+                <div class="text-[10px] text-[var(--muted-foreground)] font-mono flex items-center gap-1 mt-0.5">
+                  <span>{{ product.barcodes[0].code }}</span>
+                  @if (product.barcodes.length > 1) {
+                    <span class="text-[9px] px-1 py-0.2 bg-[var(--surface-muted)] border border-[var(--border)] rounded">
+                      +{{ product.barcodes.length - 1 }}
+                    </span>
+                  }
+                </div>
+              }
             </td>
 
             <!-- BASE UNIT -->
@@ -364,7 +354,7 @@
                   <button
                     type="button"
                     (click)="startQuickEdit(product)"
-                    class="opacity-0 group-hover:opacity-100 p-1 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-opacity cursor-pointer"
+                    class="p-1 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-opacity cursor-pointer"
                     title="Edición rápida de precio"
                   >
                     <ng-icon name="lucideEdit" size="13"></ng-icon>

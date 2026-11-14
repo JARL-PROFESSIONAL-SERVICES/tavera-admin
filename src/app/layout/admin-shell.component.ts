@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   lucideBan,
@@ -8,7 +8,6 @@ import {
   lucideChevronRight,
   lucideClock,
   lucideDollarSign,
-  lucideEdit,
   lucideFolderTree,
   lucideLaptop,
   lucideLayoutDashboard,
@@ -16,7 +15,6 @@ import {
   lucideMenu,
   lucideMoon,
   lucidePackage,
-  lucidePlus,
   lucideReceipt,
   lucideShieldCheck,
   lucideStore,
@@ -54,7 +52,6 @@ export type SuppliersTab = 'SUPPLIERS' | 'PENDING' | 'CANCELLED' | 'HISTORY';
       lucideChevronRight,
       lucideClock,
       lucideDollarSign,
-      lucideEdit,
       lucideFolderTree,
       lucideLaptop,
       lucideLayoutDashboard,
@@ -62,7 +59,6 @@ export type SuppliersTab = 'SUPPLIERS' | 'PENDING' | 'CANCELLED' | 'HISTORY';
       lucideMenu,
       lucideMoon,
       lucidePackage,
-      lucidePlus,
       lucideReceipt,
       lucideShieldCheck,
       lucideStore,
@@ -74,31 +70,31 @@ export type SuppliersTab = 'SUPPLIERS' | 'PENDING' | 'CANCELLED' | 'HISTORY';
   ],
   templateUrl: './admin-shell.component.html',
 })
-export class AdminShellComponent {
+export class AdminShellComponent implements OnChanges {
   readonly api = inject(AdminApiService);
   readonly theme = inject(ThemeService);
 
   @Input({ required: true }) activeSection: AdminSection = 'DASHBOARD';
   @Input() activeSuppliersTab: SuppliersTab = 'SUPPLIERS';
-  @Input() isEditingProduct = false;
 
   @Output() sectionChange = new EventEmitter<AdminSection>();
-  @Output() createProduct = new EventEmitter<void>();
   @Output() selectSuppliersTab = new EventEmitter<SuppliersTab>();
 
   readonly isExpanded = signal(true);
   readonly mobileMenuOpen = signal(false);
-  readonly productosMenuOpen = signal(true);
-  readonly proveedoresMenuOpen = signal(true);
+  readonly productosMenuOpen = signal(false);
+  readonly proveedoresMenuOpen = signal(false);
 
   onSelectSection(section: AdminSection): void {
     this.sectionChange.emit(section);
     this.mobileMenuOpen.set(false);
   }
 
-  onCreateProduct(): void {
-    this.createProduct.emit();
-    this.mobileMenuOpen.set(false);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['activeSection']) {
+      this.productosMenuOpen.set(this.isProductGroupActive());
+      this.proveedoresMenuOpen.set(this.activeSection === 'SUPPLIERS_PURCHASES');
+    }
   }
 
   onSelectSuppliersTab(tab: SuppliersTab): void {
@@ -119,7 +115,7 @@ export class AdminShellComponent {
   getSectionTitle(sec: AdminSection): string {
     switch (sec) {
       case 'DASHBOARD':
-        return 'Dashboard Ejecutivo';
+        return 'Inicio';
       case 'CATALOG':
         return 'Catálogo de Productos';
       case 'PRODUCT_FORM':

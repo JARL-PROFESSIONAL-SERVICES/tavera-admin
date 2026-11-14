@@ -63,8 +63,19 @@ describe('App (Admin Panel)', () => {
     expect(compiled.querySelector('app-login')).toBeFalsy();
     expect(compiled.querySelector('app-admin-shell')).toBeTruthy();
 
-    const shellText = compiled.querySelector('app-admin-shell')?.textContent ?? '';
-    expect(shellText).toContain('Dashboard Ejecutivo');
+    const shell = compiled.querySelector('app-admin-shell')!;
+    const productMenu = Array.from(shell.querySelectorAll('button')).find(
+      (button) => button.textContent.trim() === 'Productos' && button.hasAttribute('aria-expanded'),
+    )!;
+    expect(productMenu.getAttribute('aria-expanded')).toBe('false');
+    expect(shell.textContent).not.toContain('Catálogo de Productos');
+
+    productMenu.click();
+    fixture.detectChanges();
+
+    expect(productMenu.getAttribute('aria-expanded')).toBe('true');
+    const shellText = shell.textContent;
+    expect(shellText).toContain('Inicio');
     expect(shellText).toContain('Catálogo de Productos');
     expect(shellText).toContain('Categorías y Presentaciones');
     expect(shellText).toContain('Precios y Mayoreo');

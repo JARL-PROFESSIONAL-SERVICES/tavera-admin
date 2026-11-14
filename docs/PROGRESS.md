@@ -277,3 +277,11 @@
     - `adm-progressive-advanced-open-dark.png`
     - `adm-save-and-another-ready.png`
     - `adm-unsaved-changes-modal.png`
+
+## Claridad de las vistas del Admin (2026-11-13)
+
+- Inicio muestra ventas acumuladas, cajas abiertas y alertas de stock antes del detalle financiero plegable. El selector de periodos queda pendiente de un contrato con filtros en la API.
+- La navegación expande el grupo de la sección activa. Las acciones para registrar y editar productos están en el catálogo.
+- El catálogo reúne nombre, SKU y códigos de barras en una columna y deja visible la edición rápida de precio.
+- El alta abre con los datos esenciales. Las opciones avanzadas se pueden desplegar y se repliegan al guardar y registrar otro. En edición aparecen abiertas.
+- La rama parte de origin/develop e incorpora por avance rápido 9adcaa5 para aplicar los cambios sobre el rediseño del PR #13 y los ajustes locales que lo continúan.

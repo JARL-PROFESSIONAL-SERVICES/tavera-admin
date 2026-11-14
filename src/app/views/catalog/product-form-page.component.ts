@@ -107,6 +107,7 @@ export class ProductFormPageComponent implements OnChanges, AfterViewInit {
   readonly showUnsavedModal = signal(false);
 
   // Progressive disclosure sections
+  readonly showProductOptions = signal(false);
   readonly showWholesaleSection = signal(false);
   readonly showPresentationsSection = signal(false);
   readonly showUnitBulkSection = signal(false);
@@ -167,6 +168,7 @@ export class ProductFormPageComponent implements OnChanges, AfterViewInit {
 
     if (changes['product'] || changes['categories']) {
       if (this.product) {
+        this.showProductOptions.set(true);
         this.populateFromProduct(this.product);
       } else {
         this.resetToDefaults();
@@ -213,6 +215,7 @@ export class ProductFormPageComponent implements OnChanges, AfterViewInit {
   }
 
   resetToDefaults(): void {
+    this.showProductOptions.set(false);
     this.primaryBarcodeDraft.set('');
     this.formBarcodes.set([]);
     this.formSku.set('');

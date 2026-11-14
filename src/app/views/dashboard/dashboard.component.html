@@ -3,50 +3,15 @@
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[var(--border)]">
     <div>
       <h1 class="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-        Dashboard Ejecutivo
+        Resumen de operación
       </h1>
       <p class="text-xs sm:text-sm text-[var(--muted-foreground)]">
-        Métricas de facturación, utilidad estimada, arqueo de cajas y alertas de existencias en tiempo real.
+        Ventas, cajas abiertas y productos por resurtir.
       </p>
     </div>
 
     <div class="flex items-center gap-2 self-start sm:self-auto">
-      <!-- Quick Period Selector Filter -->
-      <div class="flex items-center p-1 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs font-medium">
-        <button
-          type="button"
-          (click)="selectedPeriod = 'TODAY'"
-          class="px-2.5 py-1 rounded-md transition-colors"
-          [ngClass]="{
-            'bg-[var(--surface)] text-[var(--foreground)] shadow-xs font-semibold': selectedPeriod === 'TODAY',
-            'text-[var(--muted-foreground)] hover:text-[var(--foreground)]': selectedPeriod !== 'TODAY'
-          }"
-        >
-          Hoy
-        </button>
-        <button
-          type="button"
-          (click)="selectedPeriod = 'WEEK'"
-          class="px-2.5 py-1 rounded-md transition-colors"
-          [ngClass]="{
-            'bg-[var(--surface)] text-[var(--foreground)] shadow-xs font-semibold': selectedPeriod === 'WEEK',
-            'text-[var(--muted-foreground)] hover:text-[var(--foreground)]': selectedPeriod !== 'WEEK'
-          }"
-        >
-          Esta Semana
-        </button>
-        <button
-          type="button"
-          (click)="selectedPeriod = 'MONTH'"
-          class="px-2.5 py-1 rounded-md transition-colors"
-          [ngClass]="{
-            'bg-[var(--surface)] text-[var(--foreground)] shadow-xs font-semibold': selectedPeriod === 'MONTH',
-            'text-[var(--muted-foreground)] hover:text-[var(--foreground)]': selectedPeriod !== 'MONTH'
-          }"
-        >
-          Este Mes
-        </button>
-      </div>
+      <span class="text-xs text-[var(--muted-foreground)]">Histórico acumulado</span>
 
       <!-- Refresh Action Button -->
       <button
@@ -54,6 +19,7 @@
         (click)="refresh.emit()"
         [disabled]="isLoading"
         class="p-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-muted)] text-[var(--foreground)] transition-colors disabled:opacity-50"
+        aria-label="Actualizar métricas"
         title="Actualizar métricas"
       >
         <ng-icon
@@ -67,7 +33,7 @@
 
   <!-- LOADING SKELETON / ERROR / EMPTY STATE -->
   @if (isLoading && !data) {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
+    <div class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 animate-pulse">
       @for (i of [1, 2, 3, 4]; track i) {
         <div class="h-32 rounded-xl bg-[var(--surface-muted)] border border-[var(--border)]"></div>
       }
@@ -76,7 +42,7 @@
 
   @if (data; as summary) {
     <!-- 4 KPI SUMMARY CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4">
       <!-- KPI 1: Ventas Netas -->
       <div class="p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-3">
         <div class="flex items-center justify-between text-xs text-[var(--muted-foreground)] font-medium">
@@ -159,7 +125,7 @@
             {{ summary.inventoryAlerts.lowStockCount }}
           </div>
           <div class="flex items-center justify-between mt-1 text-xs">
-            <span class="text-amber-600 dark:text-amber-400 font-medium">Requieren resurtido</span>
+            <span>{{ summary.inventoryAlerts.lowStockCount ? "Requieren resurtido" : "Sin alertas" }}</span>
             <button
               type="button"
               (click)="viewCatalog.emit()"
@@ -168,169 +134,6 @@
               Ver catálogo &rarr;
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MIDDLE GRIDS: FINANCIAL BREAKDOWN & PAYMENT METHODS -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- 2 Columns: Resumen de Ventas y Márgenes -->
-      <div class="lg:col-span-2 p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-5">
-        <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
-          <div>
-            <h3 class="text-base font-bold text-[var(--foreground)]">Estructura Comercial y Costos</h3>
-            <p class="text-xs text-[var(--muted-foreground)]">Desglose de ingresos, impuestos y costo de adquisición de mercancía.</p>
-          </div>
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-            Conciliado
-          </span>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
-          <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
-            <span class="text-[var(--muted-foreground)] font-medium">Venta Bruta Total</span>
-            <div class="text-lg font-bold font-mono text-[var(--foreground)] mt-1">
-              ${{ formatMoney(summary.salesSummary.totalRevenueGross) }}
-            </div>
-          </div>
-
-          <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
-            <span class="text-[var(--muted-foreground)] font-medium">Devoluciones / Reembolsos</span>
-            <div class="text-lg font-bold font-mono text-red-600 dark:text-red-400 mt-1">
-              -${{ formatMoney(summary.salesSummary.totalRefunded) }}
-            </div>
-          </div>
-
-          <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
-            <span class="text-[var(--muted-foreground)] font-medium">Subtotal Neto</span>
-            <div class="text-lg font-bold font-mono text-[var(--foreground)] mt-1">
-              ${{ formatMoney(summary.salesSummary.subtotalNet) }}
-            </div>
-          </div>
-
-          <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
-            <span class="text-[var(--muted-foreground)] font-medium">Impuesto IVA Trasladado</span>
-            <div class="text-lg font-bold font-mono text-[var(--foreground)] mt-1">
-              ${{ formatMoney(summary.salesSummary.ivaAmount) }}
-            </div>
-          </div>
-
-          <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
-            <span class="text-[var(--muted-foreground)] font-medium">Impuesto IEPS Trasladado</span>
-            <div class="text-lg font-bold font-mono text-[var(--foreground)] mt-1">
-              ${{ formatMoney(summary.salesSummary.iepsAmount) }}
-            </div>
-          </div>
-
-          <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
-            <span class="text-[var(--muted-foreground)] font-medium">Costo de Venta (COGS)</span>
-            <div class="text-lg font-bold font-mono text-amber-600 dark:text-amber-400 mt-1">
-              ${{ formatMoney(summary.salesSummary.estimatedCostOfGoodsSold) }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Profit Visual Proportion Bar -->
-        <div class="pt-2">
-          <div class="flex items-center justify-between text-xs mb-1.5 font-medium">
-            <span class="text-[var(--muted-foreground)]">Proporción Costo vs Utilidad Bruta:</span>
-            <span class="font-mono text-[var(--foreground)] font-bold">
-              {{ calculateMargin(summary.salesSummary.netRevenueAfterReturns, summary.salesSummary.estimatedGrossProfit) }}% Ganancia
-            </span>
-          </div>
-          <div class="w-full h-3 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden flex">
-            <div
-              class="bg-amber-500 h-full"
-              [style.width.%]="100 - getMarginNumber(summary.salesSummary.netRevenueAfterReturns, summary.salesSummary.estimatedGrossProfit)"
-              title="Costo de Adquisición"
-            ></div>
-            <div
-              class="bg-emerald-600 h-full"
-              [style.width.%]="getMarginNumber(summary.salesSummary.netRevenueAfterReturns, summary.salesSummary.estimatedGrossProfit)"
-              title="Utilidad Bruta"
-            ></div>
-          </div>
-          <div class="flex items-center justify-between text-[11px] text-[var(--muted-foreground)] mt-1.5">
-            <span class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span> Costo Base de Mercancía
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-600"></span> Margen Comercial
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 1 Column: Desglose por Método de Pago -->
-      <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
-            <h3 class="text-base font-bold text-[var(--foreground)]">Medios de Pago</h3>
-            <ng-icon name="lucideCreditCard" size="18" class="text-[var(--muted-foreground)]"></ng-icon>
-          </div>
-
-          <div class="space-y-4 mt-4 text-xs">
-            <!-- Cash -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between font-medium">
-                <span class="flex items-center gap-2 text-[var(--foreground)]">
-                  <ng-icon name="lucideWallet" size="14" class="text-emerald-600"></ng-icon>
-                  Efectivo en Caja
-                </span>
-                <span class="font-mono font-bold text-[var(--foreground)]">
-                  ${{ formatMoney(summary.paymentBreakdown.CASH) }}
-                </span>
-              </div>
-              <div class="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
-                <div
-                  class="h-full bg-emerald-600 rounded-full"
-                  [style.width.%]="getPaymentPct(summary.paymentBreakdown.CASH, summary.salesSummary.totalRevenueGross)"
-                ></div>
-              </div>
-            </div>
-
-            <!-- Card -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between font-medium">
-                <span class="flex items-center gap-2 text-[var(--foreground)]">
-                  <ng-icon name="lucideCreditCard" size="14" class="text-blue-600"></ng-icon>
-                  Tarjeta Débito / Crédito
-                </span>
-                <span class="font-mono font-bold text-[var(--foreground)]">
-                  ${{ formatMoney(summary.paymentBreakdown.CARD) }}
-                </span>
-              </div>
-              <div class="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
-                <div
-                  class="h-full bg-blue-600 rounded-full"
-                  [style.width.%]="getPaymentPct(summary.paymentBreakdown.CARD, summary.salesSummary.totalRevenueGross)"
-                ></div>
-              </div>
-            </div>
-
-            <!-- Transfer -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between font-medium">
-                <span class="flex items-center gap-2 text-[var(--foreground)]">
-                  <ng-icon name="lucideArrowUpRight" size="14" class="text-purple-600"></ng-icon>
-                  Transferencia SPEI
-                </span>
-                <span class="font-mono font-bold text-[var(--foreground)]">
-                  ${{ formatMoney(summary.paymentBreakdown.TRANSFER) }}
-                </span>
-              </div>
-              <div class="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
-                <div
-                  class="h-full bg-purple-600 rounded-full"
-                  [style.width.%]="getPaymentPct(summary.paymentBreakdown.TRANSFER, summary.salesSummary.totalRevenueGross)"
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--muted-foreground)]">
-          Auditoría: Los cortes de caja validan las ventas registradas contra los fondos reales al cerrar cada turno.
         </div>
       </div>
     </div>
@@ -402,7 +205,7 @@
         @if (summary.inventoryAlerts.lowStockItems.length === 0) {
           <div class="py-8 text-center text-xs text-emerald-600 dark:text-emerald-400 font-medium flex flex-col items-center gap-1">
             <ng-icon name="lucideCheckCircle2" size="24"></ng-icon>
-            <span>Todos los productos cuentan con niveles de stock óptimos.</span>
+            <span>Sin alertas de stock bajo.</span>
           </div>
         } @else {
           <div class="divide-y divide-[var(--border)] text-xs">
@@ -432,5 +235,173 @@
         }
       </div>
     </div>
+    <details class="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+      <summary class="cursor-pointer text-sm font-semibold text-[var(--foreground)]">
+        Detalle financiero y medios de pago
+      </summary>
+      <div class="mt-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- 2 Columns: Resumen de Ventas y Márgenes -->
+          <div class="lg:col-span-2 p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-5">
+            <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+              <div>
+                <h3 class="text-base font-bold text-[var(--foreground)]">Estructura Comercial y Costos</h3>
+                <p class="text-xs text-[var(--muted-foreground)]">Desglose de ingresos, impuestos y costo de adquisición de mercancía.</p>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                Conciliado
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
+              <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] font-medium">Venta Bruta Total</span>
+                <div class="text-lg font-bold font-mono text-[var(--foreground)] mt-1">
+                  ${{ formatMoney(summary.salesSummary.totalRevenueGross) }}
+                </div>
+              </div>
+
+              <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] font-medium">Devoluciones / Reembolsos</span>
+                <div class="text-lg font-bold font-mono text-red-600 dark:text-red-400 mt-1">
+                  -${{ formatMoney(summary.salesSummary.totalRefunded) }}
+                </div>
+              </div>
+
+              <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] font-medium">Subtotal Neto</span>
+                <div class="text-lg font-bold font-mono text-[var(--foreground)] mt-1">
+                  ${{ formatMoney(summary.salesSummary.subtotalNet) }}
+                </div>
+              </div>
+
+              <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] font-medium">Impuesto IVA Trasladado</span>
+                <div class="text-lg font-bold font-mono text-[var(--foreground)] mt-1">
+                  ${{ formatMoney(summary.salesSummary.ivaAmount) }}
+                </div>
+              </div>
+
+              <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] font-medium">Impuesto IEPS Trasladado</span>
+                <div class="text-lg font-bold font-mono text-[var(--foreground)] mt-1">
+                  ${{ formatMoney(summary.salesSummary.iepsAmount) }}
+                </div>
+              </div>
+
+              <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] font-medium">Costo de Venta (COGS)</span>
+                <div class="text-lg font-bold font-mono text-amber-600 dark:text-amber-400 mt-1">
+                  ${{ formatMoney(summary.salesSummary.estimatedCostOfGoodsSold) }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Profit Visual Proportion Bar -->
+            <div class="pt-2">
+              <div class="flex items-center justify-between text-xs mb-1.5 font-medium">
+                <span class="text-[var(--muted-foreground)]">Proporción Costo vs Utilidad Bruta:</span>
+                <span class="font-mono text-[var(--foreground)] font-bold">
+                  {{ calculateMargin(summary.salesSummary.netRevenueAfterReturns, summary.salesSummary.estimatedGrossProfit) }}% Ganancia
+                </span>
+              </div>
+              <div class="w-full h-3 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden flex">
+                <div
+                  class="bg-amber-500 h-full"
+                  [style.width.%]="100 - getMarginNumber(summary.salesSummary.netRevenueAfterReturns, summary.salesSummary.estimatedGrossProfit)"
+                  title="Costo de Adquisición"
+                ></div>
+                <div
+                  class="bg-emerald-600 h-full"
+                  [style.width.%]="getMarginNumber(summary.salesSummary.netRevenueAfterReturns, summary.salesSummary.estimatedGrossProfit)"
+                  title="Utilidad Bruta"
+                ></div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-[var(--muted-foreground)] mt-1.5">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span> Costo Base de Mercancía
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-sm bg-emerald-600"></span> Margen Comercial
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1 Column: Desglose por Método de Pago -->
+          <div class="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+                <h3 class="text-base font-bold text-[var(--foreground)]">Medios de Pago</h3>
+                <ng-icon name="lucideCreditCard" size="18" class="text-[var(--muted-foreground)]"></ng-icon>
+              </div>
+
+              <div class="space-y-4 mt-4 text-xs">
+                <!-- Cash -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between font-medium">
+                    <span class="flex items-center gap-2 text-[var(--foreground)]">
+                      <ng-icon name="lucideWallet" size="14" class="text-emerald-600"></ng-icon>
+                      Efectivo en Caja
+                    </span>
+                    <span class="font-mono font-bold text-[var(--foreground)]">
+                      ${{ formatMoney(summary.paymentBreakdown.CASH) }}
+                    </span>
+                  </div>
+                  <div class="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
+                    <div
+                      class="h-full bg-emerald-600 rounded-full"
+                      [style.width.%]="getPaymentPct(summary.paymentBreakdown.CASH, summary.salesSummary.totalRevenueGross)"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- Card -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between font-medium">
+                    <span class="flex items-center gap-2 text-[var(--foreground)]">
+                      <ng-icon name="lucideCreditCard" size="14" class="text-blue-600"></ng-icon>
+                      Tarjeta Débito / Crédito
+                    </span>
+                    <span class="font-mono font-bold text-[var(--foreground)]">
+                      ${{ formatMoney(summary.paymentBreakdown.CARD) }}
+                    </span>
+                  </div>
+                  <div class="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
+                    <div
+                      class="h-full bg-blue-600 rounded-full"
+                      [style.width.%]="getPaymentPct(summary.paymentBreakdown.CARD, summary.salesSummary.totalRevenueGross)"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- Transfer -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between font-medium">
+                    <span class="flex items-center gap-2 text-[var(--foreground)]">
+                      <ng-icon name="lucideArrowUpRight" size="14" class="text-purple-600"></ng-icon>
+                      Transferencia SPEI
+                    </span>
+                    <span class="font-mono font-bold text-[var(--foreground)]">
+                      ${{ formatMoney(summary.paymentBreakdown.TRANSFER) }}
+                    </span>
+                  </div>
+                  <div class="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
+                    <div
+                      class="h-full bg-purple-600 rounded-full"
+                      [style.width.%]="getPaymentPct(summary.paymentBreakdown.TRANSFER, summary.salesSummary.totalRevenueGross)"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border)] text-xs text-[var(--muted-foreground)]">
+              Auditoría: Los cortes de caja validan las ventas registradas contra los fondos reales al cerrar cada turno.
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
   }
 </div>

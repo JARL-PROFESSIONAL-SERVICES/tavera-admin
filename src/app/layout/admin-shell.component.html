@@ -48,11 +48,11 @@
             'hover:bg-zinc-800 hover:text-white text-zinc-400': activeSection !== 'DASHBOARD',
             'justify-center px-0 h-11 w-11 mx-auto rounded-xl': !isExpanded()
           }"
-          [title]="!isExpanded() ? 'Dashboard Ejecutivo' : ''"
+          [title]="!isExpanded() ? 'Inicio' : ''"
         >
           <ng-icon name="lucideLayoutDashboard" size="18" class="shrink-0"></ng-icon>
           @if (isExpanded()) {
-            <span class="truncate">Dashboard Ejecutivo</span>
+            <span class="truncate">Inicio</span>
           }
         </button>
 
@@ -62,6 +62,7 @@
             <button
               type="button"
               (click)="productosMenuOpen.set(!productosMenuOpen())"
+              [attr.aria-expanded]="productosMenuOpen()"
               class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
               [ngClass]="isProductGroupActive() ? 'text-white bg-zinc-800/70' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'"
             >
@@ -78,30 +79,10 @@
                   type="button"
                   (click)="onSelectSection('CATALOG')"
                   class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  [ngClass]="activeSection === 'CATALOG' ? 'bg-emerald-600 text-white font-semibold' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'"
+                  [ngClass]="(activeSection === 'CATALOG' || activeSection === 'PRODUCT_FORM') ? 'bg-emerald-600 text-white font-semibold' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'"
                 >
                   <ng-icon name="lucidePackage" size="15" class="shrink-0"></ng-icon>
                   <span class="truncate">Catálogo de Productos</span>
-                </button>
-
-                <button
-                  type="button"
-                  (click)="onCreateProduct()"
-                  class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  [ngClass]="activeSection === 'PRODUCT_FORM' && !isEditingProduct ? 'bg-emerald-600 text-white font-semibold' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'"
-                >
-                  <ng-icon name="lucidePlus" size="15" class="shrink-0"></ng-icon>
-                  <span class="truncate">Agregar Producto</span>
-                </button>
-
-                <button
-                  type="button"
-                  (click)="onSelectSection('CATALOG')"
-                  class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  [ngClass]="activeSection === 'PRODUCT_FORM' && isEditingProduct ? 'bg-emerald-600 text-white font-semibold' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'"
-                >
-                  <ng-icon name="lucideEdit" size="15" class="shrink-0"></ng-icon>
-                  <span class="truncate">Modificar Producto</span>
                 </button>
 
                 <button
@@ -134,14 +115,6 @@
                   <span class="truncate">Precios y Mayoreo</span>
                 </button>
 
-                <button
-                  type="button"
-                  (click)="onSelectSection('PRICING')"
-                  class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
-                >
-                  <ng-icon name="lucidePlus" size="15" class="shrink-0"></ng-icon>
-                  <span class="truncate">Agregar a Mayoreo</span>
-                </button>
               </div>
             }
           </div>
@@ -163,6 +136,7 @@
             <button
               type="button"
               (click)="proveedoresMenuOpen.set(!proveedoresMenuOpen())"
+              [attr.aria-expanded]="proveedoresMenuOpen()"
               class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
               [ngClass]="activeSection === 'SUPPLIERS_PURCHASES' ? 'text-white bg-zinc-800/70' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'"
             >

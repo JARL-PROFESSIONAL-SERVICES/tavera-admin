@@ -15,9 +15,7 @@
   <app-admin-shell
     [activeSection]="activeSection()"
     [activeSuppliersTab]="suppliersActiveTab()"
-    [isEditingProduct]="editingProduct() !== null"
     (sectionChange)="selectSection($event)"
-    (createProduct)="openCreateProductPage()"
     (selectSuppliersTab)="openSuppliersTab($event)"
   >
 
