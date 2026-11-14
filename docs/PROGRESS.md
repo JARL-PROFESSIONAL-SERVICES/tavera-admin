@@ -235,3 +235,45 @@
     - `adm-product-new-tablet-1024.png`
     - `adm-product-new-configured-light.png`
     - `adm-product-new-configured-dark.png`
+
+
+## Sprint 10 — Registro Rápido Eleventa + Divulgación Progresiva Enterprise (2026-11-13)
+
+### Completado
+- Creación de rama `feature/ui-admin-progressive-product-form` desde `feature/ui-admin-enterprise-redesign`.
+- **Principio Fundamental Implementado: "Minimalismo visual no significa simplicidad funcional".**
+- **Registro Rápido de Producto (Inspiración Rapidez Operativa Eleventa):**
+  - Vista inicial ultra limpia y compacta enfocada en los 5 campos comerciales esenciales para dar de alta cualquier abarrotes en segundos:
+    1. Código de barras principal (optimizado para escáner, con foco automático al abrir el formulario y salto inmediato con Enter).
+    2. Categoría comercial (selector con valor por defecto listo para operar).
+    3. Nombre comercial del producto (marca, contenido y presentación, con salto con Enter a costos).
+    4. Costo de compra (sin impuestos).
+    5. Precio de venta al público (menudeo).
+  - Integración de panel de rentabilidad bruta en tiempo real: cálculo de Ganancia Bruta (`+$X.XX / u`) y Margen Bruto (`XX.X%`) con alertas de salud comercial únicamente cuando hay datos reales (estrictamente sin números ficticios).
+- **Generación Automática y Segura de Clave SKU:**
+  - Si el usuario no ingresa clave manual, el sistema deriva automáticamente una clave segura y libre de colisiones a partir del nombre comercial con sufijo único numérico (ej. `MARIA-170G-8421`).
+  - La clave se presenta en un chip discreto con indicador "Auto-generada", permitiendo personalizarla en cualquier momento con un solo clic sin estorbar la captura rápida.
+- **Divulgación Progresiva (Hub de Funciones Avanzadas):**
+  - Mantiene al 100% accesibles todas las funciones avanzadas y complejas sin saturar la pantalla inicial mediante chips interactivos con acordeones integrados:
+    - `[+ Precio Mayoreo]`: Escala de precio por volumen y piezas mínimas requeridas.
+    - `[+ Presentaciones / Cajas]`: Alta de empaques derivados (cajas, paquetes, charolas) con factor multiplicador y precio propio.
+    - `[+ Granel y Unidad]`: Selección de unidad base (PZA, KG, LT, M) y switch de producto pesado en báscula.
+    - `[+ Control de Stock]`: Alerta de stock mínimo de reposición y permiso para vender en caja con existencias en cero.
+    - `[+ Impuestos Fiscales SAT]`: Selección de tasas oficiales de IVA (0%, 16%) e IEPS (0%, 8%).
+    - `[+ Descripción y Notas]`: Textarea para observaciones y proveedor habitual.
+  - En modo edición (`isEditMode`), cualquier sección que contenga datos reales se despliega automáticamente para asegurar visibilidad total.
+- **Acciones y Flujo Continuo:**
+  - Botón «Guardar Producto» (`F10` / `Ctrl+S`): Guarda y regresa al catálogo con notificación toast.
+  - Botón «Guardar y Registrar Otro» (`F11` / `Ctrl+Enter` / `Alt+G`): Guarda el producto en la API, actualiza el catálogo en segundo plano, emite toast de confirmación, limpia el formulario a sus valores por defecto y enfoca de inmediato el campo de código de barras para el siguiente artículo.
+  - Botón «Cancelar» (`Esc`): Solo solicita confirmación si el usuario introdujo datos sin guardar (`isDirty`); si está limpio, regresa al catálogo inmediatamente sin pasos innecesarios.
+- **Pruebas y Verificación:**
+  - 4 suites de pruebas unitarias con Vitest (`16/16` pruebas aprobadas al 100%).
+  - Compilación de producción con Angular CLI (`ng build`) completada con éxito (`0` errores, `0` advertencias).
+  - Capturas de pantalla reales automatizadas en Light y Dark generadas en `docs/screenshots/`:
+    - `adm-fast-register-initial-light.png`
+    - `adm-fast-register-initial-dark.png`
+    - `adm-fast-register-filled-light.png`
+    - `adm-progressive-advanced-open-light.png`
+    - `adm-progressive-advanced-open-dark.png`
+    - `adm-save-and-another-ready.png`
+    - `adm-unsaved-changes-modal.png`

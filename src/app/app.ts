@@ -49,7 +49,10 @@ import { AdminSection, AdminShellComponent } from './layout/admin-shell.componen
 import { CategoriesViewComponent } from './views/categories/categories-view.component';
 import { CatalogListComponent } from './views/catalog/catalog-list.component';
 import { ProductFormData } from './views/catalog/product-form-modal.component';
-import { ProductFormPageComponent } from './views/catalog/product-form-page.component';
+import {
+  ProductFormPageComponent,
+  SaveProductEvent,
+} from './views/catalog/product-form-page.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
 import {
   InventoryAdjustmentData,
@@ -135,6 +138,7 @@ export class App implements OnInit {
   // Full-page Product Form state (ADM-04)
   readonly editingProduct = signal<ProductRecord | null>(null);
   readonly isSavingProduct = signal(false);
+  readonly productFormSignalReset = signal<number>(0);
 
   // Inventory & Kardex state (ADM-07 & ADM-08)
   readonly selectedKardexProductId = signal<string>('');
@@ -378,7 +382,9 @@ export class App implements OnInit {
       });
   }
 
-  handleSaveProduct(formData: ProductFormData): void {
+  handleSaveProduct(event: ProductFormData | SaveProductEvent): void {
+    const formData = 'formData' in event ? event.formData : event;
+    const andRegisterAnother = 'andRegisterAnother' in event ? Boolean(event.andRegisterAnother) : false;
     const edit = this.editingProduct();
     this.isSavingProduct.set(true);
 
@@ -434,12 +440,20 @@ export class App implements OnInit {
         .subscribe({
           next: (created) => {
             this.isSavingProduct.set(false);
-            this.closeProductFormPage();
             this.loadCatalogData();
-            this.toast.success(
-              'Producto creado',
-              `Producto "${created.name}" (${created.sku}) creado en catálogo.`,
-            );
+            if (andRegisterAnother) {
+              this.toast.success(
+                'Producto registrado',
+                `"${created.name}" guardado en catálogo. Listo para el siguiente.`,
+              );
+              this.productFormSignalReset.set(Date.now());
+            } else {
+              this.closeProductFormPage();
+              this.toast.success(
+                'Producto creado',
+                `Producto "${created.name}" (${created.sku}) creado en catálogo.`,
+              );
+            }
           },
           error: (err) => {
             this.isSavingProduct.set(false);

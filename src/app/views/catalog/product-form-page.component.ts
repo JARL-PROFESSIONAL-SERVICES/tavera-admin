@@ -1,11 +1,15 @@
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
+  ElementRef,
   EventEmitter,
+  HostListener,
   Input,
   OnChanges,
   Output,
   SimpleChanges,
+  ViewChild,
   computed,
   inject,
   signal,
@@ -44,6 +48,11 @@ import {
 import { ToastService } from '../../core/services/toast.service';
 import { ProductFormData } from './product-form-modal.component';
 
+export interface SaveProductEvent {
+  formData: ProductFormData;
+  andRegisterAnother?: boolean;
+}
+
 @Component({
   selector: 'app-product-form-page',
   standalone: true,
@@ -76,43 +85,56 @@ import { ProductFormData } from './product-form-modal.component';
   ],
   templateUrl: './product-form-page.component.html',
 })
-export class ProductFormPageComponent implements OnChanges {
+export class ProductFormPageComponent implements OnChanges, AfterViewInit {
   readonly toast = inject(ToastService);
 
   @Input() product: ProductRecord | null = null;
   @Input() categories: CategoryRecord[] = [];
   @Input() units: UnitOfMeasure[] = [];
   @Input() isSaving = false;
+  @Input() resetTrigger = 0;
 
-  @Output() save = new EventEmitter<ProductFormData>();
+  @Output() save = new EventEmitter<SaveProductEvent>();
   @Output() backToCatalog = new EventEmitter<void>();
+
+  // Element references for fast scanner & keyboard flow
+  @ViewChild('barcodeInput') barcodeInputRef?: ElementRef<HTMLInputElement>;
+  @ViewChild('nameInput') nameInputRef?: ElementRef<HTMLInputElement>;
+  @ViewChild('costInput') costInputRef?: ElementRef<HTMLInputElement>;
+  @ViewChild('priceInput') priceInputRef?: ElementRef<HTMLInputElement>;
 
   // Dialog for unsaved changes confirmation
   readonly showUnsavedModal = signal(false);
 
-  // Progressive disclosure toggles
-  readonly enableWholesale = signal(false);
-  readonly showAdvancedFiscal = signal(false);
+  // Progressive disclosure sections
+  readonly showWholesaleSection = signal(false);
+  readonly showPresentationsSection = signal(false);
+  readonly showUnitBulkSection = signal(false);
+  readonly showStockSection = signal(false);
+  readonly showFiscalSection = signal(false);
+  readonly showNotesSection = signal(false);
+  readonly showSkuManualEdit = signal(false);
 
-  // Form signals
-  readonly formSku = signal('');
+  // Core fast register signals
+  readonly primaryBarcodeDraft = signal('');
+  readonly formBarcodes = signal<string[]>([]);
   readonly formName = signal('');
-  readonly formDescription = signal('');
+  readonly formSku = signal('');
+  readonly isSkuUserEdited = signal(false);
   readonly formCategoryId = signal('');
-  readonly formBaseUnitCode = signal('PZA');
-  readonly formIsSoldByWeight = signal(false);
   readonly formCost = signal('');
   readonly formRetailPrice = signal('');
+
+  // Advanced fields
+  readonly formDescription = signal('');
+  readonly formBaseUnitCode = signal('PZA');
+  readonly formIsSoldByWeight = signal(false);
   readonly formWholesalePrice = signal('');
   readonly formWholesaleMinQty = signal('');
   readonly formIvaRate = signal('0.0000');
   readonly formIepsRate = signal('0.0000');
   readonly formMinStockAlert = signal('5');
   readonly formAllowNegativeStock = signal(false);
-
-  // Barcodes
-  readonly formBarcodes = signal<string[]>([]);
-  readonly newBarcodeDraft = signal('');
 
   // Presentations
   readonly formPresentations = signal<
@@ -127,6 +149,9 @@ export class ProductFormPageComponent implements OnChanges {
   readonly newPresFactor = signal('12');
   readonly newPresPrice = signal('');
 
+  // Suffix for auto SKU generation to ensure uniqueness
+  private autoSkuSuffix = Math.floor(1000 + Math.random() * 9000).toString();
+
   // Initial snapshot to track if form is dirty
   private initialFormHash = signal<string>('');
 
@@ -135,6 +160,11 @@ export class ProductFormPageComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['resetTrigger'] && !changes['resetTrigger'].firstChange) {
+      this.resetForNextProduct();
+      return;
+    }
+
     if (changes['product'] || changes['categories']) {
       if (this.product) {
         this.populateFromProduct(this.product);
@@ -145,8 +175,49 @@ export class ProductFormPageComponent implements OnChanges {
     }
   }
 
+  ngAfterViewInit(): void {
+    if (!this.isEditMode) {
+      setTimeout(() => this.barcodeInputRef?.nativeElement?.focus(), 150);
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleGlobalShortcuts(event: KeyboardEvent): void {
+    // F10 or Ctrl+S: Guardar producto habitual
+    if (event.key === 'F10' || ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's')) {
+      event.preventDefault();
+      this.submitForm(false);
+      return;
+    }
+
+    // F11 or Ctrl+Enter or Alt+G: Guardar y registrar otro inmediatamente
+    if (
+      event.key === 'F11' ||
+      ((event.ctrlKey || event.metaKey) && event.key === 'Enter') ||
+      (event.altKey && event.key.toLowerCase() === 'g')
+    ) {
+      event.preventDefault();
+      this.submitForm(true);
+      return;
+    }
+
+    // Escape: Cancelar / Salir
+    if (event.key === 'Escape') {
+      if (this.showUnsavedModal()) {
+        this.showUnsavedModal.set(false);
+      } else {
+        this.onCancel();
+      }
+      return;
+    }
+  }
+
   resetToDefaults(): void {
+    this.primaryBarcodeDraft.set('');
+    this.formBarcodes.set([]);
     this.formSku.set('');
+    this.isSkuUserEdited.set(false);
+    this.showSkuManualEdit.set(false);
     this.formName.set('');
     this.formDescription.set('');
     this.formCategoryId.set(this.categories.length > 0 ? this.categories[0].id : '');
@@ -160,21 +231,34 @@ export class ProductFormPageComponent implements OnChanges {
     this.formIepsRate.set('0.0000');
     this.formMinStockAlert.set('5');
     this.formAllowNegativeStock.set(false);
-    this.formBarcodes.set([]);
     this.formPresentations.set([]);
-    this.newBarcodeDraft.set('');
     this.newPresName.set('');
     this.newPresFactor.set('12');
     this.newPresPrice.set('');
-    this.enableWholesale.set(false);
-    this.showAdvancedFiscal.set(false);
+
+    // Collapse advanced sections for clean fast register
+    this.showWholesaleSection.set(false);
+    this.showPresentationsSection.set(false);
+    this.showUnitBulkSection.set(false);
+    this.showStockSection.set(false);
+    this.showFiscalSection.set(false);
+    this.showNotesSection.set(false);
+
+    this.autoSkuSuffix = Math.floor(1000 + Math.random() * 9000).toString();
+  }
+
+  resetForNextProduct(): void {
+    this.resetToDefaults();
+    this.snapshotInitialState();
+    setTimeout(() => this.barcodeInputRef?.nativeElement?.focus(), 80);
   }
 
   populateFromProduct(p: ProductRecord): void {
     this.formSku.set(p.sku);
+    this.isSkuUserEdited.set(true);
     this.formName.set(p.name);
     this.formDescription.set(p.description ?? '');
-    this.formCategoryId.set(p.categoryId ?? '');
+    this.formCategoryId.set(p.categoryId ?? (this.categories.length > 0 ? this.categories[0].id : ''));
     this.formBaseUnitCode.set(p.baseUnit?.code ?? 'PZA');
     this.formIsSoldByWeight.set(p.isSoldByWeightOrBulk);
     this.formCost.set(p.currentCostPerBaseUnit);
@@ -186,6 +270,7 @@ export class ProductFormPageComponent implements OnChanges {
     this.formMinStockAlert.set(p.minStockAlert);
     this.formAllowNegativeStock.set(p.allowNegativeStock);
     this.formBarcodes.set(p.barcodes?.map((b) => b.code) ?? []);
+    this.primaryBarcodeDraft.set('');
     this.formPresentations.set(
       p.presentations?.map((pr) => ({
         name: pr.name,
@@ -193,8 +278,21 @@ export class ProductFormPageComponent implements OnChanges {
         price: pr.price,
       })) ?? [],
     );
-    this.enableWholesale.set(Boolean(p.wholesaleUnitPrice && Number(p.wholesaleUnitPrice) > 0));
-    this.showAdvancedFiscal.set(Boolean(Number(p.ivaRate) > 0 || Number(p.iepsRate) > 0));
+
+    // Progressive disclosure: auto-expand sections that actually have data
+    const hasWholesale = Boolean(p.wholesaleUnitPrice && Number(p.wholesaleUnitPrice) > 0);
+    const hasPres = Boolean(p.presentations && p.presentations.length > 0);
+    const hasBulkOrUnit = Boolean(p.isSoldByWeightOrBulk || (p.baseUnit?.code && p.baseUnit.code !== 'PZA'));
+    const hasStock = Boolean(p.allowNegativeStock || (p.minStockAlert && p.minStockAlert !== '5'));
+    const hasFiscal = Boolean(Number(p.ivaRate) > 0 || Number(p.iepsRate) > 0);
+    const hasDesc = Boolean(p.description && p.description.trim().length > 0);
+
+    this.showWholesaleSection.set(hasWholesale);
+    this.showPresentationsSection.set(hasPres);
+    this.showUnitBulkSection.set(hasBulkOrUnit);
+    this.showStockSection.set(hasStock);
+    this.showFiscalSection.set(hasFiscal);
+    this.showNotesSection.set(hasDesc);
   }
 
   private snapshotInitialState(): void {
@@ -218,8 +316,8 @@ export class ProductFormPageComponent implements OnChanges {
       stockMin: this.formMinStockAlert(),
       neg: this.formAllowNegativeStock(),
       barcodes: this.formBarcodes(),
+      barcodeDraft: this.primaryBarcodeDraft(),
       presentations: this.formPresentations(),
-      wholesaleOn: this.enableWholesale(),
     });
   }
 
@@ -227,54 +325,100 @@ export class ProductFormPageComponent implements OnChanges {
     return this.computeCurrentHash() !== this.initialFormHash();
   });
 
-  generateSuggestedSku(): void {
-    const rawName = this.formName().trim();
-    if (!rawName) {
-      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-      this.formSku.set(`PROD-${randomSuffix}`);
-      this.toast.info('Clave generada', `Se asignó la clave "PROD-${randomSuffix}".`);
+  // Fast keyboard navigation handlers
+  onBarcodeScanEnter(event: Event): void {
+    event.preventDefault();
+    this.addBarcodeFromDraft();
+    this.nameInputRef?.nativeElement?.focus();
+  }
+
+  onNameEnter(event: Event): void {
+    event.preventDefault();
+    this.costInputRef?.nativeElement?.focus();
+  }
+
+  onCostEnter(event: Event): void {
+    event.preventDefault();
+    this.priceInputRef?.nativeElement?.focus();
+  }
+
+  onPriceEnter(event: Event): void {
+    event.preventDefault();
+    if (this.isValid()) {
+      this.submitForm(false);
+    }
+  }
+
+  // Automatic safe SKU generator
+  onNameInput(value: string): void {
+    this.formName.set(value);
+    if (!this.isSkuUserEdited() && !this.isEditMode) {
+      this.updateSuggestedSku(value);
+    }
+  }
+
+  updateSuggestedSku(rawName: string): void {
+    const clean = (rawName || '').trim();
+    if (!clean) {
+      this.formSku.set('');
       return;
     }
 
-    const clean = rawName
+    const normalized = clean
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase()
       .replace(/[^A-Z0-9\s]/g, ' ')
       .trim();
 
-    const parts = clean.split(/\s+/).filter(Boolean);
+    const parts = normalized.split(/\s+/).filter(Boolean);
     let sku = '';
     if (parts.length === 1) {
-      sku = parts[0].slice(0, 8);
+      sku = parts[0].slice(0, 7);
     } else if (parts.length === 2) {
-      sku = `${parts[0].slice(0, 5)}-${parts[1].slice(0, 5)}`;
+      sku = `${parts[0].slice(0, 4)}-${parts[1].slice(0, 4)}`;
     } else {
-      sku = `${parts[0].slice(0, 4)}-${parts[1].slice(0, 4)}-${parts[parts.length - 1].slice(0, 4)}`;
+      sku = `${parts[0].slice(0, 4)}-${parts[1].slice(0, 3)}-${parts[parts.length - 1].slice(0, 3)}`;
     }
 
-    this.formSku.set(sku);
-    this.toast.info('Clave sugerida', `Se generó la clave "${sku}". Puedes editarla si lo requieres.`);
+    this.formSku.set(`${sku}-${this.autoSkuSuffix}`);
   }
 
-  addBarcode(): void {
-    const code = this.newBarcodeDraft().trim();
+  onManualSkuChange(val: string): void {
+    this.formSku.set(val);
+    this.isSkuUserEdited.set(true);
+  }
+
+  regenerateSku(): void {
+    this.isSkuUserEdited.set(false);
+    this.autoSkuSuffix = Math.floor(1000 + Math.random() * 9000).toString();
+    this.updateSuggestedSku(this.formName());
+    this.toast.info('Clave actualizada', `Se generó automáticamente la clave "${this.formSku()}".`);
+  }
+
+  // Barcode management
+  addBarcodeFromDraft(): void {
+    const code = this.primaryBarcodeDraft().trim();
     if (!code) return;
     if (!this.formBarcodes().includes(code)) {
       this.formBarcodes.update((b) => [...b, code]);
     }
-    this.newBarcodeDraft.set('');
+    this.primaryBarcodeDraft.set('');
   }
 
   removeBarcode(idx: number): void {
     this.formBarcodes.update((b) => b.filter((_, i) => i !== idx));
   }
 
+  // Presentation management
   addPresentation(): void {
     const name = this.newPresName().trim();
     const factor = this.newPresFactor().trim();
     const price = this.newPresPrice().trim();
-    if (!name || !factor || !price) return;
+    if (!name || !factor || !price) {
+      this.toast.warn('Datos incompletos', 'Ingrese nombre, piezas y precio de la presentación.');
+      return;
+    }
 
     this.formPresentations.update((list) => [
       ...list,
@@ -289,6 +433,7 @@ export class ProductFormPageComponent implements OnChanges {
     this.formPresentations.update((list) => list.filter((_, i) => i !== idx));
   }
 
+  // Real-time financial calculations (STRICTLY NO FAKE NUMBERS)
   readonly hasPricingData = computed(() => {
     const c = Number(this.formCost() || 0);
     const p = Number(this.formRetailPrice() || 0);
@@ -313,38 +458,15 @@ export class ProductFormPageComponent implements OnChanges {
 
   readonly marginBadgeLabel = computed(() => {
     const m = this.liveMarginNumeric();
-    if (m >= 20) return 'Saludable';
-    if (m >= 10) return 'Ajustado';
-    return 'Bajo';
+    if (m >= 20) return 'Margen Saludable';
+    if (m >= 10) return 'Margen Moderado';
+    return 'Margen Bajo';
   });
 
-  marginHealthTitle(): string {
-    if (!this.hasPricingData()) return 'Pendiente de datos';
-    const margin = Number(this.liveMarginPercentage());
-    if (margin >= 20) return 'Margen Saludable (≥ 20%)';
-    if (margin >= 10) return 'Margen Moderado (10% - 19%)';
-    return 'Margen Bajo (< 10%)';
-  }
-
-  marginHealthMessage(): string {
-    if (!this.hasPricingData()) {
-      return 'Ingrese el costo de compra y el precio de venta para proyectar el margen bruto.';
-    }
-    const margin = Number(this.liveMarginPercentage());
-    if (margin >= 20) {
-      return 'Excelente rentabilidad bruta. Protege la operación comercial de la tienda.';
-    }
-    if (margin >= 10) {
-      return 'Margen moderado. Monitoree el costo de adquisición de sus proveedores.';
-    }
-    return 'Margen reducido. Considere revisar el precio al público respecto al costo base.';
-  }
-
+  // Validation
   isValid(): boolean {
     return Boolean(
-      this.formSku().trim() &&
-        this.formName().trim() &&
-        this.formBaseUnitCode() &&
+      this.formName().trim() &&
         Number(this.formRetailPrice()) > 0,
     );
   }
@@ -362,12 +484,30 @@ export class ProductFormPageComponent implements OnChanges {
     this.backToCatalog.emit();
   }
 
-  submitForm(): void {
+  submitForm(andRegisterAnother = false): void {
+    // If draft barcode exists, add it automatically
+    if (this.primaryBarcodeDraft().trim()) {
+      this.addBarcodeFromDraft();
+    }
+
+    // Ensure SKU is never empty
+    if (!this.formSku().trim()) {
+      this.updateSuggestedSku(this.formName());
+      if (!this.formSku().trim()) {
+        this.formSku.set(`PROD-${Math.floor(10000 + Math.random() * 90000)}`);
+      }
+    }
+
     if (!this.isValid()) {
       this.toast.warn(
-        'Campos obligatorios requeridos',
-        'Por favor complete el nombre, clave SKU, unidad de venta y un precio al público mayor a $0.',
+        'Campos requeridos',
+        'Ingrese el nombre del producto y un precio de venta mayor a $0.',
       );
+      if (!this.formName().trim()) {
+        this.nameInputRef?.nativeElement?.focus();
+      } else {
+        this.priceInputRef?.nativeElement?.focus();
+      }
       return;
     }
 
@@ -376,20 +516,24 @@ export class ProductFormPageComponent implements OnChanges {
       name: this.formName().trim(),
       description: this.formDescription().trim() || undefined,
       categoryId: this.formCategoryId() || undefined,
-      baseUnitCode: this.formBaseUnitCode(),
+      baseUnitCode: this.formBaseUnitCode() || 'PZA',
       isSoldByWeightOrBulk: this.formIsSoldByWeight(),
       retailUnitPrice: this.formRetailPrice(),
-      wholesaleUnitPrice: this.enableWholesale() ? this.formWholesalePrice() || undefined : undefined,
-      wholesaleMinBaseQty: this.enableWholesale() ? this.formWholesaleMinQty() || undefined : undefined,
+      wholesaleUnitPrice: this.showWholesaleSection() && this.formWholesalePrice()
+        ? this.formWholesalePrice()
+        : undefined,
+      wholesaleMinBaseQty: this.showWholesaleSection() && this.formWholesaleMinQty()
+        ? this.formWholesaleMinQty()
+        : undefined,
       currentCostPerBaseUnit: this.formCost() || '0.00',
-      ivaRate: this.formIvaRate(),
-      iepsRate: this.formIepsRate(),
-      minStockAlert: this.formMinStockAlert(),
+      ivaRate: this.formIvaRate() || '0.0000',
+      iepsRate: this.formIepsRate() || '0.0000',
+      minStockAlert: this.formMinStockAlert() || '5',
       allowNegativeStock: this.formAllowNegativeStock(),
       barcodes: this.formBarcodes(),
       presentations: this.formPresentations(),
     };
 
-    this.save.emit(payload);
+    this.save.emit({ formData: payload, andRegisterAnother });
   }
 }

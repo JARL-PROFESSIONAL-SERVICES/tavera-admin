@@ -108,6 +108,7 @@
         [categories]="categories()"
         [units]="units()"
         [isSaving]="isSavingProduct()"
+        [resetTrigger]="productFormSignalReset()"
         (save)="handleSaveProduct($event)"
         (backToCatalog)="closeProductFormPage()"
       ></app-product-form-page>

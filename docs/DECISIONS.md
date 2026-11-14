@@ -176,3 +176,37 @@ Tras la implementación de páginas completas y toasts iniciales, la interfaz de
 5. **Toasts Sobrios y Descarte Preventivo:**
    - Rediseño minimalista de la notificación toast sin sombras pesadas ni brillos artificiales.
    - Invocación preventiva de `clear()` en `ToastService` previo a emitir cualquier nuevo mensaje para impedir acumulaciones ruidosas en pantalla.
+
+
+## ADR-009: Divulgación Progresiva y Registro Rápido Eleventa + Apollo PrimeNG en Catálogo de Productos
+
+- **Fecha:** 2026-11-13
+- **Estado:** Aprobado
+
+### Contexto y Problema
+El formulario de alta de productos requería equilibrar dos necesidades operativas críticas:
+1. **Rapidez Operativa (Eleventa Speed):** Un cajero o encargado de tienda necesita registrar decenas de productos con lector de código de barras en pocos segundos, capturando únicamente nombre, código de barras, categoría, costo y precio, sin desplazamientos verticales extensos, sin fricción y sin configurar manualmente claves técnicas o parámetros fiscales innecesarios para abarrotes habituales.
+2. **Capacidad Comercial Compleja (Enterprise Depth):** El minimalismo visual no debe sacrificar la potencia funcional del sistema. Las reglas de negocio de `tavera-api` y las funciones comerciales avanzadas (mayoreo, empaques/cajas, pesaje en báscula, unidades métricas, control de existencias, permisos de venta en negativo e impuestos SAT) deben permanecer 100% disponibles y accesibles sin saturar la vista inicial.
+
+### Decisiones
+1. **Principio de Divulgación Progresiva (*Progressive Disclosure*):**
+   - La pantalla inicial muestra única y exclusivamente los 5 campos indispensables para comercializar un producto común.
+   - Las funciones comerciales avanzadas se organizan en un Hub de Divulgación Progresiva mediante chips selectores con acordeones integrados:
+     - `[+ Precio Mayoreo]`
+     - `[+ Presentaciones / Cajas]`
+     - `[+ Granel y Unidad]`
+     - `[+ Control de Stock]`
+     - `[+ Impuestos Fiscales SAT]`
+     - `[+ Descripción y Notas]`
+   - Los campos avanzados solo se renderizan y ocupan espacio cuando el operador decide utilizarlos o cuando un producto existente en edición ya contiene datos en dichos módulos.
+2. **Generación Automática y Segura de SKU:**
+   - Para no entorpecer la captura rápida, el sistema genera automáticamente un SKU limpio a partir de las palabras clave del nombre comercial más un sufijo numérico único que previene colisiones (ej. `MARIA-170G-8421`).
+   - El operador puede inspeccionar la clave generada y, si requiere un código interno específico de su empresa, puede personalizarla con un solo clic en "Personalizar", manteniendo compatibilidad total con inventarios legados.
+3. **Flujo Optimizado para Escáner y Teclado:**
+   - Foco automático en el campo de código de barras al ingresar a la vista.
+   - Al escanear con lector óptico o presionar Enter, el código se registra y el foco salta automáticamente al nombre comercial, luego al costo y al precio de venta.
+   - Atajos globales del teclado: `F10` o `Ctrl+S` para Guardar; `F11` o `Ctrl+Enter` para Guardar y registrar otro; `Esc` para Cancelar.
+4. **Acción «Guardar y Registrar Otro»:**
+   - Permite dar de alta múltiples artículos de forma continua: envía el registro a la API, actualiza el catálogo reactivamente, emite un toast de confirmación temporal y resetea el formulario reenfocando de inmediato el código de barras sin recargar la página.
+5. **Confirmación Condicional sin Interrupciones Innecesarias:**
+   - Solo se muestra advertencia de confirmación al presionar "Cancelar" si el formulario contiene modificaciones no guardadas (`isDirty`). Si el usuario no ha capturado datos, la salida es inmediata.
