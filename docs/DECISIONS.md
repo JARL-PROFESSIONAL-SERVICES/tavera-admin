@@ -214,3 +214,7 @@ El formulario de alta de productos requería equilibrar dos necesidades operativ
 ## Jerarquía del resumen y del alta de productos
 
 Inicio prioriza el estado operativo y presenta el detalle financiero bajo demanda. La etiqueta «Histórico acumulado» identifica el alcance actual del reporte. El alta utiliza una sección plegable para reducir la cantidad de campos visibles durante la captura consecutiva. En edición se abre para que los datos avanzados existentes queden a la vista.
+
+## Consulta de existencias e historial
+
+ADM-07 muestra primero existencias por producto y obtiene sus movimientos al abrir el detalle. El ajuste se ofrece a usuarios con inventory:adjust y la autorización se aplica en la API. El historial muestra los movimientos recientes de la consulta existente.

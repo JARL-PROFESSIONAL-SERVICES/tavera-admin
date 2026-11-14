@@ -81,6 +81,12 @@
       <app-inventory-kardex
         [products]="products()"
         [kardex]="currentKardex()"
+        [kardexError]="kardexError()"
+        [productsLoading]="isLoadingCatalog()"
+        [productsError]="catalogError()"
+        [canAdjust]="api.hasPermission('inventory:adjust')"
+        (closeHistory)="closeProductKardex()"
+        (retryProducts)="loadCatalogData('')"
         [selectedProductId]="selectedKardexProductId()"
         (selectProduct)="loadProductKardex($event)"
         (openAdjustmentWizard)="isAdjustmentModalOpen.set(true)"

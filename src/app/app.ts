@@ -146,6 +146,7 @@ export class App implements OnInit {
 
   // Inventory & Kardex state (ADM-07 & ADM-08)
   readonly selectedKardexProductId = signal<string>('');
+  readonly kardexError = signal(false);
   readonly currentKardex = signal<KardexResponse | null>(null);
   readonly isAdjustmentModalOpen = signal(false);
   readonly isSavingAdjustment = signal(false);
@@ -247,11 +248,8 @@ export class App implements OnInit {
         this.loadCatalogData();
         break;
       case 'INVENTORY':
-        this.loadCatalogData();
-        if (this.products().length > 0) {
-          const targetId = this.selectedKardexProductId() || this.products()[0].id;
-          this.loadProductKardex(targetId);
-        }
+        this.closeProductKardex();
+        this.loadCatalogData('');
         break;
       case 'SUPPLIERS_PURCHASES':
         this.loadSuppliersAndPurchases();
@@ -285,17 +283,16 @@ export class App implements OnInit {
     });
   }
 
-  loadCatalogData(): void {
+  loadCatalogData(query = this.productSearchQuery()): void {
     this.isLoadingCatalog.set(true);
     this.catalogError.set(null);
     this.api.listUnits().subscribe({ next: (u) => this.units.set(u) });
     this.api.listCategories().subscribe({ next: (c) => this.categories.set(c) });
-    this.api.listProducts(this.productSearchQuery()).subscribe({
+    this.api.listProducts(query).subscribe({
       next: (prods) => {
         this.isLoadingCatalog.set(false);
         this.products.set(prods);
-        if (prods.length > 0 && !this.selectedKardexProductId()) {
-          this.selectedKardexProductId.set(prods[0].id);
+        if (prods.length > 0 && !this.quoteProductId()) {
           this.quoteProductId.set(prods[0].id);
           this.receiptProductId.set(prods[0].id);
         }
@@ -346,7 +343,6 @@ export class App implements OnInit {
   }
 
   openKardexForProduct(productId: string): void {
-    this.selectedKardexProductId.set(productId);
     this.selectSection('INVENTORY');
     this.loadProductKardex(productId);
   }
@@ -502,13 +498,26 @@ export class App implements OnInit {
       });
   }
 
+  closeProductKardex(): void {
+    this.selectedKardexProductId.set('');
+    this.currentKardex.set(null);
+    this.kardexError.set(false);
+  }
+
   loadProductKardex(productId: string): void {
     if (!productId) {
       return;
     }
     this.selectedKardexProductId.set(productId);
+    this.currentKardex.set(null);
+    this.kardexError.set(false);
     this.api.getKardex(productId).subscribe({
-      next: (k) => this.currentKardex.set(k),
+      next: (k) => {
+        if (this.selectedKardexProductId() === productId) this.currentKardex.set(k);
+      },
+      error: () => {
+        if (this.selectedKardexProductId() === productId) this.kardexError.set(true);
+      },
     });
   }
 
@@ -527,7 +536,7 @@ export class App implements OnInit {
           this.isSavingAdjustment.set(false);
           this.isAdjustmentModalOpen.set(false);
           this.loadProductKardex(data.productId);
-          this.loadCatalogData();
+          this.loadCatalogData('');
           this.toast.success(
             'Inventario actualizado',
             `Movimiento ${data.movementType} registrado exitosamente en el Kardex físico.`,

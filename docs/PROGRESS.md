@@ -285,3 +285,10 @@
 - El catálogo reúne nombre, SKU y códigos de barras en una columna y deja visible la edición rápida de precio.
 - El alta abre con los datos esenciales. Las opciones avanzadas se pueden desplegar y se repliegan al guardar y registrar otro. En edición aparecen abiertas.
 - La rama parte de origin/develop e incorpora por avance rápido 9adcaa5 para aplicar los cambios sobre el rediseño del PR #13 y los ajustes locales que lo continúan.
+
+## Inventario y movimientos (2026-11-14)
+
+- ADM-07 abre con una lista de existencias, búsqueda por nombre, SKU o código de barras y filtros de stock bajo y agotados. El historial se abre al elegir un producto y conserva la búsqueda y el filtro al volver.
+- Los movimientos muestran cambio y saldo. El saldo anterior, costo, motivo y referencia aparecen en el detalle de cada movimiento.
+- Corregido el modelo del Admin para consumir baseUnit, quantityDelta, previousStock y newStock tal como los devuelve la API.
+- La rama parte de origin/develop e incorpora 92416c7 del PR #14 para trabajar sobre la última vista del Admin.

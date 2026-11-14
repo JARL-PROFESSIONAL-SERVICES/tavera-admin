@@ -71,12 +71,9 @@ export interface KardexMovementRecord {
   id: string;
   productId: string;
   movementType: string;
-  presentationId: string | null;
-  quantityEntered: string;
-  conversionFactorApplied: string;
-  baseQuantityDelta: string;
-  stockBefore: string;
-  stockAfter: string;
+  quantityDelta: string;
+  previousStock: string;
+  newStock: string;
   unitCostApplied: string | null;
   reason: string;
   referenceType: string | null;
@@ -89,7 +86,7 @@ export interface KardexResponse {
     id: string;
     sku: string;
     name: string;
-    baseUnitCode: string;
+    baseUnit: string;
     currentStock: string;
     minStockAlert: string;
   };
