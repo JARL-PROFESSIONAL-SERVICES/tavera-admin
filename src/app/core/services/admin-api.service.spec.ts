@@ -37,4 +37,12 @@ describe('AdminApiService', () => {
     expect(service.hasPermission('users:manage')).toBe(true);
     expect(service.hasPermission('reports:read')).toBe(true);
   });
+
+  it('defines contracts for review queue, bulk prices and reports export (Fase 8.3)', () => {
+    expect(typeof service.listReviewQueue).toBe('function');
+    expect(typeof service.approveReviewQueueItem).toBe('function');
+    expect(typeof service.rejectReviewQueueItem).toBe('function');
+    expect(typeof service.adjustBulkPrices).toBe('function');
+    expect(typeof service.exportReportCsv).toBe('function');
+  });
 });

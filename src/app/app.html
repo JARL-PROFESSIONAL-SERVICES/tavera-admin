@@ -1,875 +1,547 @@
-<div class="admin-layout">
-  <!-- TOP NAVIGATION & AUTH HEADER -->
-  <header class="admin-header">
-    <div class="brand">
-      <span class="badge-owner">TAVERA ADMIN</span>
-      <h1>{{ title() }}</h1>
+<div class="admin-shell" [class.dark]="theme.isDark()">
+  <!-- =========================================================================
+       SIDEBAR OFICIAL VELORA (248px Obsidiana)
+       ========================================================================= -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-header">
+        <span class="brand-title">VELORA</span>
+        <span class="brand-badge">v2.0</span>
+      </div>
+      <div class="store-badge" title="Comercio Piloto de Validación">
+        <span class="store-dot"></span>
+        <span class="store-name">{{ storeBranch() }}</span>
+      </div>
     </div>
 
-    <div class="header-right">
-      <!-- THEME SELECTOR (LIGHT / DARK / SYSTEM) -->
-      <div class="theme-toggle-group" role="group" aria-label="Selector de tema">
-        <button
-          type="button"
-          class="theme-btn"
-          [class.active]="theme.currentTheme() === 'light'"
-          (click)="theme.setTheme('light')"
-          title="Modo Claro"
-        >
-          <ng-icon name="lucideSun" size="14"></ng-icon>
-        </button>
-        <button
-          type="button"
-          class="theme-btn"
-          [class.active]="theme.currentTheme() === 'dark'"
-          (click)="theme.setTheme('dark')"
-          title="Modo Oscuro"
-        >
-          <ng-icon name="lucideMoon" size="14"></ng-icon>
-        </button>
-        <button
-          type="button"
-          class="theme-btn"
-          [class.active]="theme.currentTheme() === 'system'"
-          (click)="theme.setTheme('system')"
-          title="Modo Automático del Sistema"
-        >
-          <ng-icon name="lucideLaptop" size="14"></ng-icon>
-        </button>
-      </div>
+    <nav class="sidebar-nav" aria-label="Navegación principal">
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeSection() === 'DASHBOARD'"
+        (click)="selectSection('DASHBOARD')"
+      >
+        <ng-icon name="lucideLayoutDashboard" size="18"></ng-icon>
+        <span>Inicio / Resumen</span>
+      </button>
 
-      <div class="auth-bar">
-        @if (api.currentUser(); as user) {
-          <div class="user-chip">
-            <ng-icon name="lucideUser" size="15"></ng-icon>
-            <strong>{{ user.fullName }}</strong>
-            <small class="role-pill">{{ user.roleCode }}</small>
-          </div>
-          <button type="button" class="btn btn-outline-light" (click)="api.logout()">
-            <ng-icon name="lucideLogOut" size="14"></ng-icon>
-            Cerrar Sesión
-          </button>
-        } @else {
-          <form class="login-form" (ngSubmit)="submitLogin()">
-            <input
-              type="text"
-              name="username"
-              placeholder="Usuario (owner)"
-              [ngModel]="loginUsername()"
-              (ngModelChange)="loginUsername.set($event)"
-              aria-label="Usuario administrador"
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Contraseña"
-              [ngModel]="loginPassword()"
-              (ngModelChange)="loginPassword.set($event)"
-              aria-label="Contraseña administrador"
-            />
-            <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
-              Ingresar
-            </button>
-          </form>
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeSection() === 'CATALOG'"
+        (click)="selectSection('CATALOG')"
+      >
+        <ng-icon name="lucidePackage" size="18"></ng-icon>
+        <span>Catálogo de Productos</span>
+      </button>
+
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeSection() === 'INVENTORY'"
+        (click)="selectSection('INVENTORY')"
+      >
+        <ng-icon name="lucideBoxes" size="18"></ng-icon>
+        <span>Existencias e Inventario</span>
+      </button>
+
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeSection() === 'REVIEW_QUEUE'"
+        (click)="selectSection('REVIEW_QUEUE')"
+      >
+        <ng-icon name="lucideClipboardCheck" size="18"></ng-icon>
+        <span>Ajustes y Cola de Revisión</span>
+        @if (reviewQueue().length > 0) {
+          <span class="nav-counter">{{ reviewQueue().length }}</span>
         }
+      </button>
+
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeSection() === 'KARDEX'"
+        (click)="selectSection('KARDEX')"
+      >
+        <ng-icon name="lucideHistory" size="18"></ng-icon>
+        <span>Historial de Movimientos</span>
+      </button>
+
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeSection() === 'PURCHASES'"
+        (click)="selectSection('PURCHASES')"
+      >
+        <ng-icon name="lucideTruck" size="18"></ng-icon>
+        <span>Compras y Proveedores</span>
+      </button>
+
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeSection() === 'SALES'"
+        (click)="selectSection('SALES')"
+      >
+        <ng-icon name="lucideReceipt" size="18"></ng-icon>
+        <span>Ventas y Cajas</span>
+      </button>
+
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeSection() === 'BULK_PRICES'"
+        (click)="selectSection('BULK_PRICES')"
+      >
+        <ng-icon name="lucideTags" size="18"></ng-icon>
+        <span>Precios Masivos</span>
+      </button>
+
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeSection() === 'CONFIG'"
+        (click)="selectSection('CONFIG')"
+      >
+        <ng-icon name="lucideSettings" size="18"></ng-icon>
+        <span>Configuración y Reportes</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="software-info">
+        <span>VELORA Comercial</span>
+        <small>LAN Segura — SQLite/PG</small>
       </div>
     </div>
-  </header>
+  </aside>
 
-  <!-- RESPONSIVE MODULE TABS (DESKTOP & OWNER MOBILE) -->
-  <nav class="admin-nav" aria-label="Módulos de administración">
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'DASHBOARD'"
-      (click)="selectSection('DASHBOARD')"
-    >
-      <ng-icon name="lucideLayoutDashboard" size="15"></ng-icon>
-      Dashboard Ejecutivo
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'CATALOG'"
-      (click)="selectSection('CATALOG')"
-    >
-      <ng-icon name="lucidePackage" size="15"></ng-icon>
-      Catálogo y Precios
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'INVENTORY'"
-      (click)="selectSection('INVENTORY')"
-    >
-      <ng-icon name="lucideBoxes" size="15"></ng-icon>
-      Inventario y Kardex
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'SUPPLIERS_PURCHASES'"
-      (click)="selectSection('SUPPLIERS_PURCHASES')"
-    >
-      <ng-icon name="lucideTruck" size="15"></ng-icon>
-      Proveedores y Compras
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'SALES_CASH'"
-      (click)="selectSection('SALES_CASH')"
-    >
-      <ng-icon name="lucideReceipt" size="15"></ng-icon>
-      Ventas y Cortes
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'USERS_RBAC'"
-      (click)="selectSection('USERS_RBAC')"
-    >
-      <ng-icon name="lucideUsers" size="15"></ng-icon>
-      Usuarios y Roles
-    </button>
-    <button
-      type="button"
-      class="nav-tab"
-      [class.active]="activeSection() === 'AUDIT'"
-      (click)="selectSection('AUDIT')"
-    >
-      <ng-icon name="lucideShieldCheck" size="15"></ng-icon>
-      Auditoría
-    </button>
-  </nav>
+  <!-- =========================================================================
+       MAIN AREA (TOPBAR + CONTENT)
+       ========================================================================= -->
+  <div class="main-wrapper">
+    <!-- TOPBAR (64px) -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <nav class="breadcrumbs" aria-label="Migas de pan">
+          <span class="crumb-root">VELORA</span>
+          <ng-icon name="lucideChevronRight" size="14"></ng-icon>
+          <span class="crumb-current">{{ sectionTitle() }}</span>
+        </nav>
+      </div>
 
-  <!-- FEEDBACK BANNER -->
-  <div class="feedback-bar" [attr.data-type]="feedback().type" role="status">
-    <div class="feedback-msg">
-      @if (feedback().type === 'error') {
-        <ng-icon name="lucideAlertTriangle" size="16"></ng-icon>
-      } @else {
-        <ng-icon name="lucideCheckCircle2" size="16"></ng-icon>
-      }
-      <span>{{ feedback().text }}</span>
-    </div>
-    @if (isLoading()) {
-      <span class="loading-pill">Sincronizando con API...</span>
-    }
-  </div>
-
-  <!-- MAIN CONTENT AREA -->
-  <main class="admin-content">
-    <!-- 1. EXECUTIVE DASHBOARD -->
-    @if (activeSection() === 'DASHBOARD') {
-      <section class="module-section">
-        <div class="section-header">
-          <h2>Resumen Ejecutivo y Supervisión en Vivo</h2>
-          <button type="button" class="btn btn-primary" (click)="loadDashboard()">
-            Actualizar Indicadores
+      <div class="topbar-right">
+        <!-- SELECTOR DE TEMA CLARO CACAO / OSCURO OBSIDIANA -->
+        <div class="theme-toggle" role="group" aria-label="Selector de tema">
+          <button
+            type="button"
+            class="theme-btn"
+            [class.active]="theme.currentTheme() === 'light'"
+            (click)="theme.setTheme('light')"
+            title="Modo Claro Cacao"
+          >
+            <ng-icon name="lucideSun" size="15"></ng-icon>
+          </button>
+          <button
+            type="button"
+            class="theme-btn"
+            [class.active]="theme.currentTheme() === 'dark'"
+            (click)="theme.setTheme('dark')"
+            title="Modo Oscuro Obsidiana"
+          >
+            <ng-icon name="lucideMoon" size="15"></ng-icon>
+          </button>
+          <button
+            type="button"
+            class="theme-btn"
+            [class.active]="theme.currentTheme() === 'system'"
+            (click)="theme.setTheme('system')"
+            title="Tema Automático del Sistema"
+          >
+            <ng-icon name="lucideLaptop" size="15"></ng-icon>
           </button>
         </div>
 
-        @if (dashboard(); as d) {
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <span class="kpi-label">Ventas Netas (tras devoluciones)</span>
-              <strong class="kpi-value">${{ d.salesSummary.netRevenueAfterReturns }}</strong>
-              <small>Bruto: ${{ d.salesSummary.totalRevenueGross }} | Reembolsos: ${{ d.salesSummary.totalRefunded }}</small>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">Utilidad Bruta Estimada</span>
-              <strong class="kpi-value profit">${{ d.salesSummary.estimatedGrossProfit }}</strong>
-              <small>Costo de lo Vendido (COGS): ${{ d.salesSummary.estimatedCostOfGoodsSold }}</small>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">Desglose por Método de Pago</span>
-              <div class="kpi-sublist">
-                <div>Efectivo: <strong>${{ d.paymentBreakdown.CASH }}</strong></div>
-                <div>Tarjeta: <strong>${{ d.paymentBreakdown.CARD }}</strong></div>
-                <div>Transferencia: <strong>${{ d.paymentBreakdown.TRANSFER }}</strong></div>
+        <div class="user-profile">
+          @if (api.currentUser(); as user) {
+            <div class="user-chip">
+              <ng-icon name="lucideUser" size="16"></ng-icon>
+              <div class="user-meta">
+                <span class="user-name">{{ user.fullName }}</span>
+                <span class="role-badge">{{ user.roleCode }}</span>
               </div>
             </div>
-            <div class="kpi-card">
-              <span class="kpi-label">Operación y Alertas</span>
-              <div class="kpi-sublist">
-                <div>Tickets Completados: <strong>{{ d.salesSummary.completedTicketsCount }}</strong></div>
-                <div>Cajas Abiertas: <strong>{{ d.cashSummary.openSessionsCount }}</strong></div>
-                <div>Bajo Stock: <strong>{{ d.inventoryAlerts.lowStockCount }} prod.</strong></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="two-col-grid">
-            <div class="panel-card">
-              <h3>Cajas Abiertas en Tienda ({{ d.cashSummary.openSessionsCount }})</h3>
-              @if (d.cashSummary.openSessions.length === 0) {
-                <p class="empty-hint">No hay turnos de caja abiertos actualmente.</p>
-              }
-              @for (cs of d.cashSummary.openSessions; track cs.id) {
-                <div class="list-row">
-                  <span>
-                    <strong>{{ cs.registerCode }}</strong> — Cajero:
-                    {{ cs.openedByUser?.fullName ?? 'Operador' }}
-                  </span>
-                  <span>Fondo inicial: ${{ cs.openingBalance }}</span>
-                </div>
-              }
-            </div>
-
-            <div class="panel-card">
-              <h3>Alertas de Bajo Stock ({{ d.inventoryAlerts.lowStockCount }})</h3>
-              @if (d.inventoryAlerts.lowStockItems.length === 0) {
-                <p class="empty-hint">Todo el catálogo está por encima del stock mínimo.</p>
-              }
-              @for (item of d.inventoryAlerts.lowStockItems; track item.id) {
-                <div class="list-row alert-row">
-                  <span><strong>{{ item.name }}</strong> ({{ item.sku }})</span>
-                  <span>Existencia: {{ item.stockQuantity }} (Mín: {{ item.minStockAlert }})</span>
-                </div>
-              }
-            </div>
-          </div>
-        } @else {
-          <div class="panel-card">
-            <p class="empty-hint">
-              Inicie sesión y presione "Actualizar Indicadores" para consultar el dashboard en tiempo real.
-            </p>
-          </div>
-        }
-      </section>
-    }
-
-    <!-- 2. CATALOG, PRESENTATIONS & PRICING -->
-    @if (activeSection() === 'CATALOG') {
-      <section class="module-section">
-        <div class="two-col-grid">
-          <div class="panel-card">
-            <h3>Alta de Producto con Unidad Base y Presentaciones</h3>
-            <form class="stack-form" (ngSubmit)="submitCreateProduct()">
-              <div class="form-row">
-                <label>
-                  SKU:
-                  <input
-                    type="text"
-                    name="sku"
-                    placeholder="LECHE-1L"
-                    [ngModel]="newProductSku()"
-                    (ngModelChange)="newProductSku.set($event)"
-                  />
-                </label>
-                <label>
-                  Unidad Base:
-                  <select
-                    name="baseUnit"
-                    [ngModel]="newProductBaseUnit()"
-                    (ngModelChange)="newProductBaseUnit.set($event)"
-                  >
-                    <option value="PZA">PZA (Pieza)</option>
-                    <option value="KG">KG (Kilogramo - Granel)</option>
-                    <option value="LT">LT (Litro)</option>
-                    <option value="M">M (Metro)</option>
-                  </select>
-                </label>
-              </div>
-
-              <label>
-                Nombre del Producto:
-                <input
-                  type="text"
-                  name="prodName"
-                  placeholder="Leche Entera 1 Litro"
-                  [ngModel]="newProductName()"
-                  (ngModelChange)="newProductName.set($event)"
-                />
-              </label>
-
-              <div class="form-row">
-                <label>
-                  P. Menudeo ($):
-                  <input
-                    type="text"
-                    name="retail"
-                    [ngModel]="newProductRetailPrice()"
-                    (ngModelChange)="newProductRetailPrice.set($event)"
-                  />
-                </label>
-                <label>
-                  P. Mayoreo ($):
-                  <input
-                    type="text"
-                    name="wholesale"
-                    [ngModel]="newProductWholesalePrice()"
-                    (ngModelChange)="newProductWholesalePrice.set($event)"
-                  />
-                </label>
-                <label>
-                  Mín. Mayoreo:
-                  <input
-                    type="text"
-                    name="minWh"
-                    [ngModel]="newProductWholesaleMinQty()"
-                    (ngModelChange)="newProductWholesaleMinQty.set($event)"
-                  />
-                </label>
-              </div>
-
-              <div class="form-row">
-                <label>
-                  Costo Unit. Base ($):
-                  <input
-                    type="text"
-                    name="cost"
-                    [ngModel]="newProductCost()"
-                    (ngModelChange)="newProductCost.set($event)"
-                  />
-                </label>
-                <label>
-                  Código de Barras Base:
-                  <input
-                    type="text"
-                    name="barcode"
-                    placeholder="7501055300012"
-                    [ngModel]="newProductBarcode()"
-                    (ngModelChange)="newProductBarcode.set($event)"
-                  />
-                </label>
-              </div>
-
-              <fieldset class="sub-fieldset">
-                <legend>Presentación Adicional Opcional (ej. Caja / Paquete)</legend>
-                <div class="form-row">
-                  <label>
-                    Nombre Presentación:
-                    <input
-                      type="text"
-                      name="presName"
-                      placeholder="Caja 12 pzas"
-                      [ngModel]="newPresentationName()"
-                      (ngModelChange)="newPresentationName.set($event)"
-                    />
-                  </label>
-                  <label>
-                    Factor Conversión:
-                    <input
-                      type="text"
-                      name="presFactor"
-                      [ngModel]="newPresentationFactor()"
-                      (ngModelChange)="newPresentationFactor.set($event)"
-                    />
-                  </label>
-                  <label>
-                    Precio Presentación ($):
-                    <input
-                      type="text"
-                      name="presPrice"
-                      [ngModel]="newPresentationPrice()"
-                      (ngModelChange)="newPresentationPrice.set($event)"
-                    />
-                  </label>
-                </div>
-              </fieldset>
-
-              <button
-                type="submit"
-                class="btn btn-primary"
-                [disabled]="!api.hasPermission('catalog:write')"
-              >
-                Guardar Producto en Catálogo
-              </button>
-            </form>
-          </div>
-
-          <div class="panel-card">
-            <h3>Productos Registrados ({{ products().length }})</h3>
-            <div class="form-row">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              (click)="api.logout()"
+              title="Cerrar Sesión"
+            >
+              <ng-icon name="lucideLogOut" size="14"></ng-icon>
+              <span>Salir</span>
+            </button>
+          } @else {
+            <form class="quick-login-form" (ngSubmit)="submitLogin()">
               <input
                 type="text"
-                placeholder="Filtrar por nombre, SKU o código..."
-                [ngModel]="productSearchQuery()"
-                (ngModelChange)="productSearchQuery.set($event); loadCatalogData()"
+                placeholder="Usuario (owner)"
+                [ngModel]="loginUsername()"
+                (ngModelChange)="loginUsername.set($event)"
+                name="user"
+                aria-label="Usuario"
               />
-            </div>
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>SKU / Producto</th>
-                    <th>Stock Base</th>
-                    <th>Costo Base</th>
-                    <th>Menudeo</th>
-                    <th>Mayoreo</th>
-                    <th>Presentaciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (p of products(); track p.id) {
-                    <tr>
-                      <td>
-                        <strong>{{ p.name }}</strong>
-                        <br />
-                        <small>{{ p.sku }} ({{ p.baseUnit?.code ?? 'PZA' }})</small>
-                      </td>
-                      <td>{{ p.stockQuantity }}</td>
-                      <td>${{ p.currentCostPerBaseUnit }}</td>
-                      <td>
-                        <input
-                          type="text"
-                          class="inline-price-input"
-                          [value]="p.retailUnitPrice"
-                          (change)="quickUpdateRetailPrice(p, $any($event.target).value)"
-                          aria-label="Actualizar precio menudeo"
-                        />
-                      </td>
-                      <td>
-                        @if (p.wholesaleUnitPrice) {
-                          ${{ p.wholesaleUnitPrice }} ({{ p.wholesaleMinBaseQty }}+)
-                        } @else {
-                          —
-                        }
-                      </td>
-                      <td>
-                        @for (pres of p.presentations; track pres.id) {
-                          <span class="pill">{{ pres.name }} (x{{ pres.conversionFactor }}): ${{ pres.price }}</span>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-    }
-
-    <!-- 3. INVENTORY & KARDEX -->
-    @if (activeSection() === 'INVENTORY') {
-      <section class="module-section">
-        <div class="two-col-grid">
-          <div class="panel-card">
-            <h3>Registrar Ajuste o Carga de Inventario</h3>
-            <form class="stack-form" (ngSubmit)="submitInventoryAdjustment()">
-              <label>
-                Producto:
-                <select
-                  name="adjProd"
-                  [ngModel]="selectedKardexProductId()"
-                  (ngModelChange)="loadProductKardex($event)"
-                >
-                  @for (p of products(); track p.id) {
-                    <option [value]="p.id">{{ p.name }} ({{ p.sku }}) — Stock: {{ p.stockQuantity }}</option>
-                  }
-                </select>
-              </label>
-              <label>
-                Tipo de Movimiento:
-                <select
-                  name="adjType"
-                  [ngModel]="adjMovementType()"
-                  (ngModelChange)="adjMovementType.set($event)"
-                >
-                  <option value="INITIAL_LOAD">Carga Inicial (INITIAL_LOAD)</option>
-                  <option value="ADJUSTMENT_IN">Ajuste Positivo (ADJUSTMENT_IN)</option>
-                  <option value="ADJUSTMENT_OUT">Ajuste Negativo (ADJUSTMENT_OUT)</option>
-                  <option value="WASTE_OUT">Salida por Merma (WASTE_OUT)</option>
-                </select>
-              </label>
-              <div class="form-row">
-                <label>
-                  Cantidad:
-                  <input
-                    type="text"
-                    name="adjQty"
-                    [ngModel]="adjQuantity()"
-                    (ngModelChange)="adjQuantity.set($event)"
-                  />
-                </label>
-                <label>
-                  Costo Unitario Aplicado ($):
-                  <input
-                    type="text"
-                    name="adjCost"
-                    [ngModel]="adjUnitCost()"
-                    (ngModelChange)="adjUnitCost.set($event)"
-                  />
-                </label>
-              </div>
-              <label>
-                Motivo Auditable:
-                <input
-                  type="text"
-                  name="adjReason"
-                  [ngModel]="adjReason()"
-                  (ngModelChange)="adjReason.set($event)"
-                />
-              </label>
-              <button type="submit" class="btn btn-primary">
-                Aplicar Movimiento en Kardex
+              <input
+                type="password"
+                placeholder="Contraseña"
+                [ngModel]="loginPassword()"
+                (ngModelChange)="loginPassword.set($event)"
+                name="pass"
+                aria-label="Contraseña"
+              />
+              <button type="submit" class="btn btn-primary btn-sm" [disabled]="isLoading()">
+                Ingresar
               </button>
             </form>
-          </div>
-
-          <div class="panel-card">
-            <h3>Kardex Histórico Inmutable</h3>
-            @if (currentKardex(); as k) {
-              <p>
-                Producto: <strong>{{ k.product.name }}</strong> | Existencia actual:
-                <strong>{{ k.product.currentStock }} {{ k.product.baseUnitCode }}</strong>
-              </p>
-              <div class="table-scroll">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Tipo</th>
-                      <th>Delta Base</th>
-                      <th>Antes → Después</th>
-                      <th>Motivo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (m of k.movements; track m.id) {
-                      <tr>
-                        <td>{{ m.createdAt | date: 'short' }}</td>
-                        <td><span class="pill">{{ m.movementType }}</span></td>
-                        <td>{{ m.baseQuantityDelta }}</td>
-                        <td>{{ m.stockBefore }} → <strong>{{ m.stockAfter }}</strong></td>
-                        <td>{{ m.reason }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            } @else {
-              <p class="empty-hint">Seleccione un producto para inspeccionar su Kardex.</p>
-            }
-          </div>
+          }
         </div>
-      </section>
+      </div>
+    </header>
+
+    <!-- STATUS / FEEDBACK BANNER -->
+    @if (feedback().text) {
+      <div class="status-banner banner-{{ feedback().type }}" role="status">
+        <span>{{ feedback().text }}</span>
+        <button type="button" class="banner-close" (click)="feedback.set({ type: 'info', text: '' })">
+          <ng-icon name="lucideX" size="14"></ng-icon>
+        </button>
+      </div>
     }
 
-    <!-- 4. SUPPLIERS, COST COMPARATOR & PURCHASES -->
-    @if (activeSection() === 'SUPPLIERS_PURCHASES') {
-      <section class="module-section">
-        <div class="two-col-grid">
-          <div class="panel-card">
-            <h3>Alta de Proveedor y Cotización por Producto</h3>
-            <form class="stack-form" (ngSubmit)="submitCreateSupplier()">
-              <div class="form-row">
-                <input
-                  type="text"
-                  name="supCode"
-                  placeholder="Código (ej. PROV-01)"
-                  [ngModel]="newSupplierCode()"
-                  (ngModelChange)="newSupplierCode.set($event)"
-                />
-                <input
-                  type="text"
-                  name="supName"
-                  placeholder="Razón Social o Nombre"
-                  [ngModel]="newSupplierName()"
-                  (ngModelChange)="newSupplierName.set($event)"
-                />
-                <button type="submit" class="btn btn-primary">+ Proveedor</button>
-              </div>
-            </form>
-
-            <hr />
-
-            <h4>Vincular / Cotizar Costo por Unidad Base</h4>
-            <form class="stack-form" (ngSubmit)="submitSupplierProductQuote()">
-              <div class="form-row">
-                <label>
-                  Proveedor:
-                  <select
-                    name="qSup"
-                    [ngModel]="quoteSupplierId()"
-                    (ngModelChange)="quoteSupplierId.set($event)"
-                  >
-                    @for (s of suppliers(); track s.id) {
-                      <option [value]="s.id">{{ s.name }} ({{ s.code }})</option>
-                    }
-                  </select>
-                </label>
-                <label>
-                  Producto:
-                  <select
-                    name="qProd"
-                    [ngModel]="quoteProductId()"
-                    (ngModelChange)="loadSupplierComparison($event)"
-                  >
-                    @for (p of products(); track p.id) {
-                      <option [value]="p.id">{{ p.name }} ({{ p.sku }})</option>
-                    }
-                  </select>
-                </label>
-                <label>
-                  Costo por Unidad Base ($):
-                  <input
-                    type="text"
-                    name="qCost"
-                    [ngModel]="quoteUnitCost()"
-                    (ngModelChange)="quoteUnitCost.set($event)"
-                  />
-                </label>
-              </div>
-              <button type="submit" class="btn btn-secondary">
-                Guardar Cotización y Comparar Proveedores
-              </button>
-            </form>
-
-            @if (supplierComparison(); as comp) {
-              <div class="comparison-box">
-                <h4>
-                  Comparador de Costos — {{ comp.product.name }} (Mejor costo:
-                  ${{ comp.bestCostPerBaseUnit ?? 'N/A' }})
-                </h4>
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Proveedor</th>
-                      <th>Costo / {{ comp.product.baseUnitCode }}</th>
-                      <th>Preferido</th>
-                      <th>Historial Reciente</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (offer of comp.offers; track offer.supplierProductId) {
-                      <tr>
-                        <td><strong>{{ offer.supplierName }}</strong></td>
-                        <td><strong>${{ offer.unitCostPerBaseUnit }}</strong></td>
-                        <td>{{ offer.isPreferred ? 'Sí' : 'No' }}</td>
-                        <td>{{ offer.priceHistory.length }} registros</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            }
-          </div>
-
-          <div class="panel-card">
-            <h3>Recepción de Compra de Mercancía (Actualiza Last Cost y Kardex)</h3>
-            <form class="stack-form" (ngSubmit)="submitPurchaseReceipt()">
-              <div class="form-row">
-                <label>
-                  Proveedor:
-                  <select
-                    name="recSup"
-                    [ngModel]="receiptSupplierId()"
-                    (ngModelChange)="receiptSupplierId.set($event)"
-                  >
-                    @for (s of suppliers(); track s.id) {
-                      <option [value]="s.id">{{ s.name }}</option>
-                    }
-                  </select>
-                </label>
-                <label>
-                  Factura / Remisión:
-                  <input
-                    type="text"
-                    name="recInv"
-                    placeholder="FAC-2026-001"
-                    [ngModel]="receiptInvoice()"
-                    (ngModelChange)="receiptInvoice.set($event)"
-                  />
-                </label>
-              </div>
-
-              <label>
-                Producto Recibido:
-                <select
-                  name="recProd"
-                  [ngModel]="receiptProductId()"
-                  (ngModelChange)="receiptProductId.set($event); receiptPresentationId.set('')"
-                >
-                  @for (p of products(); track p.id) {
-                    <option [value]="p.id">{{ p.name }} ({{ p.sku }})</option>
-                  }
-                </select>
-              </label>
-
-              <div class="form-row">
-                <label>
-                  Cantidad Recibida:
-                  <input
-                    type="text"
-                    name="recQty"
-                    [ngModel]="receiptQuantity()"
-                    (ngModelChange)="receiptQuantity.set($event)"
-                  />
-                </label>
-                <label>
-                  Costo Total del Renglón ($):
-                  <input
-                    type="text"
-                    name="recTotal"
-                    [ngModel]="receiptLineCost()"
-                    (ngModelChange)="receiptLineCost.set($event)"
-                  />
-                </label>
-              </div>
-
-              <button type="submit" class="btn btn-primary">
-                Registrar Recepción de Compra
-              </button>
-            </form>
-
-            <h4>Últimas Recepciones ({{ purchaseReceipts().length }})</h4>
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Folio</th>
-                    <th>Proveedor</th>
-                    <th>Factura</th>
-                    <th>Total Compra</th>
-                    <th>Fecha</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (r of purchaseReceipts(); track r.id) {
-                    <tr>
-                      <td><strong>{{ r.folio }}</strong></td>
-                      <td>{{ r.supplier?.name ?? r.supplierId }}</td>
-                      <td>{{ r.invoiceNumber ?? '—' }}</td>
-                      <td>${{ r.totalCost }}</td>
-                      <td>{{ r.receivedAt | date: 'short' }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-    }
-
-    <!-- 5. SALES & HISTORICAL TICKETS -->
-    @if (activeSection() === 'SALES_CASH') {
-      <section class="module-section">
-        <div class="panel-card">
+    <!-- CONTENT CONTAINER -->
+    <main class="content-body">
+      <!-- =====================================================================
+           MÓDULO 1: INICIO / RESUMEN (DASHBOARD)
+           ===================================================================== -->
+      @if (activeSection() === 'DASHBOARD') {
+        <section class="section-container">
           <div class="section-header">
-            <h3>Tickets de Venta Históricos (Snapshots Inmutables)</h3>
-            <button type="button" class="btn btn-secondary" (click)="loadSalesList()">
-              Refrescar Ventas
+            <div>
+              <h2>Resumen Operativo y Comercial</h2>
+              <p class="subtitle">Indicadores clave de ventas, margen y alertas en tiempo real.</p>
+            </div>
+            <button type="button" class="btn btn-outline" (click)="loadDashboard()">
+              <ng-icon name="lucideRefreshCw" size="14"></ng-icon>
+              Actualizar
             </button>
           </div>
-          <div class="table-scroll">
+
+          @if (dashboard(); as d) {
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <span class="kpi-label">Ventas Netas del Periodo</span>
+                <span class="kpi-value font-mono tabular-nums text-success">
+                  ${{ Number(d.salesSummary.netRevenueAfterReturns || 0) | number: '1.2-2' }}
+                </span>
+                <small class="kpi-subtext">{{ d.salesSummary.completedTicketsCount }} tickets completados</small>
+              </div>
+
+              <div class="kpi-card">
+                <span class="kpi-label">Utilidad Bruta Estimada</span>
+                <span class="kpi-value font-mono tabular-nums text-primary">
+                  ${{ Number(d.salesSummary.estimatedGrossProfit || 0) | number: '1.2-2' }}
+                </span>
+                <small class="kpi-subtext">Costo de venta: ${{ Number(d.salesSummary.estimatedCostOfGoodsSold || 0) | number: '1.2-2' }}</small>
+              </div>
+
+              <div class="kpi-card">
+                <span class="kpi-label">Valorización de Inventario</span>
+                <span class="kpi-value font-mono tabular-nums">
+                  ${{ totalInventoryValue() | number: '1.2-2' }}
+                </span>
+                <small class="kpi-subtext">{{ totalBaseUnitsInStock() | number: '1.0-0' }} unidades base en catálogo</small>
+              </div>
+
+              <div class="kpi-card" [class.kpi-alert]="lowStockCount() > 0">
+                <span class="kpi-label">Alertas de Stock Bajo</span>
+                <span class="kpi-value font-mono tabular-nums" [class.text-danger]="lowStockCount() > 0">
+                  {{ lowStockCount() }}
+                </span>
+                <small class="kpi-subtext">Productos por debajo del mínimo</small>
+              </div>
+            </div>
+
+            <!-- DESGLOSE DE COBROS POR MÉTODO -->
+            <div class="dashboard-panels-grid">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Ingresos por Método de Pago</h3>
+                </div>
+                <div class="payment-bars">
+                  <div class="payment-bar-row">
+                    <span class="method-name">Efectivo (CASH)</span>
+                    <span class="method-amount font-mono tabular-nums">
+                      ${{ Number(d.paymentBreakdown.CASH || 0) | number: '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="payment-bar-row">
+                    <span class="method-name">Tarjeta BBVA (CARD)</span>
+                    <span class="method-amount font-mono tabular-nums">
+                      ${{ Number(d.paymentBreakdown.CARD || 0) | number: '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="payment-bar-row">
+                    <span class="method-name">Transferencia (TRANSFER)</span>
+                    <span class="method-amount font-mono tabular-nums">
+                      ${{ Number(d.paymentBreakdown.TRANSFER || 0) | number: '1.2-2' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SESIONES DE CAJA ACTIVAS -->
+              <div class="card">
+                <div class="card-header">
+                  <h3>Cajas Abiertas en Turno</h3>
+                  <span class="badge">{{ d.cashSummary.openSessionsCount }} cajas</span>
+                </div>
+                @if (d.cashSummary.openSessions.length === 0) {
+                  <p class="empty-state">No hay cajas abiertas en este momento.</p>
+                } @else {
+                  <div class="sessions-list">
+                    @for (s of d.cashSummary.openSessions; track s.id) {
+                      <div class="session-row">
+                        <div>
+                          <strong>{{ s.registerCode }}</strong>
+                          <small class="text-muted"> ({{ s.openedByUser?.fullName ?? 'Operador' }})</small>
+                        </div>
+                        <span class="font-mono tabular-nums">${{ Number(s.openingBalance) | number: '1.2-2' }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- =====================================================================
+           MÓDULO 2: CATÁLOGO DE PRODUCTOS (CATALOG)
+           ===================================================================== -->
+      @if (activeSection() === 'CATALOG') {
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Catálogo y Registro de Productos</h2>
+              <p class="subtitle">Gestión de códigos de barras, presentaciones y tarifas de mayoreo.</p>
+            </div>
+            <div class="header-actions">
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="isNewProductModalOpen.set(true)"
+                [disabled]="!api.hasPermission('catalog:write')"
+              >
+                <ng-icon name="lucidePlus" size="16"></ng-icon>
+                Alta Rápida de Producto
+              </button>
+            </div>
+          </div>
+
+          <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+          <div class="filters-bar">
+            <div class="search-input-wrapper">
+              <ng-icon name="lucideSearch" size="16"></ng-icon>
+              <input
+                type="search"
+                class="form-control search-input"
+                placeholder="Buscar por código de barras, SKU o nombre..."
+                [ngModel]="productSearchQuery()"
+                (ngModelChange)="productSearchQuery.set($event)"
+              />
+            </div>
+
+            <select
+              class="form-control select-filter"
+              [ngModel]="categoryFilterId()"
+              (ngModelChange)="categoryFilterId.set($event)"
+              aria-label="Filtrar por categoría"
+            >
+              <option value="">Todas las categorías</option>
+              @for (c of categories(); track c.id) {
+                <option [value]="c.id">{{ c.name }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- TABLA DE PRODUCTOS -->
+          <div class="table-container">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Folio</th>
-                  <th>Estado</th>
-                  <th>Subtotal</th>
-                  <th>IVA / IEPS</th>
-                  <th>Total</th>
-                  <th>Detalle Snapshot</th>
+                  <th>SKU / Código</th>
+                  <th>Descripción del Producto</th>
+                  <th>Categoría</th>
+                  <th class="text-right">Costo Base</th>
+                  <th class="text-right">Precio Venta</th>
+                  <th class="text-right">Mayoreo</th>
+                  <th class="text-right">Margen Bruto</th>
+                  <th class="text-right">Existencia</th>
+                  <th class="text-center">Estado</th>
                 </tr>
               </thead>
               <tbody>
-                @for (s of salesList(); track s.id) {
+                @for (p of filteredProducts(); track p.id) {
                   <tr>
-                    <td><strong>{{ s.folio }}</strong></td>
-                    <td><span class="pill">{{ s.status }}</span></td>
-                    <td>${{ s.subtotalNet }}</td>
-                    <td>${{ s.ivaAmount }} / ${{ s.iepsAmount }}</td>
-                    <td><strong>${{ s.totalGross }}</strong></td>
+                    <td class="font-mono text-xs font-semibold">{{ p.sku }}</td>
                     <td>
-                      @for (item of s.items; track item.id) {
-                        <div>
-                          {{ item.productNameSnapshot }}: {{ item.quantity }} x ${{ item.unitPriceApplied }}
-                          ({{ item.priceTierApplied }})
-                        </div>
+                      <div class="product-cell-name">
+                        <strong>{{ p.name }}</strong>
+                        @if (p.isSoldByWeightOrBulk) {
+                          <span class="tag-bulk">A Granel</span>
+                        }
+                      </div>
+                    </td>
+                    <td>{{ p.category?.name ?? 'General' }}</td>
+                    <td class="text-right font-mono tabular-nums text-muted">
+                      ${{ Number(p.currentCostPerBaseUnit) | number: '1.2-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums font-bold">
+                      ${{ Number(p.retailUnitPrice) | number: '1.2-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums">
+                      @if (p.wholesaleUnitPrice) {
+                        <span class="text-success">${{ Number(p.wholesaleUnitPrice) | number: '1.2-2' }}</span>
+                        <small class="text-muted"> ({{ p.wholesaleMinBaseQty }}+)</small>
+                      } @else {
+                        <span class="text-muted">-</span>
                       }
+                    </td>
+                    <td class="text-right font-mono tabular-nums">
+                      @let cost = Number(p.currentCostPerBaseUnit || 0);
+                      @let retail = Number(p.retailUnitPrice || 1);
+                      @let margin = retail > 0 ? (((retail - cost) / retail) * 100) : 0;
+                      <span [class.text-danger]="margin <= 10" [class.text-success]="margin > 20">
+                        {{ margin | number: '1.1-1' }}%
+                      </span>
+                    </td>
+                    <td class="text-right font-mono tabular-nums font-semibold" [class.text-danger]="Number(p.stockQuantity) <= Number(p.minStockAlert)">
+                      {{ Number(p.stockQuantity) | number: '1.0-2' }} {{ p.baseUnit?.code ?? 'PZA' }}
+                    </td>
+                    <td class="text-center">
+                      <span class="status-dot" [class.active]="p.isActive" [title]="p.isActive ? 'Activo' : 'Inactivo'"></span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="9" class="text-center text-muted py-8">
+                      No se encontraron productos con el filtro aplicado.
                     </td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
-        </div>
-      </section>
-    }
+        </section>
+      }
 
-    <!-- 6. USERS & RBAC ROLES -->
-    @if (activeSection() === 'USERS_RBAC') {
-      <section class="module-section">
-        <div class="two-col-grid">
-          <div class="panel-card">
-            <h3>Crear Usuario Operativo / Administrativo</h3>
-            <form class="stack-form" (ngSubmit)="submitCreateUser()">
-              <label>
-                Usuario (login):
-                <input
-                  type="text"
-                  name="uLogin"
-                  [ngModel]="newUserUsername()"
-                  (ngModelChange)="newUserUsername.set($event)"
-                />
-              </label>
-              <label>
-                Nombre Completo:
-                <input
-                  type="text"
-                  name="uName"
-                  [ngModel]="newUserFullName()"
-                  (ngModelChange)="newUserFullName.set($event)"
-                />
-              </label>
-              <label>
-                Contraseña Inicial:
-                <input
-                  type="password"
-                  name="uPass"
-                  [ngModel]="newUserPassword()"
-                  (ngModelChange)="newUserPassword.set($event)"
-                />
-              </label>
-              <label>
-                Rol Asignado:
-                <select
-                  name="uRole"
-                  [ngModel]="newUserRoleCode()"
-                  (ngModelChange)="newUserRoleCode.set($event)"
-                >
-                  <option value="CASHIER">CASHIER (Cajero POS)</option>
-                  <option value="INVENTORY">INVENTORY (Almacén / Inventario)</option>
-                  <option value="ADMIN">ADMIN (Administrador Operativo)</option>
-                  <option value="OWNER">OWNER (Propietario)</option>
-                </select>
-              </label>
-              <button type="submit" class="btn btn-primary">Crear Usuario</button>
-            </form>
+      <!-- =====================================================================
+           MÓDULO 3: EXISTENCIAS E INVENTARIO (INVENTORY)
+           ===================================================================== -->
+      @if (activeSection() === 'INVENTORY') {
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Existencias y Valorización de Inventario</h2>
+              <p class="subtitle">Monitoreo de existencias en piso, valorización al costo y alertas.</p>
+            </div>
+            <div class="header-actions">
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="exportReportType.set('INVENTORY'); downloadExportReport()"
+                [disabled]="isExporting()"
+              >
+                <ng-icon name="lucideDownload" size="14"></ng-icon>
+                {{ isExporting() ? 'Descargando...' : 'Exportar Existencias (CSV)' }}
+              </button>
+            </div>
           </div>
 
-          <div class="panel-card">
-            <h3>Usuarios Registrados ({{ users().length }})</h3>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <span class="kpi-label">Valor Total del Inventario</span>
+              <span class="kpi-value font-mono tabular-nums text-success">
+                ${{ totalInventoryValue() | number: '1.2-2' }}
+              </span>
+              <small class="kpi-subtext">Calculado como Σ(Existencia × Costo Base)</small>
+            </div>
+
+            <div class="kpi-card">
+              <span class="kpi-label">Total de Unidades Base</span>
+              <span class="kpi-value font-mono tabular-nums">
+                {{ totalBaseUnitsInStock() | number: '1.0-2' }}
+              </span>
+              <small class="kpi-subtext">Piezas / kg físicos en mostrador</small>
+            </div>
+
+            <div class="kpi-card" [class.kpi-alert]="lowStockCount() > 0">
+              <span class="kpi-label">Productos en Alerta Mínima</span>
+              <span class="kpi-value font-mono tabular-nums" [class.text-danger]="lowStockCount() > 0">
+                {{ lowStockCount() }}
+              </span>
+              <small class="kpi-subtext">Requieren compra o reposición inmediata</small>
+            </div>
+          </div>
+
+          <!-- TABLA DE EXISTENCIAS Y VALORIZACIÓN -->
+          <div class="table-container mt-4">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Usuario</th>
-                  <th>Nombre</th>
-                  <th>Rol</th>
-                  <th>Estado</th>
-                  <th>Acción</th>
+                  <th>Código / SKU</th>
+                  <th>Nombre del Artículo</th>
+                  <th class="text-right">Existencia Actual</th>
+                  <th class="text-right">Mínimo</th>
+                  <th class="text-right">Costo Unitario</th>
+                  <th class="text-right">Valorización Total</th>
+                  <th class="text-right">Margen Bruto</th>
+                  <th class="text-center">Kardex</th>
                 </tr>
               </thead>
               <tbody>
-                @for (u of users(); track u.id) {
+                @for (p of filteredProducts(); track p.id) {
                   <tr>
-                    <td><strong>{{ u.username }}</strong></td>
-                    <td>{{ u.fullName }}</td>
-                    <td><span class="pill">{{ u.roleCode }}</span></td>
-                    <td>{{ u.isActive ? 'Activo' : 'Suspendido' }}</td>
-                    <td>
+                    <td class="font-mono text-xs font-semibold">{{ p.sku }}</td>
+                    <td><strong>{{ p.name }}</strong></td>
+                    <td class="text-right font-mono tabular-nums font-bold" [class.text-danger]="Number(p.stockQuantity) <= Number(p.minStockAlert)">
+                      {{ Number(p.stockQuantity) | number: '1.0-2' }} {{ p.baseUnit?.code ?? 'PZA' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums text-muted">
+                      {{ Number(p.minStockAlert) | number: '1.0-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums">
+                      ${{ Number(p.currentCostPerBaseUnit) | number: '1.2-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums font-semibold text-primary">
+                      @let val = Number(p.stockQuantity || 0) * Number(p.currentCostPerBaseUnit || 0);
+                      ${{ val | number: '1.2-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums">
+                      @let cost = Number(p.currentCostPerBaseUnit || 0);
+                      @let retail = Number(p.retailUnitPrice || 1);
+                      @let margin = retail > 0 ? (((retail - cost) / retail) * 100) : 0;
+                      <span>{{ margin | number: '1.1-1' }}%</span>
+                    </td>
+                    <td class="text-center">
                       <button
                         type="button"
-                        class="btn btn-outline"
-                        (click)="toggleUserActive(u)"
+                        class="btn btn-outline btn-xs"
+                        (click)="selectedKardexProductId.set(p.id); selectSection('KARDEX')"
+                        title="Ver movimientos en Kardex"
                       >
-                        {{ u.isActive ? 'Desactivar' : 'Reactivar' }}
+                        <ng-icon name="lucideHistory" size="14"></ng-icon>
                       </button>
                     </td>
                   </tr>
@@ -877,54 +549,868 @@
               </tbody>
             </table>
           </div>
-        </div>
-      </section>
-    }
+        </section>
+      }
 
-    <!-- 7. AUDIT LOGS -->
-    @if (activeSection() === 'AUDIT') {
-      <section class="module-section">
-        <div class="panel-card">
+      <!-- =====================================================================
+           MÓDULO 4: AJUSTES Y COLA DE REVISIÓN (REVIEW_QUEUE - Fase 8.1 / 8.3)
+           ===================================================================== -->
+      @if (activeSection() === 'REVIEW_QUEUE') {
+        <section class="section-container">
           <div class="section-header">
-            <h3>Bitácora Transversal de Auditoría (`audit_logs`)</h3>
-            <div class="form-row">
-              <input
-                type="text"
-                placeholder="Filtrar por módulo (auth, catalog, sales, cash...)"
-                [ngModel]="auditModuleFilter()"
-                (ngModelChange)="auditModuleFilter.set($event)"
-              />
-              <button type="button" class="btn btn-primary" (click)="loadAuditLogs()">
-                Consultar Bitácora
+            <div>
+              <h2>Cola de Revisión y Ajustes de Inventario</h2>
+              <p class="subtitle">Validación y autorización de conteos físicos capturados en app móvil.</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-outline" (click)="loadReviewQueue()">
+                <ng-icon name="lucideRefreshCw" size="14"></ng-icon>
+                Actualizar Cola
               </button>
             </div>
           </div>
-          <div class="table-scroll">
+
+          <!-- FILTROS POR ESTADO -->
+          <div class="tabs-nav">
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="reviewQueueFilter() === 'PENDING'"
+              (click)="reviewQueueFilter.set('PENDING'); loadReviewQueue()"
+            >
+              Pendientes de Aprobación
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="reviewQueueFilter() === 'APPROVED'"
+              (click)="reviewQueueFilter.set('APPROVED'); loadReviewQueue()"
+            >
+              Histórico de Aprobados
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="reviewQueueFilter() === 'REJECTED'"
+              (click)="reviewQueueFilter.set('REJECTED'); loadReviewQueue()"
+            >
+              Rechazados
+            </button>
+          </div>
+
+          <!-- TABLA DE CONTEOS FÍSICOS -->
+          <div class="table-container mt-3">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Fecha/Hora</th>
-                  <th>Módulo</th>
-                  <th>Acción</th>
-                  <th>Actor</th>
-                  <th>Entidad / ID</th>
+                  <th>Fecha Captura</th>
+                  <th>Artículo / SKU</th>
+                  <th>Capturado Por</th>
+                  <th class="text-right">Conteo Físico</th>
+                  <th class="text-right">Stock Esperado</th>
+                  <th class="text-right">Diferencia (Delta)</th>
+                  <th>Estado</th>
+                  <th class="text-center">Acciones de Supervisión</th>
                 </tr>
               </thead>
               <tbody>
-                @for (log of auditLogs(); track log.id) {
+                @for (item of reviewQueue(); track item.id) {
                   <tr>
-                    <td>{{ log.createdAt | date: 'short' }}</td>
-                    <td><span class="pill">{{ log.module }}</span></td>
-                    <td><strong>{{ log.action }}</strong></td>
-                    <td>{{ log.actorUser?.username ?? 'Sistema' }}</td>
-                    <td>{{ log.entityType }} {{ log.entityId }}</td>
+                    <td class="text-xs text-muted">{{ item.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    <td>
+                      <strong>{{ item.product?.name ?? item.productId }}</strong>
+                      <div class="text-xs font-mono text-muted">{{ item.product?.sku }}</div>
+                    </td>
+                    <td>{{ item.capturedBy?.fullName ?? 'Personal de Piso' }}</td>
+                    <td class="text-right font-mono tabular-nums font-bold">
+                      {{ Number(item.countedStock) | number: '1.0-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums text-muted">
+                      {{ Number(item.systemStockSnapshot) | number: '1.0-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums font-bold" [class.text-danger]="Number(item.varianceDelta) < 0" [class.text-success]="Number(item.varianceDelta) > 0">
+                      {{ Number(item.varianceDelta) > 0 ? '+' : '' }}{{ Number(item.varianceDelta) | number: '1.0-2' }}
+                    </td>
+                    <td>
+                      <span class="badge" [class.badge-warning]="item.status === 'PENDING'" [class.badge-success]="item.status === 'APPROVED'" [class.badge-danger]="item.status === 'REJECTED'">
+                        {{ item.status }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      @if (item.status === 'PENDING' && api.hasPermission('inventory:adjust')) {
+                        <div class="actions-group">
+                          <button
+                            type="button"
+                            class="btn btn-primary btn-xs"
+                            (click)="approveReviewItem(item, 'APPLY_DELTA')"
+                            title="Aprobar aplicando diferencia (respeta ventas intermedias)"
+                          >
+                            Aprobar Delta
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-outline btn-xs"
+                            (click)="approveReviewItem(item, 'OVERWRITE_ABSOLUTE')"
+                            title="Aprobar fijando valor absoluto"
+                          >
+                            Absoluto
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-danger btn-xs"
+                            (click)="openRejectModal(item)"
+                            title="Rechazar conteo sin alterar existencias"
+                          >
+                            Rechazar
+                          </button>
+                        </div>
+                      } @else {
+                        <span class="text-muted text-xs">
+                          {{ item.reviewedBy?.fullName ?? 'Procesado' }}
+                        </span>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="8" class="text-center text-muted py-8">
+                      No hay conteos de inventario en este estado.
+                    </td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
-        </div>
-      </section>
-    }
-  </main>
+        </section>
+      }
+
+      <!-- =====================================================================
+           MÓDULO 5: HISTORIAL DE MOVIMIENTOS (KARDEX)
+           ===================================================================== -->
+      @if (activeSection() === 'KARDEX') {
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Historial Transaccional de Kardex</h2>
+              <p class="subtitle">Auditoría completa e inmutable de entradas, salidas, mermas y ventas.</p>
+            </div>
+            <div class="product-selector-inline">
+              <label for="kardexSelect" class="text-xs font-semibold">Seleccionar Producto:</label>
+              <select
+                id="kardexSelect"
+                class="form-control"
+                [ngModel]="selectedKardexProductId()"
+                (ngModelChange)="loadProductKardex($event)"
+              >
+                @for (p of products(); track p.id) {
+                  <option [value]="p.id">{{ p.name }} ({{ p.sku }})</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          @if (currentKardex(); as k) {
+            <div class="kardex-summary-card">
+              <div class="summary-item">
+                <span class="label">Producto:</span>
+                <strong>{{ k.product.name }}</strong> (<code>{{ k.product.sku }}</code>)
+              </div>
+              <div class="summary-item">
+                <span class="label">Stock Actual:</span>
+                <span class="font-mono tabular-nums font-bold text-success">{{ Number(k.product.currentStock) | number: '1.0-2' }} {{ k.product.baseUnitCode }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="label">Stock Mínimo:</span>
+                <span class="font-mono tabular-nums text-muted">{{ Number(k.product.minStockAlert) | number: '1.0-2' }}</span>
+              </div>
+            </div>
+
+            <!-- REGISTRO DE MOVIMIENTO MANUAL -->
+            <div class="card p-3 mb-3">
+              <h3 class="text-sm font-semibold mb-2">Registrar Ajuste / Merma Justificada</h3>
+              <div class="inline-form">
+                <select class="form-control" [ngModel]="adjMovementType()" (ngModelChange)="adjMovementType.set($event)" aria-label="Tipo de ajuste">
+                  <option value="ADJUSTMENT_IN">Entrada por Ajuste (+)</option>
+                  <option value="ADJUSTMENT_OUT">Salida por Discrepancia (-)</option>
+                  <option value="WASTE_OUT">Salida por Merma / Caducidad (-)</option>
+                  <option value="INITIAL_LOAD">Carga Inicial de Stock (+)</option>
+                </select>
+                <input
+                  type="number"
+                  step="1"
+                  class="form-control font-mono"
+                  placeholder="Cantidad"
+                  [ngModel]="adjQuantity()"
+                  (ngModelChange)="adjQuantity.set($event)"
+                  aria-label="Cantidad"
+                />
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Motivo / Justificación obligatoria"
+                  [ngModel]="adjReason()"
+                  (ngModelChange)="adjReason.set($event)"
+                  aria-label="Motivo"
+                />
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="submitInventoryAdjustment()"
+                  [disabled]="!api.hasPermission('inventory:adjust')"
+                >
+                  Registrar en Kardex
+                </button>
+              </div>
+            </div>
+
+            <!-- TABLA DE MOVIMIENTOS -->
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Fecha / Hora</th>
+                    <th>Tipo Movimiento</th>
+                    <th class="text-right">Cantidad</th>
+                    <th class="text-right">Stock Previo</th>
+                    <th class="text-right">Stock Final</th>
+                    <th class="text-right">Costo Unit.</th>
+                    <th>Justificación / Referencia</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (m of k.movements; track m.id) {
+                    <tr>
+                      <td class="text-xs text-muted">{{ m.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+                      <td>
+                        <span class="badge" [class.badge-success]="m.movementType.includes('IN') || m.movementType === 'INITIAL_LOAD'" [class.badge-danger]="m.movementType.includes('OUT')">
+                          {{ m.movementType }}
+                        </span>
+                      </td>
+                      <td class="text-right font-mono tabular-nums font-bold">
+                        {{ Number(m.baseQuantityDelta) > 0 ? '+' : '' }}{{ Number(m.baseQuantityDelta) | number: '1.0-2' }}
+                      </td>
+                      <td class="text-right font-mono tabular-nums text-muted">{{ Number(m.stockBefore) | number: '1.0-2' }}</td>
+                      <td class="text-right font-mono tabular-nums font-semibold">{{ Number(m.stockAfter) | number: '1.0-2' }}</td>
+                      <td class="text-right font-mono tabular-nums">
+                        {{ m.unitCostApplied ? ('$' + (Number(m.unitCostApplied) | number: '1.2-2')) : '-' }}
+                      </td>
+                      <td class="text-xs">{{ m.reason }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="7" class="text-center text-muted py-8">
+                        No hay movimientos registrados para este artículo.
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- =====================================================================
+           MÓDULO 6: COMPRAS Y PROVEEDORES (PURCHASES)
+           ===================================================================== -->
+      @if (activeSection() === 'PURCHASES') {
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Compras, Recepciones y Proveedores</h2>
+              <p class="subtitle">Directorio de distribuidores, comparador de costos y recepciones al almacén.</p>
+            </div>
+          </div>
+
+          <div class="dashboard-panels-grid">
+            <!-- DIRECTORIO DE PROVEEDORES -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Proveedores Activos</h3>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Razón Social</th>
+                      <th>Teléfono</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (s of suppliers(); track s.id) {
+                      <tr>
+                        <td class="font-mono text-xs font-semibold">{{ s.code }}</td>
+                        <td><strong>{{ s.name }}</strong></td>
+                        <td class="text-xs text-muted">{{ s.phone ?? 'N/A' }}</td>
+                        <td>
+                          <span class="badge" [class.badge-success]="s.isActive">{{ s.isActive ? 'Activo' : 'Inactivo' }}</span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- HISTORIAL DE RECEPCIONES (LAST COST) -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Últimas Recepciones de Compra</h3>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Folio</th>
+                      <th>Proveedor</th>
+                      <th>Factura</th>
+                      <th class="text-right">Total Factura</th>
+                      <th>Fecha</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (r of purchaseReceipts(); track r.id) {
+                      <tr>
+                        <td class="font-mono text-xs font-semibold">{{ r.folio }}</td>
+                        <td>{{ r.supplier?.name ?? 'Proveedor' }}</td>
+                        <td class="text-xs">{{ r.invoiceNumber ?? 'S/N' }}</td>
+                        <td class="text-right font-mono tabular-nums font-bold text-success">
+                          ${{ Number(r.totalCost) | number: '1.2-2' }}
+                        </td>
+                        <td class="text-xs text-muted">{{ r.receivedAt | date: 'dd/MM/yyyy' }}</td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="5" class="text-center text-muted py-6">
+                          No hay recepciones de compra registradas.
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- =====================================================================
+           MÓDULO 7: VENTAS Y CAJAS (SALES)
+           ===================================================================== -->
+      @if (activeSection() === 'SALES') {
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Historial de Ventas y Sesiones de Caja</h2>
+              <p class="subtitle">Auditoría de tickets emitidos, desgloses de pago con tarjeta y cierres de turno.</p>
+            </div>
+            <div class="header-actions">
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="exportReportType.set('SALES'); downloadExportReport()"
+                [disabled]="isExporting()"
+              >
+                <ng-icon name="lucideDownload" size="14"></ng-icon>
+                {{ isExporting() ? 'Descargando...' : 'Exportar Ventas (CSV)' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Folio Ticket</th>
+                  <th>Fecha y Hora</th>
+                  <th class="text-right">Subtotal</th>
+                  <th class="text-right">Impuestos</th>
+                  <th class="text-right">Total Cobrado</th>
+                  <th class="text-right">Partidas</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (sale of salesList(); track sale.id) {
+                  <tr>
+                    <td class="font-mono text-xs font-semibold text-primary">{{ sale.folio }}</td>
+                    <td class="text-xs">{{ sale.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    <td class="text-right font-mono tabular-nums text-muted">
+                      ${{ Number(sale.subtotalNet) | number: '1.2-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums text-xs">
+                      ${{ (Number(sale.ivaAmount) + Number(sale.iepsAmount)) | number: '1.2-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums font-bold text-success">
+                      ${{ Number(sale.totalGross) | number: '1.2-2' }}
+                    </td>
+                    <td class="text-right font-mono tabular-nums text-xs">
+                      {{ sale.items.length }} arts.
+                    </td>
+                    <td>
+                      <span class="badge" [class.badge-success]="sale.status === 'COMPLETED'" [class.badge-danger]="sale.status === 'CANCELLED'">
+                        {{ sale.status }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7" class="text-center text-muted py-8">
+                      No hay tickets de venta registrados en el periodo.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <!-- =====================================================================
+           MÓDULO 8: PRECIOS MASIVOS (BULK_PRICES - Fase 8.1 / 8.3)
+           ===================================================================== -->
+      @if (activeSection() === 'BULK_PRICES') {
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Ajustes Masivos de Precios y Reglas de Redondeo</h2>
+              <p class="subtitle">Actualización ágil por porcentaje o monto directo protegiendo márgenes comerciales.</p>
+            </div>
+          </div>
+
+          <div class="card p-4 max-w-2xl">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Tipo de Modificación:</label>
+                <div class="mode-tabs">
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [class.btn-primary]="bulkPriceType() === 'PERCENTAGE'"
+                    (click)="bulkPriceType.set('PERCENTAGE')"
+                  >
+                    Porcentaje (%)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [class.btn-primary]="bulkPriceType() === 'FIXED_AMOUNT'"
+                    (click)="bulkPriceType.set('FIXED_AMOUNT')"
+                  >
+                    Monto Fijo ($ MXN)
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Valor del Ajuste (+ para aumento, - para descuento):</label>
+                <input
+                  type="number"
+                  step="0.5"
+                  class="form-control font-mono tabular-nums"
+                  [ngModel]="bulkPriceValue()"
+                  (ngModelChange)="bulkPriceValue.set($event)"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Tarifa a Modificar:</label>
+                <select
+                  class="form-control"
+                  [ngModel]="bulkPriceTargetTier()"
+                  (ngModelChange)="bulkPriceTargetTier.set($event)"
+                >
+                  <option value="BOTH">Ambos (Menudeo y Mayoreo)</option>
+                  <option value="RETAIL">Solo Precio Menudeo</option>
+                  <option value="WHOLESALE">Solo Precio Mayoreo</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Regla de Redondeo Comercial:</label>
+                <select
+                  class="form-control"
+                  [ngModel]="bulkPriceRounding()"
+                  (ngModelChange)="bulkPriceRounding.set($event)"
+                >
+                  <option value="ROUND_UP_50_CENTS">Subir a 50 centavos (ej. $22.15 → $22.50)</option>
+                  <option value="ROUND_UP_PESO">Subir al peso exacto (ej. $22.10 → $23.00)</option>
+                  <option value="ROUND_NEAREST_50_CENTS">Al 50 centavos más cercano</option>
+                  <option value="NONE">Sin redondeo (dos decimales exactos)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Ámbito / Categoría:</label>
+                <select
+                  class="form-control"
+                  [ngModel]="bulkPriceCategoryId()"
+                  (ngModelChange)="bulkPriceCategoryId.set($event)"
+                >
+                  <option value="">Todo el Catálogo Completo</option>
+                  @for (c of categories(); track c.id) {
+                    <option [value]="c.id">{{ c.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group full-width">
+                <label class="form-label">Motivo del Ajuste (Auditoría obligatoria):</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Ej. Incremento de precios de proveedor en abarrotes"
+                  [ngModel]="bulkPriceReason()"
+                  (ngModelChange)="bulkPriceReason.set($event)"
+                />
+              </div>
+            </div>
+
+            <div class="form-actions mt-4">
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="submitBulkPrices()"
+                [disabled]="isLoading() || !api.hasPermission('catalog:write')"
+              >
+                {{ isLoading() ? 'Procesando...' : 'Aplicar Ajuste Masivo' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- RESULTADO DEL AJUSTE -->
+          @if (bulkPriceResult(); as res) {
+            <div class="card p-4 mt-4">
+              <h3>Resultado del Ajuste Masivo: {{ res.affectedCount }} productos modificados</h3>
+              <p class="text-xs text-muted mb-3">Motivo registrado: {{ res.reason }}</p>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th class="text-right">Precio Anterior</th>
+                      <th class="text-right">Nuevo Precio Menudeo</th>
+                      <th class="text-right">Mayoreo Anterior</th>
+                      <th class="text-right">Nuevo Mayoreo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (d of res.details; track d.productId) {
+                      <tr>
+                        <td class="font-mono text-xs font-semibold">{{ d.sku }}</td>
+                        <td class="text-right font-mono tabular-nums text-muted">${{ Number(d.oldRetailPrice) | number: '1.2-2' }}</td>
+                        <td class="text-right font-mono tabular-nums font-bold text-success">${{ Number(d.newRetailPrice) | number: '1.2-2' }}</td>
+                        <td class="text-right font-mono tabular-nums text-muted">
+                          {{ d.oldWholesalePrice ? ('$' + (Number(d.oldWholesalePrice) | number: '1.2-2')) : '-' }}
+                        </td>
+                        <td class="text-right font-mono tabular-nums font-semibold">
+                          {{ d.newWholesalePrice ? ('$' + (Number(d.newWholesalePrice) | number: '1.2-2')) : '-' }}
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- =====================================================================
+           MÓDULO 9: CONFIGURACIÓN Y REPORTES (CONFIG - Fase 8.1 / 8.3)
+           ===================================================================== -->
+      @if (activeSection() === 'CONFIG') {
+        <section class="section-container">
+          <div class="section-header">
+            <div>
+              <h2>Configuración, Usuarios RBAC y Exportación</h2>
+              <p class="subtitle">Descarga de reportes en Excel, control de accesos y bitácora transversal.</p>
+            </div>
+          </div>
+
+          <!-- EXPORTACIÓN DE REPORTES CSV CON BOM UTF-8 -->
+          <div class="card p-4 mb-4">
+            <h3 class="text-sm font-semibold mb-2">Exportar Reportes Contables a CSV (Microsoft Excel)</h3>
+            <p class="text-xs text-muted mb-3">
+              Los archivos CSV incluyen el prefijo BOM UTF-8 para garantizar que las descripciones con tildes, eñes y caracteres en español se abran sin distorsión en Windows y Excel.
+            </p>
+            <div class="inline-form">
+              <select
+                class="form-control"
+                [ngModel]="exportReportType()"
+                (ngModelChange)="exportReportType.set($event)"
+                aria-label="Tipo de reporte"
+              >
+                <option value="SALES">Ventas Detalladas con Métodos de Pago</option>
+                <option value="INVENTORY">Existencias y Valorización de Inventario</option>
+                <option value="CASH_SESSIONS">Sesiones y Cortes de Caja</option>
+                <option value="AUDIT">Bitácora de Auditoría del Sistema</option>
+              </select>
+              <input
+                type="date"
+                class="form-control"
+                [ngModel]="exportFromDate()"
+                (ngModelChange)="exportFromDate.set($event)"
+                title="Fecha Inicial"
+              />
+              <input
+                type="date"
+                class="form-control"
+                [ngModel]="exportToDate()"
+                (ngModelChange)="exportToDate.set($event)"
+                title="Fecha Final"
+              />
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="downloadExportReport()"
+                [disabled]="isExporting() || !api.hasPermission('reports:read')"
+              >
+                <ng-icon name="lucideDownload" size="14"></ng-icon>
+                {{ isExporting() ? 'Generando...' : 'Descargar CSV (Excel)' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="dashboard-panels-grid">
+            <!-- GESTIÓN DE USUARIOS Y ROLES -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Usuarios y Accesos RBAC</h3>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Nombre Completo</th>
+                      <th>Rol Asignado</th>
+                      <th class="text-center">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (u of users(); track u.id) {
+                      <tr>
+                        <td class="font-mono text-xs font-semibold">{{ u.username }}</td>
+                        <td>{{ u.fullName }}</td>
+                        <td><span class="badge">{{ u.roleCode }}</span></td>
+                        <td class="text-center">
+                          <button
+                            type="button"
+                            class="btn btn-xs"
+                            [class.btn-outline]="u.isActive"
+                            [class.btn-danger]="!u.isActive"
+                            (click)="toggleUserActive(u)"
+                            [disabled]="!api.hasPermission('users:manage')"
+                          >
+                            {{ u.isActive ? 'Activo' : 'Suspendido' }}
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- BITÁCORA TRANSVERSAL DE AUDITORÍA -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Bitácora de Auditoría</h3>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Módulo</th>
+                      <th>Acción</th>
+                      <th>Actor</th>
+                      <th>Fecha</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (log of auditLogs(); track log.id) {
+                      <tr>
+                        <td><span class="badge">{{ log.module }}</span></td>
+                        <td class="text-xs font-semibold">{{ log.action }}</td>
+                        <td class="text-xs">{{ log.actorUser?.username ?? 'Sistema' }}</td>
+                        <td class="text-xs text-muted">{{ log.createdAt | date: 'dd/MM HH:mm' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+    </main>
+  </div>
 </div>
+
+<!-- =========================================================================
+     MODAL: ALTA RÁPIDA DE PRODUCTO (CATÁLOGO)
+     ========================================================================= -->
+@if (isNewProductModalOpen()) {
+  <div class="modal-backdrop">
+    <div class="modal-card" role="dialog" aria-labelledby="modalProductTitle">
+      <div class="modal-header">
+        <h2 id="modalProductTitle">
+          <ng-icon name="lucidePlus" size="18"></ng-icon>
+          Alta Rápida de Producto
+        </h2>
+        <button type="button" class="btn-close" (click)="isNewProductModalOpen.set(false)" title="Cerrar">
+          <ng-icon name="lucideX" size="18"></ng-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Código de Barras Principal:</label>
+            <input
+              type="text"
+              class="form-control font-mono"
+              placeholder="Escanee o ingrese código (ej. 7501055300012)"
+              [ngModel]="newProductBarcode()"
+              (ngModelChange)="newProductBarcode.set($event)"
+              autofocus
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">SKU / Clave Interna (*):</label>
+            <input
+              type="text"
+              class="form-control font-mono"
+              placeholder="Ej. ARROZ-1KG"
+              [ngModel]="newProductSku()"
+              (ngModelChange)="newProductSku.set($event)"
+              required
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Nombre Comercial del Producto (*):</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Ej. Arroz Extra 1kg"
+              [ngModel]="newProductName()"
+              (ngModelChange)="newProductName.set($event)"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Categoría:</label>
+            <select class="form-control" [ngModel]="newProductCategoryId()" (ngModelChange)="newProductCategoryId.set($event)">
+              <option value="">Seleccionar categoría</option>
+              @for (c of categories(); track c.id) {
+                <option [value]="c.id">{{ c.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Unidad de Medida Base:</label>
+            <select class="form-control" [ngModel]="newProductBaseUnit()" (ngModelChange)="newProductBaseUnit.set($event)">
+              <option value="PZA">Pieza (PZA)</option>
+              <option value="KG">Kilogramo (KG)</option>
+              <option value="LT">Litro (LT)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Costo Base Unitario ($ MXN):</label>
+            <input
+              type="number"
+              step="0.1"
+              class="form-control font-mono tabular-nums"
+              [ngModel]="newProductCost()"
+              (ngModelChange)="newProductCost.set($event)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Precio Menudeo Mostrador ($ MXN):</label>
+            <input
+              type="number"
+              step="0.5"
+              class="form-control font-mono tabular-nums"
+              [ngModel]="newProductRetailPrice()"
+              (ngModelChange)="newProductRetailPrice.set($event)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Precio Mayoreo Opcional ($ MXN):</label>
+            <input
+              type="number"
+              step="0.5"
+              class="form-control font-mono tabular-nums"
+              [ngModel]="newProductWholesalePrice()"
+              (ngModelChange)="newProductWholesalePrice.set($event)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Piezas Mínimas para Mayoreo:</label>
+            <input
+              type="number"
+              step="1"
+              class="form-control font-mono"
+              [ngModel]="newProductWholesaleMinQty()"
+              (ngModelChange)="newProductWholesaleMinQty.set($event)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" (click)="isNewProductModalOpen.set(false)">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="submitCreateProduct()">Dar de Alta Producto</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- =========================================================================
+     MODAL: RECHAZO DE CONTEO FÍSICO (REVIEW QUEUE)
+     ========================================================================= -->
+@if (activeRejectModalItem(); as item) {
+  <div class="modal-backdrop">
+    <div class="modal-card modal-sm" role="dialog" aria-labelledby="modalRejectTitle">
+      <div class="modal-header">
+        <h2 id="modalRejectTitle">
+          <ng-icon name="lucideAlertTriangle" size="18"></ng-icon>
+          Rechazar Conteo Físico
+        </h2>
+        <button type="button" class="btn-close" (click)="activeRejectModalItem.set(null)" title="Cerrar">
+          <ng-icon name="lucideX" size="18"></ng-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-xs mb-2">
+          Está a punto de rechazar el conteo de <strong>{{ item.product?.name }}</strong> reportado por {{ item.capturedBy?.fullName }}.
+        </p>
+        <label class="form-label">
+          Motivo / Justificación del Rechazo:
+          <input
+            type="text"
+            class="form-control mt-1"
+            [ngModel]="rejectReasonInput()"
+            (ngModelChange)="rejectReasonInput.set($event)"
+            placeholder="Ej. Error de conteo en anaquel, se ordenó recuento"
+          />
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" (click)="activeRejectModalItem.set(null)">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmRejectReviewItem()">Confirmar Rechazo</button>
+      </div>
+    </div>
+  </div>
+}

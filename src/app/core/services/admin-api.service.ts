@@ -5,12 +5,17 @@ import {
   AuditLogRecord,
   AuthenticatedUser,
   AuthTokensResponse,
+  BulkPriceAdjustmentRequest,
+  BulkPriceAdjustmentResponse,
   CategoryRecord,
   DashboardSummaryResponse,
+  ExportReportType,
+  InventoryReviewItemRecord,
   KardexResponse,
   ProductRecord,
   ProductSupplierComparisonResponse,
   PurchaseReceiptRecord,
+  ReviewQueueStatus,
   RoleRecord,
   SaleTicketSummary,
   SupplierRecord,
@@ -307,6 +312,89 @@ export class AdminApiService {
       : `?limit=${limit}`;
     return this.http.get<AuditLogRecord[]>(
       `${this.apiBaseUrl()}/audit${query}`,
+      { headers: this.headers() },
+    );
+  }
+
+  // Inventory Review Queue (Fase 8.1 / 8.3)
+  listReviewQueue(status?: ReviewQueueStatus): Observable<InventoryReviewItemRecord[]> {
+    const query = status ? `?status=${status}` : '';
+    return this.http.get<InventoryReviewItemRecord[]>(
+      `${this.apiBaseUrl()}/inventory/review-queue${query}`,
+      { headers: this.headers() },
+    );
+  }
+
+  approveReviewQueueItem(
+    id: string,
+    policy: 'APPLY_DELTA' | 'OVERWRITE_ABSOLUTE' = 'APPLY_DELTA',
+  ): Observable<{ success: boolean; item: InventoryReviewItemRecord }> {
+    return this.http.patch<{ success: boolean; item: InventoryReviewItemRecord }>(
+      `${this.apiBaseUrl()}/inventory/review-queue/${id}/approve`,
+      { policy },
+      { headers: this.headers() },
+    );
+  }
+
+  rejectReviewQueueItem(
+    id: string,
+    reason: string,
+  ): Observable<{ success: boolean; item: InventoryReviewItemRecord }> {
+    return this.http.patch<{ success: boolean; item: InventoryReviewItemRecord }>(
+      `${this.apiBaseUrl()}/inventory/review-queue/${id}/reject`,
+      { reason },
+      { headers: this.headers() },
+    );
+  }
+
+  // Bulk Price Adjustments (Fase 8.1 / 8.3)
+  adjustBulkPrices(
+    payload: BulkPriceAdjustmentRequest,
+  ): Observable<BulkPriceAdjustmentResponse> {
+    return this.http.post<BulkPriceAdjustmentResponse>(
+      `${this.apiBaseUrl()}/catalog/products/bulk-prices`,
+      payload,
+      { headers: this.headers() },
+    );
+  }
+
+  // Export Reports CSV con BOM UTF-8 (Fase 8.1 / 8.3)
+  exportReportCsv(
+    reportType: ExportReportType,
+    from?: string,
+    to?: string,
+  ): Observable<Blob> {
+    const params: string[] = [`reportType=${reportType}`];
+    if (from) params.push(`from=${encodeURIComponent(from)}`);
+    if (to) params.push(`to=${encodeURIComponent(to)}`);
+    const q = `?${params.join('&')}`;
+
+    return this.http.get(`${this.apiBaseUrl()}/reports/export${q}`, {
+      headers: this.headers(),
+      responseType: 'blob',
+    });
+  }
+
+  updateProduct(
+    id: string,
+    payload: Partial<{
+      sku: string;
+      name: string;
+      description?: string;
+      categoryId?: string;
+      retailUnitPrice: number | string;
+      wholesaleUnitPrice?: number | string;
+      wholesaleMinBaseQty?: number | string;
+      currentCostPerBaseUnit: number | string;
+      ivaRate?: number | string;
+      iepsRate?: number | string;
+      minStockAlert?: number | string;
+      isActive?: boolean;
+    }>,
+  ): Observable<ProductRecord> {
+    return this.http.put<ProductRecord>(
+      `${this.apiBaseUrl()}/catalog/products/${id}`,
+      payload,
       { headers: this.headers() },
     );
   }

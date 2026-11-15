@@ -266,3 +266,74 @@ export interface AuditLogRecord {
     fullName: string;
   } | null;
 }
+
+export type ReviewQueueStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type ReviewDiscrepancyType = 'PHYSICAL_COUNT' | 'EXPIRATION' | 'DAMAGE' | 'SUPPLIER_SHORTAGE';
+
+export interface InventoryReviewItemRecord {
+  id: string;
+  idempotencyKey: string;
+  productId: string;
+  capturedByUserId: string;
+  reviewedByUserId: string | null;
+  status: ReviewQueueStatus;
+  discrepancyType: ReviewDiscrepancyType;
+  countedStock: string;
+  systemStockSnapshot: string;
+  varianceDelta: string;
+  notes: string | null;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+  product?: {
+    id: string;
+    sku: string;
+    name: string;
+    stockQuantity: string;
+    currentCostPerBaseUnit: string;
+  };
+  capturedBy?: {
+    id: string;
+    username: string;
+    fullName: string;
+  };
+  reviewedBy?: {
+    id: string;
+    username: string;
+    fullName: string;
+  } | null;
+}
+
+export type BulkPriceAdjustmentType = 'PERCENTAGE' | 'FIXED_AMOUNT';
+export type BulkPriceTargetTier = 'RETAIL' | 'WHOLESALE' | 'BOTH';
+export type BulkPriceRoundingRule =
+  | 'ROUND_UP_50_CENTS'
+  | 'ROUND_UP_PESO'
+  | 'ROUND_NEAREST_50_CENTS'
+  | 'NONE';
+
+export interface BulkPriceAdjustmentRequest {
+  type: BulkPriceAdjustmentType;
+  value: number | string;
+  targetTier: BulkPriceTargetTier;
+  roundingRule?: BulkPriceRoundingRule;
+  productIds?: string[];
+  categoryId?: string;
+  reason: string;
+}
+
+export interface BulkPriceAdjustmentResponse {
+  affectedCount: number;
+  reason: string;
+  details: Array<{
+    productId: string;
+    sku: string;
+    oldRetailPrice: string;
+    newRetailPrice: string;
+    oldWholesalePrice: string | null;
+    newWholesalePrice: string | null;
+  }>;
+}
+
+export type ExportReportType = 'SALES' | 'INVENTORY' | 'CASH_SESSIONS' | 'AUDIT';
+
