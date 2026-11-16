@@ -23,3 +23,62 @@
 - Implementación de `Dockerfile` multi-stage (Node.js 22 Alpine, pnpm, `ng build --configuration production` y servidor estático `nginx:1.27-alpine`).
 - Configuración de `docker/nginx.conf` con fallback SPA (`try_files $uri $uri/ /index.html`) y encabezados de caché para activos estáticos.
 - Configuración de `.dockerignore`.
+
+## Sprint 03 — Design System: Tailwind CSS, Lucide Icons y ThemeService (2026-11-12)
+
+### Completado
+- Creación de rama `feat/design-system-tailwind-lucide-theme` desde `origin/develop`.
+- Instalación y configuración de Tailwind CSS (`v3.4.19`), PostCSS y Autoprefixer con paleta corporativa Tavera:
+  - Verde Comercial (`#166534`, 50-950)
+  - Grafito Elegante (`#27272A`, 50-950)
+  - Naranja Comercial (`#EA580C`, 50-950)
+- Integración de tipografía `Inter` (Google Fonts) con soporte `tabular-nums` para importes y cantidades.
+- Instalación de `@ng-icons/core` y `@ng-icons/lucide` (`v36.1.0`) para iconografía unificada.
+- Implementación de `ThemeService` reactivo con señales Angular (`signal<ThemeMode>`), persistencia en `localStorage` y detección de `prefers-color-scheme` (soporta 'light', 'dark' y 'system').
+- Pruebas unitarias completas de `ThemeService` (`theme.service.spec.ts`) y validación de compilación limpia de producción.
+
+## Sprint 04 — Estilización Visual del Panel Administrativo con Design System Tavera (2026-11-12)
+
+### Completado
+- Creación de rama `feat/admin-ui-design-system` desde `origin/develop`.
+- Rediseño de la cabecera ejecutiva y barra de sesión:
+  - Badge distintivo de propietario en Verde Comercial (`#166534`).
+  - Selector de temas (Light / Dark / System) con iconos Lucide (`lucideSun`, `lucideMoon`, `lucideLaptop`).
+  - Chip de usuario autenticado con badge de rol y botón de cierre de sesión con icono `lucideLogOut`.
+- Modernización de la barra de navegación de los 7 módulos con iconografía Lucide:
+  - Dashboard Ejecutivo (`lucideLayoutDashboard`)
+  - Catálogo y Precios (`lucidePackage`)
+  - Inventario y Kardex (`lucideBoxes`)
+  - Proveedores y Compras (`lucideTruck`)
+  - Ventas y Cortes (`lucideReceipt`)
+  - Usuarios y Roles (`lucideUsers`)
+  - Auditoría (`lucideShieldCheck`)
+- Estilización de tarjetas KPI del Dashboard Ejecutivo con números tabulares (`.tabular-nums`), destacado de utilidad bruta en Verde Comercial y stock bajo en Naranja Comercial.
+- Refactorización de tablas de datos (catálogo, kardex, recepciones, tickets, usuarios y logs) con encabezados sticky, alineación numérica tabular y badges de estado.
+- Verificación completa: 3 suites, 7/7 pruebas unitarias pasadas y compilación de producción limpia sin advertencias (`363.11 kB`).
+
+## Sprint 05 — Fase 8.3: Experiencia de Administración V2 (App Shell 248px, 9 Módulos, Cola de Revisión, Precios Masivos y Exportación CSV) (2026-11-15)
+
+### Completado
+- Creación de la rama `feature/admin-v2-management-and-reports` desde `origin/develop` al día.
+- **App Shell Oficial VELORA Obsidiana + Cacao (24 mockups aprobados):**
+  - Sidebar fija de 248px (`#1A1817` Obsidiana) con logotipo oficial VELORA `v2.0` y selector de sucursal «Abarrotes Tavera — Matriz».
+  - Topbar de 64px con breadcrumbs dinámicos, selector de tema (Claro Cacao / Oscuro Obsidiana), chip de usuario con rol y menú de perfil.
+  - Implementación de los **9 Módulos Comerciales Unificados**:
+    1. `Inicio / Resumen` (`DASHBOARD`): KPIs ejecutivos, ventas por método de pago, cajas abiertas y stock bajo.
+    2. `Catálogo de Productos` (`CATALOG`): Buscador, filtro por categoría, alta rápida simplificada y tabla detallada con márgenes.
+    3. `Existencias e Inventario` (`INVENTORY`): Valor Total de Inventario `Σ(Stock * Costo)`, piezas físicas totales y tabla de valorización.
+    4. `Ajustes y Cola de Revisión` (`REVIEW_QUEUE`): Aprobación de conteos físicos de la app móvil con políticas `APPLY_DELTA` y `OVERWRITE_ABSOLUTE`, y rechazo con motivo justificado.
+    5. `Historial de Movimientos` (`KARDEX`): Trazabilidad de existencias inmutables, deltas y registro de mermas/ajustes.
+    6. `Compras y Proveedores` (`PURCHASES`): Directorio de proveedores e historial de recepciones con costo de última compra (`Last Cost`).
+    7. `Ventas y Cajas` (`SALES`): Auditoría de tickets con desglose de métodos de pago (Efectivo, Tarjeta BBVA con referencia bancaria visible y Transferencia).
+    8. `Precios Masivos` (`BULK_PRICES`): Modificación por porcentaje o monto fijo, ámbito por categoría o catálogo completo, y reglas de redondeo comercial (`ROUND_UP_50_CENTS`, `ROUND_UP_PESO`, etc.).
+    9. `Configuración y Reportes` (`CONFIG`): Exportación de reportes a CSV con BOM UTF-8 para apertura directa en Microsoft Excel, gestión de cuentas de usuario y bitácora transversal de auditoría.
+- **Rigor Matemático y Fórmulas Comerciales:**
+  - Margen Bruto: `((Venta - Costo) / Venta) * 100` con alertas cromáticas.
+  - Utilidad: `Venta - Costo`.
+  - Valorización Total de Inventario: `Σ(Stock * Costo)`.
+- **Calidad y Verificación:**
+  - 3 suites con 13 de 13 pruebas unitarias pasando en Vitest (100%).
+  - Compilación de producción con Angular CLI limpia (`ng build` completado en 8.4s sin errores, bundle de 398.9 kB).
+

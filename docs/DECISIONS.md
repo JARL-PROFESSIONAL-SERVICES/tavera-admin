@@ -16,3 +16,50 @@
    - **Ventas, Usuarios RBAC y Auditoría (`/api/v1/sales`, `/api/v1/users`, `/api/v1/audit`):** Supervisión de tickets, control de cuentas/roles y bitácora transversal.
 3. **Control de permisos en UI respaldado por autoridad en Backend:**
    - `AdminApiService.hasPermission(code)` valida permisos en cliente para habilitar controles de escritura (`catalog:write`, `purchases:manage`, `users:manage`), manteniendo a `tavera-api` como autoridad definitiva.
+
+## ADR-002: Identidad Visual y Design System Compartido (Tailwind, Lucide y Temas)
+
+- **Fecha:** 2026-11-12
+- **Estado:** Aprobado
+
+### Decisiones
+1. **Tokens de color corporativos:**
+   - Primario: Verde comercial (`#166534`) para acciones primarias, ventas, estado positivo e identidad central.
+   - Superficie y estructura: Grafito neutro (`#27272A`) para contrastes altos, textos legibles y fondos dark mode.
+   - Acento y alertas: Naranja comercial (`#EA580C`) para badges de atención, stock crítico y advertencias operativas.
+2. **Tipografía y números tabulares:**
+   - Tipografía Inter aplicada globalmente con soporte de la clase `.tabular-nums` (`font-feature-settings: 'tnum' 1`) para evitar saltos visuales en tablas financieras, cortes y kardex.
+3. **Gestor de temas Light, Dark y System:**
+   - Implementado mediante `ThemeService` usando Angular Signals. Agrega/remueve el atributo `data-theme="dark"` en el elemento raíz `<html>` y escucha eventos `change` en `window.matchMedia('(prefers-color-scheme: dark)')` cuando el modo seleccionado es `'system'`. Persistido en `localStorage`.
+
+## ADR-003: Estilización Ejecutiva del Panel de Administración y Dashboard
+
+- **Fecha:** 2026-11-12
+- **Estado:** Aprobado
+
+### Decisiones
+1. **Jerarquía visual ejecutiva en tarjetas KPI:**
+   - Ventas netas y utilidad bruta se diferencian inmediatamente de los ingresos brutos, con la utilidad destacada en Verde Comercial y las alertas de inventario en Naranja Comercial.
+2. **Navegación unificada con iconografía Lucide:**
+   - Cada uno de los 7 módulos cuenta con iconografía consistente que facilita la navegación tanto en pantallas de escritorio como en smartphones del propietario en red local o Tailscale.
+3. **Consistencia numérica financiera:**
+   - Toda cifra de dinero, cantidad base, porcentaje de margen e identificador de ticket o sesión de caja implementa la clase `.tabular-nums` para alineación vertical estricta.
+
+## ADR-004: App Shell Oficial VELORA, 9 Módulos Comerciales, Cola de Revisión de Inventario y Exportación con BOM UTF-8
+
+- **Fecha:** 2026-11-15
+- **Estado:** Aprobado (Fase 8.3)
+
+### Decisiones
+1. **App Shell Oficial VELORA Obsidiana + Cacao:**
+   - Adopción estricta de la estructura aprobada en los 24 mockups de referencia:
+     - Sidebar de 248px en `#1A1817` con navegación a los 9 módulos comerciales.
+     - Topbar de 64px con migas de pan y selector de tema en perfil.
+     - Tablas desktop optimizadas para 1366×768 (filas de 38px, truncamiento con elipsis, scroll horizontal `overflow-x-auto`) y panorámica completa en 1920×1080.
+2. **Integración de Contratos de Backend de Fase 8.1:**
+   - **Cola de Revisión (`/inventory/review-queue`):** Permite a los supervisores (Owner/Admin) revisar los conteos físicos capturados desde la app móvil por personal de piso, autorizando mediante `APPLY_DELTA` (respetando ventas intermedias) u `OVERWRITE_ABSOLUTE` (fijando el valor absoluto del conteo).
+   - **Ajustes Masivos de Precios (`/catalog/products/bulk-prices`):** Modificación ágil de precios de menudeo o mayoreo con redondeo comercial automático (`ROUND_UP_50_CENTS`, `ROUND_UP_PESO`) y registro obligatorio de motivo de auditoría.
+   - **Exportación con BOM UTF-8 (`/reports/export`):** Los reportes generados incorporan el prefijo `\uFEFF` para apertura nativa e inmediata en Microsoft Excel en Windows en español, previniendo distorsión de tildes o caracteres especiales.
+3. **Fórmulas Financieras y Métricas Unificadas:**
+   - Toda la información de costos, precios, existencias y utilidades se calcula mediante fórmulas comerciales exactas: Margen bruto `((Venta - Costo) / Venta) * 100`, Valor de inventario `Σ(Stock * Costo)` y números tabulares inmutables con `.tabular-nums`.
+
