@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "verona-solutions"
+  },
+  "targets": {
+    "verona-solutions": {
+      "hosting": {
+        "admin": [
+          "verona-admin-dev"
+        ]
+      }
+    }
+  }
+}
