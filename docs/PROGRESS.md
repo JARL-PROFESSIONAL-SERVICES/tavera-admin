@@ -82,3 +82,20 @@
   - 3 suites con 13 de 13 pruebas unitarias pasando en Vitest (100%).
   - Compilación de producción con Angular CLI limpia (`ng build` completado en 8.4s sin errores, bundle de 398.9 kB).
 
+## Sprint 06 — Integración DEV y Preparación Firebase Hosting Multi-Sitio (2026-11-17)
+
+### Completado
+- Creación de rama `feature/admin-dev-integration` desde `origin/develop`.
+- **Configuración Multi-Ambiente:**
+  - Creación de `src/environments/environment.ts` (Producción), `environment.dev.ts` (Render DEV: `https://tavera-api.onrender.com/api/v1`), `environment.qa.ts` y `environment.development.ts` (Local).
+  - Configuración de `angular.json` con reemplazo de archivos por configuración (`dev`, `qa`, `development`, `production`).
+  - Actualización de `AdminApiService` para consumir `environment.apiBaseUrl`.
+- **Preparación Firebase Hosting (Sitio Independiente):**
+  - Creación de `firebase.json` configurado estrictamente para el sitio `verona-admin-dev` (directorio `dist/tavera-admin/browser`, reescritura SPA a `/index.html`, encabezados de caché seguros). Protege el hosting principal `verona-solutions.web.app` (reservado para landing comercial).
+  - Creación de `.firebaserc` con proyecto por defecto `verona-solutions` y target `admin -> verona-admin-dev`.
+- **Scripts de Construcción y Verificación:**
+  - Agregados scripts `build:dev`, `build:qa` y `build:prod` a `package.json`.
+  - Validación de compilación `pnpm run build:dev` (399.00 kB bundle, 0 errores).
+  - Validación de suite de pruebas Vitest (`pnpm test -- --watch=false`): 13 de 13 pruebas aprobadas (100%).
+
+

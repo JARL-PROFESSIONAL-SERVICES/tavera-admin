@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   AuditLogRecord,
   AuthenticatedUser,
@@ -27,7 +28,7 @@ import {
 export class AdminApiService {
   private readonly http = inject(HttpClient);
 
-  readonly apiBaseUrl = signal<string>('http://localhost:3000/api/v1');
+  readonly apiBaseUrl = signal<string>(environment.apiBaseUrl);
   readonly accessToken = signal<string | null>(null);
   readonly currentUser = signal<AuthenticatedUser | null>(null);
 
